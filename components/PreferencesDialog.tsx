@@ -41,11 +41,13 @@ export default function PreferencesDialog({
     boardRotation,
     showCoordinates,
     animationSpeed,
+    checkmateAnimationEnabled,
     soundEnabled,
     soundVolume,
     setBoardRotation,
     setShowCoordinates,
     setAnimationSpeed,
+    setCheckmateAnimationEnabled,
     setSoundEnabled,
     setSoundVolume,
   } = usePreferencesStore();
@@ -158,6 +160,38 @@ export default function PreferencesDialog({
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Animation d'échec et mat */}
+              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                <div>
+                  <Label
+                    htmlFor="checkmate-animation"
+                    className="text-sm font-medium"
+                  >
+                    {t("checkmateAnimation")}
+                  </Label>
+                  <p className="text-xs text-gray-600 mt-1">
+                    Show celebration animation on checkmate
+                  </p>
+                </div>
+                <button
+                  id="checkmate-animation"
+                  onClick={() =>
+                    setCheckmateAnimationEnabled(!checkmateAnimationEnabled)
+                  }
+                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                    checkmateAnimationEnabled ? "bg-blue-600" : "bg-gray-300"
+                  }`}
+                >
+                  <span
+                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                      checkmateAnimationEnabled
+                        ? "translate-x-6"
+                        : "translate-x-1"
+                    }`}
+                  />
+                </button>
+              </div>
             </div>
 
             {/* Section Son */}
@@ -234,6 +268,7 @@ export default function PreferencesDialog({
                 setBoardRotation(false);
                 setShowCoordinates(true);
                 setAnimationSpeed("normal");
+                setCheckmateAnimationEnabled(true);
                 setSoundEnabled(true);
                 setSoundVolume(0.3);
 

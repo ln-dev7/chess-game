@@ -47,6 +47,7 @@
     "boardRotation": "Board Rotation",
     "rotateAfterMove": "Rotate After Each Move",
     "animationSpeed": "Animation Speed",
+    "checkmateAnimation": "Checkmate Animation",
     "instant": "Instant",
     "fast": "Fast",
     "normal": "Normal",

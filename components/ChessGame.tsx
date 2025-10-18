@@ -60,6 +60,7 @@ export default function ChessGame() {
     boardRotation,
     showCoordinates,
     animationSpeed,
+    checkmateAnimationEnabled,
     soundEnabled,
     soundVolume,
   } = usePreferencesStore();
@@ -678,7 +679,9 @@ export default function ChessGame() {
               showCoordinates={showCoordinates}
               isRotated={effectiveBoardRotation}
               animationDuration={animationDuration}
-              showCheckmateAnimation={showCheckmateAnimation}
+              showCheckmateAnimation={
+                showCheckmateAnimation && checkmateAnimationEnabled
+              }
               onCheckmateAnimationComplete={() =>
                 setShowCheckmateAnimation(false)
               }
@@ -826,7 +829,7 @@ export default function ChessGame() {
       />
 
       {/* Animation d'échec et mat */}
-      {showCheckmateAnimation && (
+      {showCheckmateAnimation && checkmateAnimationEnabled && (
         <CheckmateAnimation
           loserColor={gameState.currentPlayer === "white" ? "black" : "white"}
           pieceStyle={pieceStyle.id}

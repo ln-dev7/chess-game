@@ -47,6 +47,7 @@
     "boardRotation": "Rotation de l'échiquier",
     "rotateAfterMove": "Tourner après chaque coup",
     "animationSpeed": "Vitesse d'animation",
+    "checkmateAnimation": "Animation d'échec et mat",
     "instant": "Instantané",
     "fast": "Rapide",
     "normal": "Normal",
