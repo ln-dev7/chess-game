@@ -11,6 +11,7 @@ interface AnimatedPieceProps {
   onComplete: () => void;
   style?: string;
   animationDuration?: number;
+  isRotated?: boolean;
 }
 
 /**
@@ -20,6 +21,24 @@ function getPiecePath(piece: Piece, style: string = "classic"): string {
   return `/pieces/${style}/${piece.color}/${piece.type}.svg`;
 }
 
+/**
+ * Convertit une position logique en position d'affichage selon la rotation
+ */
+function getDisplayPosition(position: Position, isRotated: boolean): { x: number; y: number } {
+  if (isRotated) {
+    // Si l'échiquier est tourné, inverser les coordonnées
+    return {
+      x: (7 - position.col) * 12.5,
+      y: (7 - position.row) * 12.5,
+    };
+  }
+  // Position normale
+  return {
+    x: position.col * 12.5,
+    y: position.row * 12.5,
+  };
+}
+
 export default function AnimatedPiece({
   piece,
   from,
@@ -27,14 +46,13 @@ export default function AnimatedPiece({
   onComplete,
   style = "classic",
   animationDuration = 300,
+  isRotated = false,
 }: AnimatedPieceProps) {
   const piecePath = getPiecePath(piece, style);
 
-  // Calculer les positions en pourcentage (chaque case = 12.5% de l'échiquier)
-  const fromX = from.col * 12.5;
-  const fromY = from.row * 12.5;
-  const toX = to.col * 12.5;
-  const toY = to.row * 12.5;
+  // Calculer les positions en pourcentage selon la rotation
+  const fromPos = getDisplayPosition(from, isRotated);
+  const toPos = getDisplayPosition(to, isRotated);
 
   // Si l'animation est instantanée, appeler onComplete immédiatement
   if (animationDuration === 0) {
@@ -48,13 +66,13 @@ export default function AnimatedPiece({
       style={{
         width: "12.5%",
         height: "12.5%",
-        left: `${fromX}%`,
-        top: `${fromY}%`,
+        left: `${fromPos.x}%`,
+        top: `${fromPos.y}%`,
         willChange: "left, top",
       }}
       animate={{
-        left: `${toX}%`,
-        top: `${toY}%`,
+        left: `${toPos.x}%`,
+        top: `${toPos.y}%`,
       }}
       transition={{
         duration: animationDuration / 1000, // Convertir ms en secondes pour motion

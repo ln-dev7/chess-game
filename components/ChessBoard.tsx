@@ -117,6 +117,7 @@ export default function ChessBoard({
             onComplete={onAnimationComplete}
             style={pieceStyle}
             animationDuration={animationDuration}
+            isRotated={isRotated}
           />
         )}
       </div>
