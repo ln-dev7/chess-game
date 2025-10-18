@@ -34,7 +34,7 @@ export default function GameControls({
   gameState,
 }: GameControlsProps) {
   return (
-    <div className="space-y-3 w-full">
+    <div className="space-y-6 w-full">
       <div className="flex flex-wrap gap-3">
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -62,7 +62,7 @@ export default function GameControls({
           </AlertDialogContent>
         </AlertDialog>
 
-        {!isGameOver && (
+        {!isGameOver && gameState.moveHistory.length > 0 && (
           <>
             <AlertDialog>
               <AlertDialogTrigger asChild>
