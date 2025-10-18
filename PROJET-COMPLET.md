@@ -86,6 +86,8 @@ chess-game/
 #### Affichage
 
 - 🎨 Design minimaliste inspiré de chess.com
+- 🎨 **16 thèmes de couleurs personnalisables**
+- 💾 Sauvegarde automatique des préférences
 - 📱 Responsive (adapté à tous les écrans)
 - 🎯 Indicateurs visuels pour les mouvements possibles
 - 🔴 Mise en évidence du roi en échec
@@ -140,8 +142,10 @@ chess-game/
 | `README.md`           | ~150      | Documentation technique |
 | `REGLES.md`           | ~350      | Règles complètes        |
 | `DEMARRAGE-RAPIDE.md` | ~250      | Guide de démarrage      |
+| `NOTATION-PGN.md`     | ~250      | Format PGN et notation  |
+| `THEMES.md`           | ~200      | Guide des thèmes        |
 | `AMELIORATIONS.md`    | ~250      | Améliorations futures   |
-| **Total**             | **~1000** | Lignes de documentation |
+| **Total**             | **~1450** | Lignes de documentation |
 
 ## 🧪 Qualité du code
 
@@ -250,9 +254,11 @@ Le projet peut être déployé sur :
 - **Initialisation** : 10 minutes
 - **Moteur de jeu** : 2 heures
 - **Interface utilisateur** : 1 heure
+- **Export PGN** : 30 minutes
+- **Système de thèmes** : 30 minutes
 - **Tests et corrections** : 30 minutes
-- **Documentation** : 1 heure
-- **Total** : ~5 heures
+- **Documentation** : 1.5 heures
+- **Total** : ~6 heures
 
 ### Taille du bundle
 

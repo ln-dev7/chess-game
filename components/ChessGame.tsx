@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { GameState, Position, PieceType } from "@/types/chess";
 import {
   createInitialGameState,
@@ -8,11 +8,13 @@ import {
   getPossibleMoves,
 } from "@/lib/chess-engine";
 import { positionsEqual } from "@/lib/chess-utils";
+import { ChessTheme, getSavedTheme, saveTheme } from "@/lib/chess-themes";
 import ChessBoard from "./ChessBoard";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
+import ThemeSelector from "./ThemeSelector";
 
 export default function ChessGame() {
   const [gameState, setGameState] = useState<GameState>(
@@ -22,6 +24,17 @@ export default function ChessGame() {
     from: Position;
     to: Position;
   } | null>(null);
+  const [theme, setTheme] = useState<ChessTheme>(getSavedTheme());
+
+  // Charger le thème sauvegardé au montage du composant
+  useEffect(() => {
+    setTheme(getSavedTheme());
+  }, []);
+
+  const handleThemeChange = useCallback((newTheme: ChessTheme) => {
+    setTheme(newTheme);
+    saveTheme(newTheme.id);
+  }, []);
 
   const handleSquareClick = useCallback(
     (position: Position) => {
@@ -174,12 +187,17 @@ export default function ChessGame() {
             <ChessBoard
               gameState={gameState}
               onSquareClick={handleSquareClick}
+              theme={theme}
             />
           </div>
 
           <div className="space-y-6">
             <GameInfo gameState={gameState} />
             <MoveHistory moves={gameState.moveHistory} />
+            <ThemeSelector
+              currentTheme={theme}
+              onThemeChange={handleThemeChange}
+            />
             <GameControls
               onNewGame={handleNewGame}
               onResign={handleResign}

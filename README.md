@@ -21,6 +21,7 @@ Un jeu d'échecs complet et interactif développé avec React, Next.js et shadcn
 ### Interface utilisateur
 
 - 🎨 Design minimaliste inspiré de chess.com
+- 🎨 **16 thèmes de couleurs** personnalisables
 - 📱 Responsive (adapté mobile, tablette, desktop)
 - 🎯 Indicateurs visuels pour les mouvements possibles
 - 🔴 Mise en évidence de l'échec
@@ -66,7 +67,8 @@ npm run dev
 3. Les mouvements valides sont indiqués par des cercles
 4. Cliquez sur une case valide pour déplacer la pièce
 5. Le jeu détecte automatiquement les échecs, échecs et mat, et les pats
-6. Exportez votre partie au format PGN pour la sauvegarder ou la partager
+6. Personnalisez l'échiquier avec 16 thèmes de couleurs disponibles
+7. Exportez votre partie au format PGN pour la sauvegarder ou la partager
 
 ## Structure du projet
 
@@ -91,6 +93,7 @@ chess-game/
     ├── README.md           # Ce fichier
     ├── REGLES.md          # Règles complètes
     ├── NOTATION-PGN.md    # Format PGN et notation
+    ├── THEMES.md          # Thèmes de couleurs
     └── ...                # Autres guides
 ```
 

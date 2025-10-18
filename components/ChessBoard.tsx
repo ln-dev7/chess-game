@@ -1,17 +1,20 @@
 "use client";
 
 import { GameState, Position } from "@/types/chess";
+import { ChessTheme } from "@/lib/chess-themes";
 import { positionsEqual, findKingPosition } from "@/lib/chess-utils";
 import ChessSquare from "./ChessSquare";
 
 interface ChessBoardProps {
   gameState: GameState;
   onSquareClick: (position: Position) => void;
+  theme: ChessTheme;
 }
 
 export default function ChessBoard({
   gameState,
   onSquareClick,
+  theme,
 }: ChessBoardProps) {
   const {
     board,
@@ -60,6 +63,7 @@ export default function ChessBoard({
                 isLastMove={isLastMove}
                 isCheck={isCheckSquare}
                 onClick={() => onSquareClick(position)}
+                theme={theme}
               />
             );
           })

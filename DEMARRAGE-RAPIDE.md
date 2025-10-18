@@ -73,6 +73,7 @@ npm start
 - **🔄 Nouvelle partie** : Recommencer une nouvelle partie
 - **🏳️ Abandonner** : Déclarer forfait (l'adversaire gagne)
 - **🤝 Proposer nulle** : Proposer un match nul aux deux joueurs
+- **🎨 Thème** : Changer les couleurs de l'échiquier (16 thèmes disponibles)
 - **💾 Exporter PGN** : Sauvegarder la partie au format standard FIDE
 
 #### Panneau d'information
@@ -126,14 +127,22 @@ Le jeu est entièrement responsive et s'adapte à toutes les tailles d'écran !
 
 ## 🎨 Personnalisation
 
-### Couleurs de l'échiquier
+### Thèmes de couleurs
 
-Les couleurs actuelles sont inspirées de chess.com :
+Le jeu propose **16 thèmes de couleurs** pré-définis :
 
-- Cases claires : `#ebecd0`
-- Cases foncées : `#739552`
+- **Classique** : Style chess.com (par défaut)
+- **Bois** : Tons chaleureux naturels
+- **Océan** : Palette bleue apaisante
+- **Forêt** : Tons verts naturels
+- **Améthyste** : Teintes violettes élégantes
+- **Minimaliste** : Noir et blanc épuré
+- **Nuit** : Mode sombre
+- **Et 9 autres thèmes !**
 
-Vous pouvez les modifier dans le fichier `components/ChessSquare.tsx`
+Pour changer de thème, cliquez sur le bouton **"Thème"** dans l'interface du jeu.
+
+Consultez **[THEMES.md](./THEMES.md)** pour plus de détails sur tous les thèmes disponibles.
 
 ### Symboles des pièces
 
@@ -175,6 +184,7 @@ Pour plus d'informations, consultez :
 - **[README.md](./README.md)** : Documentation technique complète
 - **[REGLES.md](./REGLES.md)** : Toutes les règles du jeu d'échecs
 - **[NOTATION-PGN.md](./NOTATION-PGN.md)** : Format PGN et notation algébrique
+- **[THEMES.md](./THEMES.md)** : Guide des thèmes de couleurs (16 thèmes disponibles)
 - **[AMELIORATIONS.md](./AMELIORATIONS.md)** : Fonctionnalités futures possibles
 
 ## 🎓 Conseils pour débuter

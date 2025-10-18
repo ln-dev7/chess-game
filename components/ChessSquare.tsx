@@ -1,4 +1,5 @@
 import { Position, Piece } from "@/types/chess";
+import { ChessTheme } from "@/lib/chess-themes";
 import ChessPiece from "./ChessPiece";
 
 interface ChessSquareProps {
@@ -10,6 +11,7 @@ interface ChessSquareProps {
   isLastMove: boolean;
   isCheck: boolean;
   onClick: () => void;
+  theme: ChessTheme;
 }
 
 export default function ChessSquare({
@@ -21,45 +23,45 @@ export default function ChessSquare({
   isLastMove,
   isCheck,
   onClick,
+  theme,
 }: ChessSquareProps) {
-  const bgColor = isLight ? "bg-[#ebecd0]" : "bg-[#739552]";
-  const selectedColor = isLight ? "bg-[#f6f669]" : "bg-[#baca44]";
-  const lastMoveColor = isLight ? "bg-[#cdd26a]" : "bg-[#aaa23a]";
-  const checkColor = "bg-red-400";
+  // Déterminer la couleur de fond selon l'état
+  let backgroundColor: string;
 
-  let finalBgColor = bgColor;
   if (isCheck) {
-    finalBgColor = checkColor;
+    backgroundColor = "#ef4444"; // Rouge pour l'échec
   } else if (isSelected) {
-    finalBgColor = selectedColor;
+    backgroundColor = isLight ? theme.selectedLight : theme.selectedDark;
   } else if (isLastMove) {
-    finalBgColor = lastMoveColor;
+    backgroundColor = isLight ? theme.lastMoveLight : theme.lastMoveDark;
+  } else {
+    backgroundColor = isLight ? theme.lightSquare : theme.darkSquare;
   }
 
   const files = "abcdefgh";
   const fileLabel = files[position.col];
   const rankLabel = 8 - position.row;
 
+  // Déterminer la couleur du texte (coordonnées) pour assurer la lisibilité
+  const textColor = isLight ? "text-gray-700" : "text-gray-100";
+
   return (
     <div
-      className={`relative aspect-square ${finalBgColor} cursor-pointer hover:opacity-80 transition-opacity`}
+      className="relative aspect-square cursor-pointer hover:opacity-80 transition-opacity"
+      style={{ backgroundColor }}
       onClick={onClick}
     >
       {/* Coordonnées */}
       {position.col === 0 && (
         <div
-          className={`absolute top-0.5 left-0.5 text-xs font-semibold ${
-            isLight ? "text-[#739552]" : "text-[#ebecd0]"
-          }`}
+          className={`absolute top-0.5 left-0.5 text-xs font-semibold ${textColor} opacity-70`}
         >
           {rankLabel}
         </div>
       )}
       {position.row === 7 && (
         <div
-          className={`absolute bottom-0.5 right-0.5 text-xs font-semibold ${
-            isLight ? "text-[#739552]" : "text-[#ebecd0]"
-          }`}
+          className={`absolute bottom-0.5 right-0.5 text-xs font-semibold ${textColor} opacity-70`}
         >
           {fileLabel}
         </div>

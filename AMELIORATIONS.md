@@ -85,12 +85,13 @@ Ce document liste les fonctionnalités et améliorations qui pourraient être aj
   - Effet de capture
   - Animation d'échec et mat
 
-- [ ] **Thèmes personnalisables** :
+- [x] **Thèmes de couleurs** : 16 thèmes pré-définis ✅
 
-  - Différentes couleurs d'échiquier
-  - Différents styles de pièces (classique, moderne, minimaliste)
-  - Mode sombre / mode clair
-  - Thèmes prédéfinis (bois, marbre, néon, etc.)
+  - [ ] Thèmes personnalisés (créer ses propres couleurs)
+  - [ ] Import/Export de thèmes
+  - [ ] Différents styles de pièces (classique, moderne, minimaliste)
+  - [ ] Mode automatique jour/nuit
+  - [ ] Thèmes saisonniers
 
 - [ ] **Sons** : Effets sonores
 
