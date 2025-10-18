@@ -11,19 +11,19 @@ export interface PieceStyle {
 export const PIECE_STYLES: PieceStyle[] = [
   {
     id: "classic",
-    name: "Classique",
-    description: "Style traditionnel des pièces d'échecs",
+    name: "Classic",
+    description: "Traditional chess piece style",
   },
-  // Vous pouvez ajouter d'autres styles ici
-  // {
-  //   id: "modern",
-  //   name: "Moderne",
-  //   description: "Style contemporain et minimaliste",
-  // },
+  {
+    id: "modern",
+    name: "Modern",
+    description: "Contemporary and minimalist geometric design",
+  },
+  // You can add more styles here
   // {
   //   id: "medieval",
-  //   name: "Médiéval",
-  //   description: "Style inspiré du Moyen Âge",
+  //   name: "Medieval",
+  //   description: "Middle Ages inspired style",
   // },
 ];
 

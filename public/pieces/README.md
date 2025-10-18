@@ -1,74 +1,96 @@
-# Structure des pièces d'échecs
+# Chess Pieces Structure
 
-Ce dossier contient les pièces d'échecs organisées par style.
+This folder contains chess pieces organized by style.
 
-## Organisation
+## Organization
 
 ```
 pieces/
-├── classic/           # Style classique (par défaut)
-│   ├── black/         # Pièces noires
+├── classic/           # Classic style (default)
+│   ├── black/         # Black pieces
 │   │   ├── bishop.svg
 │   │   ├── king.svg
 │   │   ├── knight.svg
 │   │   ├── pawn.svg
 │   │   ├── queen.svg
 │   │   └── rook.svg
-│   └── white/         # Pièces blanches
+│   └── white/         # White pieces
 │       ├── bishop.svg
 │       ├── king.svg
 │       ├── knight.svg
 │       ├── pawn.svg
 │       ├── queen.svg
 │       └── rook.svg
-└── README.md          # Ce fichier
+├── modern/            # Modern style
+│   ├── black/         # Black pieces
+│   │   ├── bishop.svg
+│   │   ├── king.svg
+│   │   ├── knight.svg
+│   │   ├── pawn.svg
+│   │   ├── queen.svg
+│   │   └── rook.svg
+│   └── white/         # White pieces
+│       ├── bishop.svg
+│       ├── king.svg
+│       ├── knight.svg
+│       ├── pawn.svg
+│       ├── queen.svg
+│       └── rook.svg
+└── README.md          # This file
 ```
 
-## Ajouter un nouveau style
+## Available Styles
 
-Pour ajouter un nouveau style de pièces :
+### Classic
+Traditional chess piece style with solid silhouettes. Perfect for a timeless look.
 
-1. Créez un nouveau dossier avec le nom du style (par exemple : `modern`, `medieval`, `cartoon`, etc.)
+### Modern
+Contemporary and minimalist geometric design with clean lines and shapes. Features a sleek, professional appearance.
+
+## Adding a New Style
+
+To add a new piece style:
+
+1. Create a new folder with the style name (e.g., `medieval`, `cartoon`, etc.)
    ```bash
-   mkdir -p pieces/nouveau-style/black
-   mkdir -p pieces/nouveau-style/white
+   mkdir -p pieces/new-style/black
+   mkdir -p pieces/new-style/white
    ```
 
-2. Ajoutez les 12 fichiers SVG (6 pièces × 2 couleurs) :
+2. Add the 12 SVG files (6 pieces × 2 colors):
    - `black/bishop.svg`, `black/king.svg`, `black/knight.svg`, `black/pawn.svg`, `black/queen.svg`, `black/rook.svg`
    - `white/bishop.svg`, `white/king.svg`, `white/knight.svg`, `white/pawn.svg`, `white/queen.svg`, `white/rook.svg`
 
-3. Enregistrez le nouveau style dans `/lib/piece-styles.ts` :
+3. Register the new style in `/lib/piece-styles.ts`:
    ```typescript
    export const PIECE_STYLES: PieceStyle[] = [
      {
        id: "classic",
-       name: "Classique",
-       description: "Style traditionnel des pièces d'échecs",
+       name: "Classic",
+       description: "Traditional chess piece style",
      },
      {
-       id: "nouveau-style",
-       name: "Nouveau Style",
-       description: "Description de votre style",
+       id: "new-style",
+       name: "New Style",
+       description: "Your style description",
      },
    ];
    ```
 
-4. Le nouveau style sera automatiquement disponible dans le sélecteur de style de l'application !
+4. The new style will be automatically available in the style selector!
 
-## Format des fichiers SVG
+## SVG File Format
 
-- Les SVG peuvent avoir n'importe quelle taille (ils seront redimensionnés automatiquement)
-- Pour les pièces blanches, utilisez `fill="#FFFFFF"` ou `fill="#FFF"`
-- Pour les pièces noires, utilisez `fill="#000000"` ou `fill="#000"`
-- Optimisez vos SVG pour de meilleures performances (utilisez SVGO par exemple)
+- SVG files can be any size (they will be automatically resized)
+- For white pieces, use `fill="#FFFFFF"` or `fill="#FFF"`
+- For black pieces, use `fill="#000000"` or `fill="#000"`
+- Optimize your SVGs for better performance (use SVGO for example)
 
-## Exemples d'idées de styles
+## Style Ideas
 
-- **Modern** : Design minimaliste et géométrique
-- **Medieval** : Style inspiré des pièces médiévales
-- **Cartoon** : Design amusant et coloré pour les enfants
-- **3D** : Effet de profondeur et d'ombrage
-- **Pixel Art** : Style rétro 8-bit
-- **Staunton** : Style de tournoi traditionnel
-- **Fantasy** : Pièces inspirées de la fantasy et du jeu vidéo
+- **Medieval**: Middle Ages inspired pieces
+- **Cartoon**: Fun and colorful design for kids
+- **3D**: Depth and shadow effects
+- **Pixel Art**: Retro 8-bit style
+- **Staunton**: Traditional tournament style
+- **Fantasy**: Fantasy and video game inspired pieces
