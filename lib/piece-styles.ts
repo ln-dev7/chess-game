@@ -19,6 +19,11 @@ export const PIECE_STYLES: PieceStyle[] = [
     name: "Modern",
     description: "Contemporary and minimalist geometric design",
   },
+  {
+    id: "colorful",
+    name: "Colorful",
+    description: "Vibrant and colorful piece design",
+  },
   // You can add more styles here
   // {
   //   id: "medieval",
