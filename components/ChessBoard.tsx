@@ -33,7 +33,7 @@ export default function ChessBoard({
 
   return (
     <div className="w-full max-w-2xl">
-      <div className="grid grid-cols-8 aspect-square w-full border-4 border-gray-800 shadow-2xl">
+      <div className="grid grid-cols-8 aspect-square w-full border-0 border-gray-800 shadow-2xl">
         {board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const position = { row: rowIndex, col: colIndex };
