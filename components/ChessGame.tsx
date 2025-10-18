@@ -575,18 +575,10 @@ export default function ChessGame() {
       playSound("move");
     }
 
-    // IMPORTANT : Mettre à jour l'état du jeu AVANT de retirer l'animation
-    // Cela garantit que la pièce finale est affichée avant que la pièce animée ne disparaisse
+    // Mettre à jour l'état et retirer l'animation de façon synchronisée
     setGameState(newState);
-
-    // Retirer l'animation après un court délai pour éviter le clignotement sur mobile
-    // requestAnimationFrame garantit que le rendu est terminé avant de retirer l'animation
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        setAnimatingMove(null);
-        setIsAnimating(false);
-      });
-    });
+    setAnimatingMove(null);
+    setIsAnimating(false);
   }, [animatingMove, gameState, selectedTimeControl.increment]);
 
   const handleNewGame = useCallback(() => {

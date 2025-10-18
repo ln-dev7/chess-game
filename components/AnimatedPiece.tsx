@@ -71,6 +71,8 @@ export default function AnimatedPiece({
         height: "12.5%",
         left: `${fromPos.x}%`,
         top: `${fromPos.y}%`,
+        transform: "translateZ(0)", // Force GPU acceleration sur mobile
+        backfaceVisibility: "hidden", // Améliore le rendu sur mobile
       }}
       animate={{
         left: `${toPos.x}%`,
@@ -78,14 +80,10 @@ export default function AnimatedPiece({
       }}
       transition={{
         duration: animationDuration / 1000,
-        ease: [0.4, 0, 0.2, 1],
+        ease: [0.25, 0.1, 0.25, 1], // Ease-in-out optimisé pour mobile
         type: "tween",
       }}
-      onAnimationComplete={() => {
-        // Petit délai pour garantir que la pièce finale est rendue avant de retirer l'animation
-        // Cela évite le clignotement sur mobile
-        setTimeout(onComplete, 16); // ~1 frame (16ms à 60fps)
-      }}
+      onAnimationComplete={onComplete}
     >
       <Image
         src={piecePath}
