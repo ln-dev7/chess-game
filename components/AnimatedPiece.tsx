@@ -45,6 +45,7 @@ export default function AnimatedPiece({
         height: "12.5%",
         left: `${fromX}%`,
         top: `${fromY}%`,
+        willChange: "left, top",
       }}
       animate={{
         left: `${toX}%`,
@@ -52,7 +53,8 @@ export default function AnimatedPiece({
       }}
       transition={{
         duration: ANIMATION_DURATION_MS / 1000, // Convertir ms en secondes pour motion
-        ease: "easeInOut",
+        ease: [0.4, 0, 0.2, 1], // Cubic bezier optimisé pour mobile
+        type: "tween", // Plus performant que spring sur mobile
       }}
       onAnimationComplete={onComplete}
     >
@@ -61,6 +63,7 @@ export default function AnimatedPiece({
         alt={`${piece.color} ${piece.type}`}
         width={64}
         height={64}
+        priority
         className="w-[90%] h-[90%] object-contain drop-shadow-md"
         style={{
           filter:

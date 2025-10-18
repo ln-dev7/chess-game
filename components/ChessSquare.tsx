@@ -57,9 +57,13 @@ export default function ChessSquare({
 
   return (
     <div
-      className="relative aspect-square cursor-pointer hover:opacity-80 transition-opacity"
+      className="relative aspect-square cursor-pointer hover:opacity-80 transition-opacity touch-manipulation"
       style={{ backgroundColor }}
       onClick={onClick}
+      onTouchEnd={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
     >
       {/* Coordonnées */}
       {position.col === 0 && (
