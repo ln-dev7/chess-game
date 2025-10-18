@@ -27,7 +27,7 @@ Un jeu d'échecs complet et interactif développé avec React, Next.js et shadcn
 - 🔴 Mise en évidence de l'échec
 - 📊 Affichage des informations de la partie
 - 📜 Historique des coups en notation algébrique FIDE
-- 💾 Export PGN (format standard FIDE)
+- 💾 Export PGN (format standard FIDE) avec copie dans le presse-papiers
 - 🎮 Contrôles de jeu (nouvelle partie, abandon, proposition nulle)
 
 ## Technologies utilisées

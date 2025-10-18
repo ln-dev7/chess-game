@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { GameState } from "@/types/chess";
 import { generatePGN, downloadPGN, generatePGNFilename } from "@/lib/pgn-utils";
 import {
@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Download } from "lucide-react";
+import { Download, Copy, Check } from "lucide-react";
 
 interface ExportPGNDialogProps {
   gameState: GameState;
@@ -32,8 +32,25 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
     black: "Joueur 2 (Noirs)",
   });
   const [pgnPreview, setPgnPreview] = useState("");
+  const [copied, setCopied] = useState(false);
 
-  const handleGeneratePreview = () => {
+  // Générer le PGN automatiquement quand la modale s'ouvre ou que les métadonnées changent
+  useEffect(() => {
+    if (open) {
+      const today = new Date();
+      const dateStr = `${today.getFullYear()}.${String(
+        today.getMonth() + 1
+      ).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
+
+      const pgn = generatePGN(gameState, {
+        ...metadata,
+        date: dateStr,
+      });
+      setPgnPreview(pgn);
+    }
+  }, [open, metadata, gameState]);
+
+  const handleCopy = async () => {
     const today = new Date();
     const dateStr = `${today.getFullYear()}.${String(
       today.getMonth() + 1
@@ -43,7 +60,27 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
       ...metadata,
       date: dateStr,
     });
-    setPgnPreview(pgn);
+
+    try {
+      await navigator.clipboard.writeText(pgn);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (err) {
+      console.error("Erreur lors de la copie:", err);
+      // Fallback pour les navigateurs plus anciens
+      const textArea = document.createElement("textarea");
+      textArea.value = pgn;
+      document.body.appendChild(textArea);
+      textArea.select();
+      try {
+        document.execCommand("copy");
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (e) {
+        console.error("Impossible de copier:", e);
+      }
+      document.body.removeChild(textArea);
+    }
   };
 
   const handleExport = () => {
@@ -155,21 +192,33 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
           </div>
 
           <div className="pt-4">
-            <Button
-              variant="secondary"
-              onClick={handleGeneratePreview}
-              className="w-full mb-2"
-            >
-              Aperçu du PGN
-            </Button>
+            <div className="flex items-center justify-between mb-2">
+              <Label className="text-sm font-medium">Aperçu du PGN</Label>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleCopy}
+                className="flex items-center gap-2"
+              >
+                {copied ? (
+                  <>
+                    <Check className="w-4 h-4" />
+                    Copié
+                  </>
+                ) : (
+                  <>
+                    <Copy className="w-4 h-4" />
+                    Copier
+                  </>
+                )}
+              </Button>
+            </div>
 
-            {pgnPreview && (
-              <Textarea
-                value={pgnPreview}
-                readOnly
-                className="font-mono text-xs h-48"
-              />
-            )}
+            <Textarea
+              value={pgnPreview}
+              readOnly
+              className="font-mono text-xs h-48"
+            />
           </div>
         </div>
 

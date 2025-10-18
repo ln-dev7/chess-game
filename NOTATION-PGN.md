@@ -189,13 +189,16 @@ Quand deux pièces identiques peuvent aller à la même case, on précise :
 
 1. Jouez une partie d'échecs
 2. Cliquez sur le bouton **"Exporter PGN"**
-3. Personnalisez les métadonnées :
+3. **L'aperçu du PGN s'affiche automatiquement** avec les métadonnées par défaut
+4. **Personnalisez les métadonnées en temps réel** :
    - Nom de l'événement
    - Lieu
    - Noms des joueurs
    - Numéro de ronde
-4. Cliquez sur **"Aperçu du PGN"** pour voir le fichier généré
-5. Cliquez sur **"Télécharger"** pour sauvegarder le fichier
+   - L'aperçu se met à jour automatiquement à chaque modification
+5. **Deux options pour exporter** :
+   - 📋 **Copier** : Copie le PGN dans le presse-papiers
+   - 💾 **Télécharger** : Sauvegarde un fichier `.pgn`
 
 Le fichier sera téléchargé avec un nom automatique : `chess_YYYY-MM-DD_HH-MM-SS.pgn`
 

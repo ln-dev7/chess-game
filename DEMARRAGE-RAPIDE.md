@@ -74,7 +74,10 @@ npm start
 - **🏳️ Abandonner** : Déclarer forfait (l'adversaire gagne)
 - **🤝 Proposer nulle** : Proposer un match nul aux deux joueurs
 - **🎨 Thème** : Changer les couleurs de l'échiquier (16 thèmes disponibles)
-- **💾 Exporter PGN** : Sauvegarder la partie au format standard FIDE
+- **💾 Exporter PGN** : Sauvegarder ou copier la partie au format standard FIDE
+  - **Aperçu en temps réel** : Le PGN se met à jour automatiquement
+  - **Copier** : Copie directement dans le presse-papiers
+  - **Télécharger** : Sauvegarde un fichier .pgn
 
 #### Panneau d'information
 
