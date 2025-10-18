@@ -91,8 +91,8 @@ chess-game/
 ├── public/                  # Fichiers statiques
 └── Documentation/
     ├── README.md           # Ce fichier
-    ├── REGLES.md          # Règles complètes
-    ├── NOTATION-PGN.md    # Format PGN et notation
+    ├── RULES.md           # Règles complètes
+    ├── PGN-NOTATION.md    # Format PGN et notation
     ├── THEMES.md          # Thèmes de couleurs
     └── ...                # Autres guides
 ```

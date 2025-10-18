@@ -185,10 +185,10 @@ Vérifiez que votre navigateur prend en charge les symboles Unicode des échecs.
 Pour plus d'informations, consultez :
 
 - **[README.md](./README.md)** : Documentation technique complète
-- **[REGLES.md](./REGLES.md)** : Toutes les règles du jeu d'échecs
-- **[NOTATION-PGN.md](./NOTATION-PGN.md)** : Format PGN et notation algébrique
+- **[RULES.md](./RULES.md)** : Toutes les règles du jeu d'échecs
+- **[PGN-NOTATION.md](./PGN-NOTATION.md)** : Format PGN et notation algébrique
 - **[THEMES.md](./THEMES.md)** : Guide des thèmes de couleurs (16 thèmes disponibles)
-- **[AMELIORATIONS.md](./AMELIORATIONS.md)** : Fonctionnalités futures possibles
+- **[IMPROVEMENTS.md](./IMPROVEMENTS.md)** : Fonctionnalités futures possibles
 
 ## 🎓 Conseils pour débuter
 
@@ -222,7 +222,7 @@ Pour plus d'informations, consultez :
 Si vous rencontrez des problèmes ou avez des questions :
 
 1. Vérifiez la [documentation](#-documentation-complète)
-2. Consultez les [règles du jeu](./REGLES.md)
+2. Consultez les [règles du jeu](./RULES.md)
 3. Vérifiez que toutes les dépendances sont installées
 4. Essayez de redémarrer le serveur de développement
 

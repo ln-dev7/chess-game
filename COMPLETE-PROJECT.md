@@ -45,10 +45,10 @@ chess-game/
 │
 └── Documentation/               # Documentation
     ├── README.md                # Documentation principale
-    ├── REGLES.md                # Règles complètes
-    ├── DEMARRAGE-RAPIDE.md      # Guide de démarrage
-    ├── AMELIORATIONS.md         # Améliorations futures
-    └── PROJET-COMPLET.md        # Ce fichier
+    ├── RULES.md                 # Règles complètes
+    ├── QUICK-START.md           # Guide de démarrage
+    ├── IMPROVEMENTS.md          # Améliorations futures
+    └── COMPLETE-PROJECT.md      # Ce fichier
 ```
 
 ## 🎮 Fonctionnalités implémentées
@@ -140,11 +140,11 @@ chess-game/
 | Fichier               | Lignes    | Contenu                 |
 | --------------------- | --------- | ----------------------- |
 | `README.md`           | ~150      | Documentation technique |
-| `REGLES.md`           | ~350      | Règles complètes        |
-| `DEMARRAGE-RAPIDE.md` | ~250      | Guide de démarrage      |
-| `NOTATION-PGN.md`     | ~250      | Format PGN et notation  |
+| `RULES.md`            | ~350      | Règles complètes        |
+| `QUICK-START.md`      | ~250      | Guide de démarrage      |
+| `PGN-NOTATION.md`     | ~250      | Format PGN et notation  |
 | `THEMES.md`           | ~200      | Guide des thèmes        |
-| `AMELIORATIONS.md`    | ~250      | Améliorations futures   |
+| `IMPROVEMENTS.md`     | ~250      | Améliorations futures   |
 | **Total**             | **~1450** | Lignes de documentation |
 
 ## 🧪 Qualité du code
@@ -345,7 +345,7 @@ Ce projet démontre :
 
 - 🎮 **Jouer** : Profiter du jeu
 - 📚 **Apprendre** : Étudier le code source
-- 🔧 **Étendre** : Ajouter des fonctionnalités (voir AMELIORATIONS.md)
+- 🔧 **Étendre** : Ajouter des fonctionnalités (voir IMPROVEMENTS.md)
 - 📖 **Enseigner** : Utiliser comme exemple pédagogique
 
 ## 🎉 Prêt à jouer !
