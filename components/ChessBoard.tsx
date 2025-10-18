@@ -18,6 +18,7 @@ interface ChessBoardProps {
   theme: ChessTheme;
   animatingMove?: AnimatingMove | null;
   onAnimationComplete?: () => void;
+  pieceStyle?: string;
 }
 
 export default function ChessBoard({
@@ -26,6 +27,7 @@ export default function ChessBoard({
   theme,
   animatingMove,
   onAnimationComplete,
+  pieceStyle = "classic",
 }: ChessBoardProps) {
   const {
     board,
@@ -82,6 +84,7 @@ export default function ChessBoard({
                 theme={theme}
                 isAnimatingFrom={isAnimatingFrom}
                 animatingMove={animatingMove}
+                pieceStyle={pieceStyle}
               />
             );
           })
@@ -94,6 +97,7 @@ export default function ChessBoard({
             from={animatingMove.from}
             to={animatingMove.to}
             onComplete={onAnimationComplete}
+            style={pieceStyle}
           />
         )}
       </div>

@@ -19,6 +19,7 @@ interface ChessSquareProps {
   theme: ChessTheme;
   isAnimatingFrom?: boolean;
   animatingMove?: AnimatingMove | null;
+  pieceStyle?: string;
 }
 
 export default function ChessSquare({
@@ -32,6 +33,7 @@ export default function ChessSquare({
   onClick,
   theme,
   isAnimatingFrom,
+  pieceStyle = "classic",
 }: ChessSquareProps) {
   // Déterminer la couleur de fond selon l'état
   let backgroundColor: string;
@@ -87,7 +89,7 @@ export default function ChessSquare({
       )}
 
       {/* Pièce - masquée si elle est en cours d'animation */}
-      {piece && !isAnimatingFrom && <ChessPiece piece={piece} />}
+      {piece && !isAnimatingFrom && <ChessPiece piece={piece} style={pieceStyle} />}
     </div>
   );
 }

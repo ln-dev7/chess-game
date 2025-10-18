@@ -1,33 +1,33 @@
 import { Piece } from "@/types/chess";
+import Image from "next/image";
 
 interface ChessPieceProps {
   piece: Piece;
+  style?: string;
 }
 
 /**
- * Symboles Unicode pour les pièces d'échecs
+ * Retourne le chemin vers le SVG de la pièce selon le style choisi
  */
-const PIECE_SYMBOLS: Record<string, string> = {
-  "white-king": "♔",
-  "white-queen": "♕",
-  "white-rook": "♖",
-  "white-bishop": "♗",
-  "white-knight": "♘",
-  "white-pawn": "♙",
-  "black-king": "♚",
-  "black-queen": "♛",
-  "black-rook": "♜",
-  "black-bishop": "♝",
-  "black-knight": "♞",
-  "black-pawn": "♟",
-};
+function getPiecePath(piece: Piece, style: string = "classic"): string {
+  return `/pieces/${style}/${piece.color}/${piece.type}.svg`;
+}
 
-export default function ChessPiece({ piece }: ChessPieceProps) {
-  const symbol = PIECE_SYMBOLS[`${piece.color}-${piece.type}`];
+export default function ChessPiece({ piece, style = "classic" }: ChessPieceProps) {
+  const piecePath = getPiecePath(piece, style);
 
   return (
-    <div className="absolute inset-0 flex items-center justify-center text-5xl md:text-6xl select-none pointer-events-none">
-      {symbol}
+    <div className="absolute inset-0 flex items-center justify-center select-none pointer-events-none p-1">
+      <Image
+        src={piecePath}
+        alt={`${piece.color} ${piece.type}`}
+        width={64}
+        height={64}
+        className="w-full h-full object-contain drop-shadow-md"
+        style={{
+          filter: piece.color === "white" ? "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" : "none"
+        }}
+      />
     </div>
   );
 }

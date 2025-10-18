@@ -9,12 +9,14 @@ import {
 } from "@/lib/chess-engine";
 import { positionsEqual } from "@/lib/chess-utils";
 import { ChessTheme, getSavedTheme, saveTheme } from "@/lib/chess-themes";
+import { PieceStyle, getSavedPieceStyle, savePieceStyle } from "@/lib/piece-styles";
 import ChessBoard from "./ChessBoard";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
 import ThemeSelector from "./ThemeSelector";
+import PieceStyleSelector from "./PieceStyleSelector";
 
 // Durée de l'animation en millisecondes
 const ANIMATION_DURATION = 300;
@@ -34,19 +36,26 @@ export default function ChessGame() {
     to: Position;
   } | null>(null);
   const [theme, setTheme] = useState<ChessTheme>(getSavedTheme());
+  const [pieceStyle, setPieceStyle] = useState<PieceStyle>(getSavedPieceStyle());
   const [animatingMove, setAnimatingMove] = useState<AnimatingMove | null>(
     null
   );
   const [isAnimating, setIsAnimating] = useState(false);
 
-  // Charger le thème sauvegardé au montage du composant
+  // Charger le thème et le style de pièces sauvegardés au montage du composant
   useEffect(() => {
     setTheme(getSavedTheme());
+    setPieceStyle(getSavedPieceStyle());
   }, []);
 
   const handleThemeChange = useCallback((newTheme: ChessTheme) => {
     setTheme(newTheme);
     saveTheme(newTheme.id);
+  }, []);
+
+  const handlePieceStyleChange = useCallback((newStyle: PieceStyle) => {
+    setPieceStyle(newStyle);
+    savePieceStyle(newStyle.id);
   }, []);
 
   const handleSquareClick = useCallback(
@@ -257,6 +266,7 @@ export default function ChessGame() {
               theme={theme}
               animatingMove={animatingMove}
               onAnimationComplete={handleAnimationComplete}
+              pieceStyle={pieceStyle.id}
             />
           </div>
 
@@ -266,6 +276,10 @@ export default function ChessGame() {
             <ThemeSelector
               currentTheme={theme}
               onThemeChange={handleThemeChange}
+            />
+            <PieceStyleSelector
+              currentStyle={pieceStyle}
+              onStyleChange={handlePieceStyleChange}
             />
             <GameControls
               onNewGame={handleNewGame}

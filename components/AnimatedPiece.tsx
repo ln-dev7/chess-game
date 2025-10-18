@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Piece, Position } from "@/types/chess";
+import Image from "next/image";
 
 // Durée de l'animation en millisecondes
 const ANIMATION_DURATION_MS = 300;
@@ -11,33 +12,24 @@ interface AnimatedPieceProps {
   from: Position;
   to: Position;
   onComplete: () => void;
+  style?: string;
 }
 
 /**
- * Symboles Unicode pour les pièces d'échecs
+ * Retourne le chemin vers le SVG de la pièce selon le style choisi
  */
-const PIECE_SYMBOLS: Record<string, string> = {
-  "white-king": "♔",
-  "white-queen": "♕",
-  "white-rook": "♖",
-  "white-bishop": "♗",
-  "white-knight": "♘",
-  "white-pawn": "♙",
-  "black-king": "♚",
-  "black-queen": "♛",
-  "black-rook": "♜",
-  "black-bishop": "♝",
-  "black-knight": "♞",
-  "black-pawn": "♟",
-};
+function getPiecePath(piece: Piece, style: string = "classic"): string {
+  return `/pieces/${style}/${piece.color}/${piece.type}.svg`;
+}
 
 export default function AnimatedPiece({
   piece,
   from,
   to,
   onComplete,
+  style = "classic",
 }: AnimatedPieceProps) {
-  const symbol = PIECE_SYMBOLS[`${piece.color}-${piece.type}`];
+  const piecePath = getPiecePath(piece, style);
 
   // Calculer les positions en pourcentage (chaque case = 12.5% de l'échiquier)
   const fromX = from.col * 12.5;
@@ -47,7 +39,7 @@ export default function AnimatedPiece({
 
   return (
     <motion.div
-      className="absolute flex items-center justify-center text-5xl md:text-6xl select-none pointer-events-none z-50"
+      className="absolute flex items-center justify-center select-none pointer-events-none z-50 p-1"
       style={{
         width: "12.5%",
         height: "12.5%",
@@ -64,7 +56,16 @@ export default function AnimatedPiece({
       }}
       onAnimationComplete={onComplete}
     >
-      {symbol}
+      <Image
+        src={piecePath}
+        alt={`${piece.color} ${piece.type}`}
+        width={64}
+        height={64}
+        className="w-full h-full object-contain drop-shadow-md"
+        style={{
+          filter: piece.color === "white" ? "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" : "none"
+        }}
+      />
     </motion.div>
   );
 }
