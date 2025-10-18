@@ -3,7 +3,6 @@
 import { motion } from "motion/react";
 import { Piece, Position } from "@/types/chess";
 import Image from "next/image";
-import { ANIMATION_DURATION_MS } from "@/lib/constants";
 
 interface AnimatedPieceProps {
   piece: Piece;
@@ -11,6 +10,7 @@ interface AnimatedPieceProps {
   to: Position;
   onComplete: () => void;
   style?: string;
+  animationDuration?: number;
 }
 
 /**
@@ -26,6 +26,7 @@ export default function AnimatedPiece({
   to,
   onComplete,
   style = "classic",
+  animationDuration = 300,
 }: AnimatedPieceProps) {
   const piecePath = getPiecePath(piece, style);
 
@@ -34,6 +35,12 @@ export default function AnimatedPiece({
   const fromY = from.row * 12.5;
   const toX = to.col * 12.5;
   const toY = to.row * 12.5;
+
+  // Si l'animation est instantanée, appeler onComplete immédiatement
+  if (animationDuration === 0) {
+    setTimeout(onComplete, 0);
+    return null;
+  }
 
   return (
     <motion.div
@@ -50,7 +57,7 @@ export default function AnimatedPiece({
         top: `${toY}%`,
       }}
       transition={{
-        duration: ANIMATION_DURATION_MS / 1000, // Convertir ms en secondes pour motion
+        duration: animationDuration / 1000, // Convertir ms en secondes pour motion
         ease: [0.4, 0, 0.2, 1], // Cubic bezier optimisé pour mobile
         type: "tween", // Plus performant que spring sur mobile
       }}

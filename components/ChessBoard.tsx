@@ -19,6 +19,9 @@ interface ChessBoardProps {
   animatingMove?: AnimatingMove | null;
   onAnimationComplete?: () => void;
   pieceStyle?: string;
+  showCoordinates?: boolean;
+  isRotated?: boolean;
+  animationDuration?: number;
 }
 
 export default function ChessBoard({
@@ -28,6 +31,9 @@ export default function ChessBoard({
   animatingMove,
   onAnimationComplete,
   pieceStyle = "classic",
+  showCoordinates = true,
+  isRotated = false,
+  animationDuration = 300,
 }: ChessBoardProps) {
   const {
     board,
@@ -44,13 +50,19 @@ export default function ChessBoard({
     ? findKingPosition(board, currentPlayer)
     : null;
 
+  // Créer une copie du plateau et potentiellement le retourner
+  const displayBoard = isRotated ? [...board].reverse().map(row => [...row].reverse()) : board;
+
   return (
     <div className="w-full max-w-2xl">
       <div className="grid grid-cols-8 aspect-square w-full border-0 border-gray-800 shadow-2xl relative" style={{ transform: "translateZ(0)" }}>
-        {board.map((row, rowIndex) =>
-          row.map((piece, colIndex) => {
-            const position = { row: rowIndex, col: colIndex };
-            const isLight = (rowIndex + colIndex) % 2 === 0;
+        {displayBoard.map((row, displayRowIndex) =>
+          row.map((piece, displayColIndex) => {
+            // Calculer la position réelle en tenant compte de la rotation
+            const realRow = isRotated ? 7 - displayRowIndex : displayRowIndex;
+            const realCol = isRotated ? 7 - displayColIndex : displayColIndex;
+            const position = { row: realRow, col: realCol };
+            const isLight = (realRow + realCol) % 2 === 0;
             const isSelected = selectedSquare
               ? positionsEqual(position, selectedSquare)
               : false;
@@ -75,7 +87,7 @@ export default function ChessBoard({
 
             return (
               <ChessSquare
-                key={`${rowIndex}-${colIndex}`}
+                key={`${realRow}-${realCol}`}
                 position={position}
                 piece={piece}
                 isLight={isLight}
@@ -89,6 +101,8 @@ export default function ChessBoard({
                 isAnimatingTo={isAnimatingTo}
                 animatingMove={animatingMove}
                 pieceStyle={pieceStyle}
+                showCoordinates={showCoordinates}
+                isRotated={isRotated}
               />
             );
           })
@@ -102,6 +116,7 @@ export default function ChessBoard({
             to={animatingMove.to}
             onComplete={onAnimationComplete}
             style={pieceStyle}
+            animationDuration={animationDuration}
           />
         )}
       </div>

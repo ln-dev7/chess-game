@@ -21,6 +21,8 @@ interface ChessSquareProps {
   isAnimatingTo?: boolean;
   animatingMove?: AnimatingMove | null;
   pieceStyle?: string;
+  showCoordinates?: boolean;
+  isRotated?: boolean;
 }
 
 export default function ChessSquare({
@@ -36,6 +38,8 @@ export default function ChessSquare({
   isAnimatingFrom,
   isAnimatingTo,
   pieceStyle = "classic",
+  showCoordinates = true,
+  isRotated = false,
 }: ChessSquareProps) {
   // Déterminer la couleur de fond selon l'état
   let backgroundColor: string;
@@ -57,6 +61,10 @@ export default function ChessSquare({
   // Déterminer la couleur du texte (coordonnées) pour assurer la lisibilité
   const textColor = isLight ? "text-gray-700" : "text-gray-100";
 
+  // Déterminer quelle coordonnée afficher selon la rotation
+  const shouldShowRankLabel = isRotated ? position.col === 7 : position.col === 0;
+  const shouldShowFileLabel = isRotated ? position.row === 0 : position.row === 7;
+
   return (
     <div
       className="relative aspect-square cursor-pointer hover:opacity-80 transition-opacity touch-manipulation"
@@ -68,14 +76,14 @@ export default function ChessSquare({
       }}
     >
       {/* Coordonnées */}
-      {position.col === 0 && (
+      {showCoordinates && shouldShowRankLabel && (
         <div
           className={`absolute top-0.5 left-0.5 text-xs font-semibold ${textColor} opacity-70`}
         >
           {rankLabel}
         </div>
       )}
-      {position.row === 7 && (
+      {showCoordinates && shouldShowFileLabel && (
         <div
           className={`absolute bottom-0.5 right-0.5 text-xs font-semibold ${textColor} opacity-70`}
         >

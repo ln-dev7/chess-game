@@ -93,13 +93,6 @@ Ce document liste les fonctionnalités et améliorations qui pourraient être aj
   - [ ] Mode automatique jour/nuit
   - [ ] Thèmes saisonniers
 
-- [ ] **Sons** : Effets sonores
-
-  - Son de déplacement
-  - Son de capture
-  - Son d'échec
-  - Son de victoire/défaite
-
 ### 2. Expérience utilisateur
 
 - [ ] **Tutoriel interactif** : Guide pour les débutants
@@ -107,15 +100,6 @@ Ce document liste les fonctionnalités et améliorations qui pourraient être aj
   - Explication des mouvements
   - Exercices pratiques
   - Mini-jeux d'apprentissage
-
-- [ ] **Préférences utilisateur** :
-
-  - Rotation de l'échiquier
-  - Affichage/masquage des coordonnées
-  - Vitesse des animations
-  - Activation/désactivation des sons
-
-- [ ] **Mode plein écran** : Utilisation optimale de l'espace
 
 ### 3. Accessibilité
 
