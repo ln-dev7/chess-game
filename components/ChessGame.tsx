@@ -11,6 +11,7 @@ import { positionsEqual } from "@/lib/chess-utils";
 import { ChessTheme, getSavedTheme, saveTheme } from "@/lib/chess-themes";
 import { PieceStyle, getSavedPieceStyle, savePieceStyle } from "@/lib/piece-styles";
 import { ANIMATION_DURATION_MS } from "@/lib/constants";
+import { playSound } from "@/lib/chess-sounds";
 import ChessBoard from "./ChessBoard";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
@@ -18,6 +19,7 @@ import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
 import ThemeSelector from "./ThemeSelector";
 import PieceStyleSelector from "./PieceStyleSelector";
+import SoundControl from "./SoundControl";
 
 interface AnimatingMove {
   from: Position;
@@ -190,12 +192,30 @@ export default function ChessGame() {
       // Stocker le type de pièce pour la promotion après l'animation
       // On doit attendre la fin de l'animation
       setTimeout(() => {
+        // Vérifier si c'est une capture
+        const targetPiece = gameState.board[pendingPromotion.to.row][pendingPromotion.to.col];
+        const isCapture = targetPiece !== null;
+
         const newState = executeMove(
           gameState,
           pendingPromotion.from,
           pendingPromotion.to,
           pieceType
         );
+
+        // Jouer les sons appropriés
+        if (newState.isCheckmate) {
+          playSound("checkmate");
+        } else if (newState.isStalemate || newState.isDraw) {
+          playSound("draw");
+        } else if (newState.isCheck) {
+          playSound("check");
+        } else if (isCapture) {
+          playSound("capture");
+        } else {
+          playSound("move");
+        }
+
         setGameState(newState);
         setPendingPromotion(null);
         setAnimatingMove(null);
@@ -211,11 +231,29 @@ export default function ChessGame() {
     // Petit délai pour éviter le clignotement lors de la transition
     // entre la pièce animée et la pièce statique
     setTimeout(() => {
+      // Vérifier si c'est une capture avant d'exécuter le mouvement
+      const targetPiece = gameState.board[animatingMove.to.row][animatingMove.to.col];
+      const isCapture = targetPiece !== null;
+
       const newState = executeMove(
         gameState,
         animatingMove.from,
         animatingMove.to
       );
+
+      // Jouer les sons appropriés
+      if (newState.isCheckmate) {
+        playSound("checkmate");
+      } else if (newState.isStalemate || newState.isDraw) {
+        playSound("draw");
+      } else if (newState.isCheck) {
+        playSound("check");
+      } else if (isCapture) {
+        playSound("capture");
+      } else {
+        playSound("move");
+      }
+
       setGameState(newState);
       setAnimatingMove(null);
       setIsAnimating(false);
@@ -299,6 +337,7 @@ export default function ChessGame() {
               currentStyle={pieceStyle}
               onStyleChange={handlePieceStyleChange}
             />
+            <SoundControl />
             <GameControls
               onNewGame={handleNewGame}
               onResign={handleResign}

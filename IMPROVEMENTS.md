@@ -100,8 +100,6 @@ Ce document liste les fonctionnalités et améliorations qui pourraient être aj
   - Son d'échec
   - Son de victoire/défaite
 
-- [ ] **Pièces SVG ou images** : Utiliser de belles pièces vectorielles au lieu des symboles Unicode
-
 ### 2. Expérience utilisateur
 
 - [ ] **Tutoriel interactif** : Guide pour les débutants
@@ -109,12 +107,6 @@ Ce document liste les fonctionnalités et améliorations qui pourraient être aj
   - Explication des mouvements
   - Exercices pratiques
   - Mini-jeux d'apprentissage
-
-- [ ] **Indices visuels améliorés** :
-
-  - Flèches pour montrer la menace
-  - Surbrillance des cases contrôlées
-  - Affichage des cases protégées
 
 - [ ] **Préférences utilisateur** :
 
