@@ -1,20 +1,31 @@
 "use client";
 
-import { GameState, Position } from "@/types/chess";
+import { GameState, Position, Piece } from "@/types/chess";
 import { ChessTheme } from "@/lib/chess-themes";
 import { positionsEqual, findKingPosition } from "@/lib/chess-utils";
 import ChessSquare from "./ChessSquare";
+import AnimatedPiece from "./AnimatedPiece";
+
+interface AnimatingMove {
+  from: Position;
+  to: Position;
+  piece: Piece;
+}
 
 interface ChessBoardProps {
   gameState: GameState;
   onSquareClick: (position: Position) => void;
   theme: ChessTheme;
+  animatingMove?: AnimatingMove | null;
+  onAnimationComplete?: () => void;
 }
 
 export default function ChessBoard({
   gameState,
   onSquareClick,
   theme,
+  animatingMove,
+  onAnimationComplete,
 }: ChessBoardProps) {
   const {
     board,
@@ -33,7 +44,7 @@ export default function ChessBoard({
 
   return (
     <div className="w-full max-w-2xl">
-      <div className="grid grid-cols-8 aspect-square w-full border-0 border-gray-800 shadow-2xl">
+      <div className="grid grid-cols-8 aspect-square w-full border-0 border-gray-800 shadow-2xl relative">
         {board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const position = { row: rowIndex, col: colIndex };
@@ -52,6 +63,11 @@ export default function ChessBoard({
               ? positionsEqual(position, kingInCheckPos)
               : false;
 
+            // Vérifier si cette case est la source de l'animation
+            const isAnimatingFrom = animatingMove
+              ? positionsEqual(position, animatingMove.from)
+              : false;
+
             return (
               <ChessSquare
                 key={`${rowIndex}-${colIndex}`}
@@ -64,9 +80,21 @@ export default function ChessBoard({
                 isCheck={isCheckSquare}
                 onClick={() => onSquareClick(position)}
                 theme={theme}
+                isAnimatingFrom={isAnimatingFrom}
+                animatingMove={animatingMove}
               />
             );
           })
+        )}
+
+        {/* Pièce animée qui glisse au-dessus de l'échiquier */}
+        {animatingMove && onAnimationComplete && (
+          <AnimatedPiece
+            piece={animatingMove.piece}
+            from={animatingMove.from}
+            to={animatingMove.to}
+            onComplete={onAnimationComplete}
+          />
         )}
       </div>
     </div>

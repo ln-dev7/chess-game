@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback, useEffect } from "react";
-import { GameState, Position, PieceType } from "@/types/chess";
+import { GameState, Position, PieceType, Piece } from "@/types/chess";
 import {
   createInitialGameState,
   executeMove,
@@ -16,6 +16,15 @@ import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
 import ThemeSelector from "./ThemeSelector";
 
+// Durée de l'animation en millisecondes
+const ANIMATION_DURATION = 300;
+
+interface AnimatingMove {
+  from: Position;
+  to: Position;
+  piece: Piece;
+}
+
 export default function ChessGame() {
   const [gameState, setGameState] = useState<GameState>(
     createInitialGameState()
@@ -25,6 +34,10 @@ export default function ChessGame() {
     to: Position;
   } | null>(null);
   const [theme, setTheme] = useState<ChessTheme>(getSavedTheme());
+  const [animatingMove, setAnimatingMove] = useState<AnimatingMove | null>(
+    null
+  );
+  const [isAnimating, setIsAnimating] = useState(false);
 
   // Charger le thème sauvegardé au montage du composant
   useEffect(() => {
@@ -38,8 +51,13 @@ export default function ChessGame() {
 
   const handleSquareClick = useCallback(
     (position: Position) => {
-      // Si la partie est terminée, ne rien faire
-      if (gameState.isCheckmate || gameState.isStalemate || gameState.isDraw) {
+      // Si une animation est en cours ou la partie est terminée, ne rien faire
+      if (
+        isAnimating ||
+        gameState.isCheckmate ||
+        gameState.isStalemate ||
+        gameState.isDraw
+      ) {
         return;
       }
 
@@ -79,13 +97,24 @@ export default function ChessGame() {
             return;
           }
 
-          // Exécuter le mouvement
-          const newState = executeMove(
-            gameState,
-            gameState.selectedSquare,
-            position
-          );
-          setGameState(newState);
+          // Déclencher l'animation
+          setIsAnimating(true);
+          const movingPiece =
+            gameState.board[gameState.selectedSquare.row][
+              gameState.selectedSquare.col
+            ];
+
+          // Vérification de sécurité : la pièce doit exister
+          if (!movingPiece) {
+            setIsAnimating(false);
+            return;
+          }
+
+          setAnimatingMove({
+            from: gameState.selectedSquare,
+            to: position,
+            piece: movingPiece,
+          });
           return;
         }
 
@@ -127,28 +156,66 @@ export default function ChessGame() {
         });
       }
     },
-    [gameState]
+    [gameState, isAnimating]
   );
 
   const handlePromotion = useCallback(
     (pieceType: PieceType) => {
       if (!pendingPromotion) return;
 
-      const newState = executeMove(
-        gameState,
-        pendingPromotion.from,
-        pendingPromotion.to,
-        pieceType
-      );
-      setGameState(newState);
-      setPendingPromotion(null);
+      // Déclencher l'animation
+      setIsAnimating(true);
+      const movingPiece =
+        gameState.board[pendingPromotion.from.row][pendingPromotion.from.col];
+
+      // Vérification de sécurité : la pièce doit exister
+      if (!movingPiece) {
+        setIsAnimating(false);
+        return;
+      }
+
+      setAnimatingMove({
+        from: pendingPromotion.from,
+        to: pendingPromotion.to,
+        piece: movingPiece,
+      });
+
+      // Stocker le type de pièce pour la promotion après l'animation
+      // On doit attendre la fin de l'animation
+      setTimeout(() => {
+        const newState = executeMove(
+          gameState,
+          pendingPromotion.from,
+          pendingPromotion.to,
+          pieceType
+        );
+        setGameState(newState);
+        setPendingPromotion(null);
+        setAnimatingMove(null);
+        setIsAnimating(false);
+      }, ANIMATION_DURATION);
     },
     [gameState, pendingPromotion]
   );
 
+  const handleAnimationComplete = useCallback(() => {
+    if (!animatingMove || !gameState.selectedSquare) return;
+
+    const newState = executeMove(
+      gameState,
+      animatingMove.from,
+      animatingMove.to
+    );
+    setGameState(newState);
+    setAnimatingMove(null);
+    setIsAnimating(false);
+  }, [animatingMove, gameState]);
+
   const handleNewGame = useCallback(() => {
     setGameState(createInitialGameState());
     setPendingPromotion(null);
+    setAnimatingMove(null);
+    setIsAnimating(false);
   }, []);
 
   const handleResign = useCallback(() => {
@@ -188,6 +255,8 @@ export default function ChessGame() {
               gameState={gameState}
               onSquareClick={handleSquareClick}
               theme={theme}
+              animatingMove={animatingMove}
+              onAnimationComplete={handleAnimationComplete}
             />
           </div>
 

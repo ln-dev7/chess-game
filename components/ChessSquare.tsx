@@ -2,6 +2,11 @@ import { Position, Piece } from "@/types/chess";
 import { ChessTheme } from "@/lib/chess-themes";
 import ChessPiece from "./ChessPiece";
 
+interface AnimatingMove {
+  from: Position;
+  to: Position;
+}
+
 interface ChessSquareProps {
   position: Position;
   piece: Piece | null;
@@ -12,6 +17,8 @@ interface ChessSquareProps {
   isCheck: boolean;
   onClick: () => void;
   theme: ChessTheme;
+  isAnimatingFrom?: boolean;
+  animatingMove?: AnimatingMove | null;
 }
 
 export default function ChessSquare({
@@ -24,6 +31,7 @@ export default function ChessSquare({
   isCheck,
   onClick,
   theme,
+  isAnimatingFrom,
 }: ChessSquareProps) {
   // Déterminer la couleur de fond selon l'état
   let backgroundColor: string;
@@ -78,8 +86,8 @@ export default function ChessSquare({
         </div>
       )}
 
-      {/* Pièce */}
-      {piece && <ChessPiece piece={piece} />}
+      {/* Pièce - masquée si elle est en cours d'animation */}
+      {piece && !isAnimatingFrom && <ChessPiece piece={piece} />}
     </div>
   );
 }
