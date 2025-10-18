@@ -3,6 +3,7 @@
 import { forwardRef, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import ChessBoard from "./ChessBoard";
+import CheckmateAnimation from "./CheckmateAnimation";
 import { GameState, Position, Piece } from "@/types/chess";
 import { ChessTheme } from "@/lib/chess-themes";
 
@@ -22,6 +23,8 @@ interface BoardContainerProps {
   showCoordinates: boolean;
   isRotated: boolean;
   animationDuration: number;
+  showCheckmateAnimation: boolean;
+  onCheckmateAnimationComplete: () => void;
 }
 
 const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
@@ -36,6 +39,8 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
       showCoordinates,
       isRotated,
       animationDuration,
+      showCheckmateAnimation,
+      onCheckmateAnimationComplete,
     },
     ref
   ) => {
@@ -97,6 +102,16 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
           >
             <X className="w-6 h-6 text-gray-700" />
           </button>
+        )}
+
+        {/* Animation d'échec et mat en plein écran */}
+        {isFullscreen && showCheckmateAnimation && (
+          <CheckmateAnimation
+            loserColor={gameState.currentPlayer === "white" ? "black" : "white"}
+            pieceStyle={pieceStyle}
+            onComplete={onCheckmateAnimationComplete}
+            endReason={gameState.gameEndReason || "checkmate"}
+          />
         )}
       </div>
     );

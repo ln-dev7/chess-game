@@ -12,8 +12,8 @@ export interface ThemeState {
 export const useThemeStore = create<ThemeState>()(
   persist(
     (set) => ({
-      themeId: "classic",
-      pieceStyleId: "classic",
+      themeId: "wood",
+      pieceStyleId: "colorful",
 
       setThemeId: (id) => set({ themeId: id }),
       setPieceStyleId: (id) => set({ pieceStyleId: id }),

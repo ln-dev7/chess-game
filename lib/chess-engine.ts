@@ -33,6 +33,7 @@ export function createInitialGameState(): GameState {
     isCheckmate: false,
     isStalemate: false,
     isDraw: false,
+    gameEndReason: null,
     enPassantTarget: null,
     whiteKingMoved: false,
     blackKingMoved: false,
@@ -567,8 +568,10 @@ export function executeMove(
   if (!hasLegalMoves) {
     if (newState.isCheck) {
       newState.isCheckmate = true;
+      newState.gameEndReason = "checkmate";
     } else {
       newState.isStalemate = true;
+      newState.gameEndReason = "draw";
     }
   }
 
@@ -577,11 +580,13 @@ export function executeMove(
   if (newState.halfMoveClock >= 100) {
     // 50 coups = 100 demi-coups
     newState.isDraw = true;
+    newState.gameEndReason = "draw";
   }
 
   // Matériel insuffisant
   if (hasInsufficientMaterial(newBoard)) {
     newState.isDraw = true;
+    newState.gameEndReason = "draw";
   }
 
   // Répétition de position
@@ -593,6 +598,7 @@ export function executeMove(
 
   if (occurrences >= 3) {
     newState.isDraw = true;
+    newState.gameEndReason = "draw";
   }
 
   return newState;

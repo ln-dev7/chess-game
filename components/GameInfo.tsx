@@ -16,12 +16,27 @@ export default function GameInfo({ gameState }: GameInfoProps) {
     isStalemate,
     isDraw,
     moveHistory,
+    gameEndReason,
   } = gameState;
 
   const getStatusText = () => {
     if (isCheckmate) {
       const winner = currentPlayer === "white" ? "Noirs" : "Blancs";
-      return `Échec et mat ! Les ${winner} gagnent !`;
+      let reason = "";
+      switch (gameEndReason) {
+        case "checkmate":
+          reason = "par échec et mat";
+          break;
+        case "timeout":
+          reason = "au temps";
+          break;
+        case "resignation":
+          reason = "par abandon";
+          break;
+        default:
+          reason = "par échec et mat";
+      }
+      return `Les ${winner} gagnent ${reason} !`;
     }
     if (isStalemate) {
       return "Pat ! Partie nulle.";

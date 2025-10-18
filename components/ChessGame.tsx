@@ -97,7 +97,7 @@ export default function ChessGame() {
           if (prev <= 0) {
             clearInterval(timerRef.current!);
             // Défaite par timeout
-            setGameState((gs) => ({ ...gs, isCheckmate: true }));
+            setGameState((gs) => ({ ...gs, isCheckmate: true, gameEndReason: "timeout" }));
             playSound("checkmate");
             setTimeout(() => {
               setShowCheckmateAnimation(true);
@@ -111,7 +111,7 @@ export default function ChessGame() {
           if (prev <= 0) {
             clearInterval(timerRef.current!);
             // Défaite par timeout
-            setGameState((gs) => ({ ...gs, isCheckmate: true }));
+            setGameState((gs) => ({ ...gs, isCheckmate: true, gameEndReason: "timeout" }));
             playSound("checkmate");
             setTimeout(() => {
               setShowCheckmateAnimation(true);
@@ -385,26 +385,33 @@ export default function ChessGame() {
     setGameState({
       ...gameState,
       isCheckmate: true,
+      gameEndReason: "resignation",
       selectedSquare: null,
       validMoves: [],
     });
+    playSound("checkmate");
+    setTimeout(() => {
+      setShowCheckmateAnimation(true);
+    }, 500);
   }, [gameState]);
 
   const handleOfferDraw = useCallback(() => {
     setGameState({
       ...gameState,
       isDraw: true,
+      gameEndReason: "draw",
       selectedSquare: null,
       validMoves: [],
     });
+    playSound("draw");
   }, [gameState]);
 
   const isGameOver =
     gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
 
   return (
-    <div className="min-h-screen bg-white p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-white">
+      <div className="max-w-7xl mx-auto p-4 md:p-8">
         <div className="text-center mb-8 relative">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
             Jeu d&apos;Échecs
@@ -428,8 +435,7 @@ export default function ChessGame() {
           </a>
         </div>
 
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 lg:h-[calc(100vh-12rem)]">
           <BoardContainer
             ref={boardRef}
             gameState={gameState}
@@ -441,9 +447,11 @@ export default function ChessGame() {
             showCoordinates={showCoordinates}
             isRotated={boardRotation}
             animationDuration={animationDuration}
+            showCheckmateAnimation={showCheckmateAnimation}
+            onCheckmateAnimationComplete={() => setShowCheckmateAnimation(false)}
           />
 
-          <div className="space-y-6">
+          <div className="space-y-6 lg:overflow-y-auto lg:h-full lg:pr-2">
             <GameInfo gameState={gameState} />
             {selectedTimeControl.initialTime > 0 && (
               <ChessClock
@@ -481,6 +489,7 @@ export default function ChessGame() {
           loserColor={gameState.currentPlayer === "white" ? "black" : "white"}
           pieceStyle={pieceStyle.id}
           onComplete={() => setShowCheckmateAnimation(false)}
+          endReason={gameState.gameEndReason || "checkmate"}
         />
       )}
     </div>

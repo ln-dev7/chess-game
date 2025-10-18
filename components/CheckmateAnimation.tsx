@@ -9,12 +9,14 @@ interface CheckmateAnimationProps {
   loserColor: PieceColor;
   pieceStyle: string;
   onComplete: () => void;
+  endReason?: "checkmate" | "timeout" | "resignation" | "draw";
 }
 
 export default function CheckmateAnimation({
   loserColor,
   pieceStyle,
   onComplete,
+  endReason = "checkmate",
 }: CheckmateAnimationProps) {
   const [showExplosion, setShowExplosion] = useState(false);
 
@@ -34,6 +36,21 @@ export default function CheckmateAnimation({
   }, [onComplete]);
 
   const kingPath = `/pieces/${pieceStyle}/${loserColor}/king.svg`;
+
+  const getEndMessage = () => {
+    switch (endReason) {
+      case "checkmate":
+        return "ÉCHEC ET MAT!";
+      case "timeout":
+        return "TEMPS ÉCOULÉ!";
+      case "resignation":
+        return "ABANDON!";
+      case "draw":
+        return "PARTIE NULLE!";
+      default:
+        return "FIN DE PARTIE!";
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
@@ -124,7 +141,7 @@ export default function CheckmateAnimation({
           </>
         )}
 
-        {/* Texte "ÉCHEC ET MAT!" */}
+        {/* Texte de fin de partie */}
         <motion.div
           className="absolute -bottom-32 left-1/2 -translate-x-1/2 whitespace-nowrap"
           initial={{ opacity: 0, y: -20, scale: 0.8 }}
@@ -137,7 +154,7 @@ export default function CheckmateAnimation({
           }}
         >
           <div className="text-5xl font-bold text-white drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]">
-            ÉCHEC ET MAT!
+            {getEndMessage()}
           </div>
         </motion.div>
       </div>

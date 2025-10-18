@@ -29,6 +29,8 @@ export interface Move {
   promotionPiece?: PieceType;
 }
 
+export type GameEndReason = "checkmate" | "timeout" | "resignation" | "draw" | null;
+
 export interface GameState {
   board: (Piece | null)[][];
   currentPlayer: PieceColor;
@@ -39,6 +41,7 @@ export interface GameState {
   isCheckmate: boolean;
   isStalemate: boolean;
   isDraw: boolean;
+  gameEndReason: GameEndReason; // Raison de fin de partie
   enPassantTarget: Position | null;
   whiteKingMoved: boolean;
   blackKingMoved: boolean;
