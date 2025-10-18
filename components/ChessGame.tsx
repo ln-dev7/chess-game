@@ -103,6 +103,15 @@ export default function ChessGame() {
       return;
     }
 
+    // Ne pas démarrer le timer si l'IA est en train de réfléchir
+    if (isAIThinking) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
     // Démarrer le timer
     timerRef.current = setInterval(() => {
       if (gameState.currentPlayer === "white") {
@@ -156,6 +165,7 @@ export default function ChessGame() {
     gameState.isStalemate,
     gameState.isDraw,
     selectedTimeControl.initialTime,
+    isAIThinking,
   ]);
 
   // Réinitialiser les temps quand le contrôle de temps change
@@ -191,10 +201,53 @@ export default function ChessGame() {
     ) {
       setIsAIThinking(true);
 
+      // Capturer le temps de début
+      const startTime = Date.now();
+
       // Laisser un petit délai avant que l'IA joue
       setTimeout(async () => {
         try {
           const aiMove = await getAIMove(gameState, aiLevel, aiColor);
+
+          // Calculer le temps écoulé (en secondes)
+          // Minimum 1 seconde pour garantir que le timer diminue
+          const elapsedTime = Math.max(
+            1,
+            Math.ceil((Date.now() - startTime) / 1000)
+          );
+
+          // Déduire le temps de l'IA si une partie chronométrée
+          let aiTimeRemaining = Infinity;
+          if (selectedTimeControl.initialTime > 0) {
+            if (aiColor === "white") {
+              setWhiteTime((prev) => {
+                const newTime = Math.max(0, prev - elapsedTime);
+                aiTimeRemaining = newTime;
+                return newTime;
+              });
+            } else {
+              setBlackTime((prev) => {
+                const newTime = Math.max(0, prev - elapsedTime);
+                aiTimeRemaining = newTime;
+                return newTime;
+              });
+            }
+
+            // Vérifier si l'IA a épuisé son temps
+            if (aiTimeRemaining === 0) {
+              setGameState((gs) => ({
+                ...gs,
+                isCheckmate: true,
+                gameEndReason: "timeout",
+              }));
+              playSound("checkmate");
+              setTimeout(() => {
+                setShowCheckmateAnimation(true);
+              }, 500);
+              setIsAIThinking(false);
+              return;
+            }
+          }
 
           if (aiMove) {
             const piece = gameState.board[aiMove.from.row][aiMove.from.col];
@@ -333,6 +386,7 @@ export default function ChessGame() {
     pendingPromotion,
     isAIThinking,
     animationDuration,
+    selectedTimeControl.initialTime,
     selectedTimeControl.increment,
     gameStarted,
   ]);
