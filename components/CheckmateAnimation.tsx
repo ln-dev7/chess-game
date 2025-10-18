@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
 import Image from "next/image";
 import { PieceColor } from "@/types/chess";
 
@@ -18,6 +19,7 @@ export default function CheckmateAnimation({
   onComplete,
   endReason = "checkmate",
 }: CheckmateAnimationProps) {
+  const t = useTranslations("checkmate");
   const [showExplosion, setShowExplosion] = useState(false);
 
   useEffect(() => {
@@ -38,18 +40,11 @@ export default function CheckmateAnimation({
   const kingPath = `/pieces/${pieceStyle}/${loserColor}/king.svg`;
 
   const getEndMessage = () => {
-    switch (endReason) {
-      case "checkmate":
-        return "ÉCHEC ET MAT!";
-      case "timeout":
-        return "TEMPS ÉCOULÉ!";
-      case "resignation":
-        return "ABANDON!";
-      case "draw":
-        return "PARTIE NULLE!";
-      default:
-        return "FIN DE PARTIE!";
+    if (endReason === "draw") {
+      return t("draw").toUpperCase();
     }
+    const winner = loserColor === "white" ? t("blackWins") : t("whiteWins");
+    return winner.toUpperCase();
   };
 
   return (

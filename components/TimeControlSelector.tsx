@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Clock } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { Clock, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -11,10 +12,21 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { TIME_CONTROLS, TimeControl, TimeControlType } from "@/lib/time-controls";
+import {
+  TIME_CONTROLS,
+  TimeControl,
+  TimeControlType,
+} from "@/lib/time-controls";
 import { useTimeControlStore } from "@/store/useTimeControlStore";
 
-export default function TimeControlSelector() {
+interface TimeControlSelectorProps {
+  gameStarted?: boolean;
+}
+
+export default function TimeControlSelector({
+  gameStarted = false,
+}: TimeControlSelectorProps) {
+  const t = useTranslations("timeControl");
   const [open, setOpen] = useState(false);
   const { selectedTimeControl, setTimeControl } = useTimeControlStore();
 
@@ -37,30 +49,52 @@ export default function TimeControlSelector() {
   });
 
   const typeLabels: Record<TimeControlType, string> = {
-    none: "Sans limite",
-    bullet: "Bullet (1-2 min)",
-    blitz: "Blitz (3-5 min)",
-    rapid: "Rapid (10-30 min)",
-    classical: "Classique (60+ min)",
+    none: t("noTime"),
+    bullet: t("bullet"),
+    blitz: t("blitz"),
+    rapid: t("rapid"),
+    classical: t("classical"),
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (gameStarted && isOpen) {
+          // Ne pas ouvrir si une partie est en cours
+          return;
+        }
+        setOpen(isOpen);
+      }}
+    >
       <DialogTrigger asChild>
-        <Button variant="outline" className="w-full">
+        <Button
+          variant="outline"
+          className="w-full"
+          disabled={gameStarted}
+          title={gameStarted ? t("cannotChange") : ""}
+        >
           <Clock className="w-4 h-4 mr-2" />
-          Type de partie
+          {t("title")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
             <Clock className="w-6 h-6" />
-            Type de partie
+            {t("title")}
           </DialogTitle>
-          <p className="text-sm text-gray-600 mt-2">
-            Actuellement : <span className="font-semibold">{selectedTimeControl.name}</span>
-          </p>
+          {gameStarted ? (
+            <div className="flex items-center gap-2 p-3 bg-amber-50 border border-amber-200 rounded-md mt-2">
+              <AlertTriangle className="w-4 h-4 text-amber-600" />
+              <p className="text-sm text-amber-800">{t("cannotChange")}</p>
+            </div>
+          ) : (
+            <p className="text-sm text-gray-600 mt-2">
+              Currently:{" "}
+              <span className="font-semibold">{selectedTimeControl.name}</span>
+            </p>
+          )}
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh] pr-4">
@@ -78,7 +112,8 @@ export default function TimeControlSelector() {
                     {controls.map((control, index) => {
                       const isSelected =
                         selectedTimeControl.name === control.name &&
-                        selectedTimeControl.initialTime === control.initialTime &&
+                        selectedTimeControl.initialTime ===
+                          control.initialTime &&
                         selectedTimeControl.increment === control.increment;
 
                       return (

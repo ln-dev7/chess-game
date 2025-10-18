@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, RefObject } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -44,11 +45,18 @@ export default function GameControls({
   gameState,
   boardRef,
 }: GameControlsProps) {
+  const t = useTranslations("common");
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
-  const { themeId, pieceStyleId, setThemeId, setPieceStyleId } = useThemeStore();
+  const { themeId, pieceStyleId, setThemeId, setPieceStyleId } =
+    useThemeStore();
 
-  const currentTheme = CHESS_THEMES.find((t) => t.id === themeId) || CHESS_THEMES[0];
-  const currentPieceStyle = PIECE_STYLES.find((s) => s.id === pieceStyleId) || PIECE_STYLES[0];
+  const currentTheme =
+    CHESS_THEMES.find((t) => t.id === themeId) || CHESS_THEMES[0];
+  const currentPieceStyle =
+    PIECE_STYLES.find((s) => s.id === pieceStyleId) || PIECE_STYLES[0];
+
+  // Une partie est considérée comme démarrée si au moins un coup a été joué
+  const gameStarted = gameState.moveHistory.length > 0;
 
   return (
     <div className="space-y-6 w-full">
@@ -57,51 +65,45 @@ export default function GameControls({
           <AlertDialogTrigger asChild>
             <Button variant="outline" className="flex-1">
               <RotateCcw className="w-4 h-4 mr-2" />
-              Nouvelle partie
+              {t("newGame")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>
-                Commencer une nouvelle partie ?
-              </AlertDialogTitle>
+              <AlertDialogTitle>Start a new game?</AlertDialogTitle>
               <AlertDialogDescription>
-                Cela réinitialisera la partie actuelle. Cette action ne peut pas
-                être annulée.
+                This will reset the current game. This action cannot be undone.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Annuler</AlertDialogCancel>
-              <AlertDialogAction onClick={onNewGame}>
-                Confirmer
-              </AlertDialogAction>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={onNewGame}>Confirm</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
 
-        {!isGameOver && gameState.moveHistory.length > 0 && (
+        {!isGameOver && gameStarted && (
           <>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="destructive" className="flex-1">
                   <Flag className="w-4 h-4 mr-2" />
-                  Abandonner
+                  {t("resign")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Abandonner la partie ?</AlertDialogTitle>
+                  <AlertDialogTitle>Resign the game?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Les {currentPlayer === "white" ? "Blancs" : "Noirs"}{" "}
-                    abandonnent. Les{" "}
-                    {currentPlayer === "white" ? "Noirs" : "Blancs"} gagnent la
-                    partie.
+                    {currentPlayer === "white" ? "White" : "Black"} resigns.{" "}
+                    {currentPlayer === "white" ? "Black" : "White"} wins the
+                    game.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Annuler</AlertDialogCancel>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction onClick={onResign}>
-                    Confirmer
+                    Confirm
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -110,22 +112,20 @@ export default function GameControls({
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="secondary" className="flex-1">
-                  Proposer nulle
+                  {t("offerDraw")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Proposer une partie nulle ?
-                  </AlertDialogTitle>
+                  <AlertDialogTitle>Offer a draw?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Les deux joueurs acceptent-ils la nulle ?
+                    Do both players accept the draw?
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Refuser</AlertDialogCancel>
+                  <AlertDialogCancel>Decline</AlertDialogCancel>
                   <AlertDialogAction onClick={onOfferDraw}>
-                    Accepter
+                    Accept
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -135,12 +135,10 @@ export default function GameControls({
       </div>
 
       {/* Export PGN - toujours disponible si des coups ont été joués */}
-      {gameState.moveHistory.length > 0 && (
-        <ExportPGNDialog gameState={gameState} />
-      )}
+      {gameStarted && <ExportPGNDialog gameState={gameState} />}
 
       {/* Time Control Selector */}
-      <TimeControlSelector />
+      <TimeControlSelector gameStarted={gameStarted} />
 
       {/* Theme and Piece Style Selectors */}
       <ThemeSelector
@@ -157,10 +155,9 @@ export default function GameControls({
         <button
           onClick={() => setIsPreferencesOpen(true)}
           className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-          title="Paramètres"
         >
           <Settings className="w-5 h-5" />
-          Paramètres
+          Settings
         </button>
 
         <FullscreenButton boardRef={boardRef} />

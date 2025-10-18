@@ -1,0 +1,104 @@
+{
+  "common": {
+    "chess": "Chess Game",
+    "localGame": "Local Two-Player Game",
+    "github": "GitHub",
+    "white": "White",
+    "black": "Black",
+    "newGame": "New Game",
+    "resign": "Resign",
+    "offerDraw": "Offer Draw",
+    "undo": "Undo",
+    "redo": "Redo"
+  },
+  "game": {
+    "info": "Game Information",
+    "currentPlayer": "Current Player",
+    "status": "Status",
+    "playing": "Playing",
+    "check": "Check!",
+    "checkmate": "Checkmate!",
+    "stalemate": "Stalemate!",
+    "draw": "Draw!",
+    "winner": "Winner",
+    "whiteWins": "White Wins",
+    "blackWins": "Black Wins",
+    "endReason": {
+      "checkmate": "Checkmate",
+      "timeout": "Time Out",
+      "resignation": "Resignation",
+      "draw": "Draw by Agreement"
+    }
+  },
+  "clock": {
+    "title": "Clock",
+    "timeControl": "Time Control"
+  },
+  "history": {
+    "title": "Move History",
+    "noMoves": "No moves yet"
+  },
+  "preferences": {
+    "title": "Preferences",
+    "theme": "Board Theme",
+    "pieceStyle": "Piece Style",
+    "coordinates": "Show Coordinates",
+    "boardRotation": "Board Rotation",
+    "rotateAfterMove": "Rotate After Each Move",
+    "animationSpeed": "Animation Speed",
+    "instant": "Instant",
+    "fast": "Fast",
+    "normal": "Normal",
+    "slow": "Slow",
+    "sound": "Sound",
+    "volume": "Volume",
+    "close": "Close"
+  },
+  "controls": {
+    "exportPGN": "Export PGN",
+    "fullscreen": "Fullscreen",
+    "preferences": "Preferences"
+  },
+  "timeControl": {
+    "title": "Time Control",
+    "noTime": "No Time Limit",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapid",
+    "classical": "Classical",
+    "custom": "Custom",
+    "minutes": "Minutes",
+    "increment": "Increment (seconds)",
+    "cannotChange": "Cannot change time control during a game"
+  },
+  "promotion": {
+    "title": "Promote Pawn",
+    "selectPiece": "Select a piece for promotion:"
+  },
+  "export": {
+    "title": "Export PGN",
+    "eventLabel": "Event",
+    "siteLabel": "Site",
+    "dateLabel": "Date",
+    "whiteLabel": "White Player",
+    "blackLabel": "Black Player",
+    "resultLabel": "Result",
+    "copy": "Copy to Clipboard",
+    "download": "Download PGN File",
+    "close": "Close",
+    "copied": "PGN copied to clipboard!"
+  },
+  "checkmate": {
+    "title": "Game Over!",
+    "whiteWins": "White Wins!",
+    "blackWins": "Black Wins!",
+    "draw": "Draw!",
+    "reason": {
+      "checkmate": "by Checkmate",
+      "timeout": "by Time Out",
+      "resignation": "by Resignation",
+      "draw": "by Agreement"
+    },
+    "playAgain": "Play Again"
+  }
+}

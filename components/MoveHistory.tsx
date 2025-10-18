@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Move } from "@/types/chess";
 import { positionToAlgebraic } from "@/lib/chess-utils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,6 +81,8 @@ function formatMove(move: Move): string {
 }
 
 export default function MoveHistory({ moves }: MoveHistoryProps) {
+  const t = useTranslations("history");
+
   // Grouper les coups par paire (blanc, noir)
   const movePairs: {
     number: number;
@@ -98,13 +101,13 @@ export default function MoveHistory({ moves }: MoveHistoryProps) {
   return (
     <Card className="w-full">
       <CardHeader>
-        <CardTitle>Historique des coups</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <ScrollArea className="h-64 w-full rounded-md border p-4">
           {movePairs.length === 0 ? (
             <p className="text-sm text-gray-500 text-center py-8">
-              Aucun coup joué
+              {t("noMoves")}
             </p>
           ) : (
             <div className="space-y-1">

@@ -1,0 +1,104 @@
+{
+  "common": {
+    "chess": "Jeu d'Échecs",
+    "localGame": "Partie locale à deux joueurs",
+    "github": "GitHub",
+    "white": "Blancs",
+    "black": "Noirs",
+    "newGame": "Nouvelle Partie",
+    "resign": "Abandonner",
+    "offerDraw": "Proposer Nulle",
+    "undo": "Annuler",
+    "redo": "Refaire"
+  },
+  "game": {
+    "info": "Informations de la partie",
+    "currentPlayer": "Joueur actuel",
+    "status": "Statut",
+    "playing": "En cours",
+    "check": "Échec !",
+    "checkmate": "Échec et mat !",
+    "stalemate": "Pat !",
+    "draw": "Match nul !",
+    "winner": "Vainqueur",
+    "whiteWins": "Les Blancs gagnent",
+    "blackWins": "Les Noirs gagnent",
+    "endReason": {
+      "checkmate": "Échec et mat",
+      "timeout": "Temps écoulé",
+      "resignation": "Abandon",
+      "draw": "Match nul par accord"
+    }
+  },
+  "clock": {
+    "title": "Horloge",
+    "timeControl": "Cadence"
+  },
+  "history": {
+    "title": "Historique des coups",
+    "noMoves": "Aucun coup joué"
+  },
+  "preferences": {
+    "title": "Préférences",
+    "theme": "Thème de l'échiquier",
+    "pieceStyle": "Style des pièces",
+    "coordinates": "Afficher les coordonnées",
+    "boardRotation": "Rotation de l'échiquier",
+    "rotateAfterMove": "Tourner après chaque coup",
+    "animationSpeed": "Vitesse d'animation",
+    "instant": "Instantané",
+    "fast": "Rapide",
+    "normal": "Normal",
+    "slow": "Lent",
+    "sound": "Son",
+    "volume": "Volume",
+    "close": "Fermer"
+  },
+  "controls": {
+    "exportPGN": "Exporter PGN",
+    "fullscreen": "Plein écran",
+    "preferences": "Préférences"
+  },
+  "timeControl": {
+    "title": "Contrôle du temps",
+    "noTime": "Sans limite de temps",
+    "bullet": "Bullet",
+    "blitz": "Blitz",
+    "rapid": "Rapide",
+    "classical": "Classique",
+    "custom": "Personnalisé",
+    "minutes": "Minutes",
+    "increment": "Incrément (secondes)",
+    "cannotChange": "Impossible de changer la cadence pendant une partie"
+  },
+  "promotion": {
+    "title": "Promotion du pion",
+    "selectPiece": "Sélectionnez une pièce pour la promotion :"
+  },
+  "export": {
+    "title": "Exporter PGN",
+    "eventLabel": "Événement",
+    "siteLabel": "Site",
+    "dateLabel": "Date",
+    "whiteLabel": "Joueur blanc",
+    "blackLabel": "Joueur noir",
+    "resultLabel": "Résultat",
+    "copy": "Copier dans le presse-papiers",
+    "download": "Télécharger le fichier PGN",
+    "close": "Fermer",
+    "copied": "PGN copié dans le presse-papiers !"
+  },
+  "checkmate": {
+    "title": "Partie terminée !",
+    "whiteWins": "Les Blancs gagnent !",
+    "blackWins": "Les Noirs gagnent !",
+    "draw": "Match nul !",
+    "reason": {
+      "checkmate": "par échec et mat",
+      "timeout": "par temps écoulé",
+      "resignation": "par abandon",
+      "draw": "par accord"
+    },
+    "playAgain": "Rejouer"
+  }
+}

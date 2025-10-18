@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { PieceType, PieceColor } from "@/types/chess";
 import Image from "next/image";
 import {
@@ -19,7 +20,11 @@ interface PromotionDialogProps {
 /**
  * Retourne le chemin vers le SVG de la pièce selon le style choisi
  */
-function getPiecePath(color: PieceColor, type: PieceType, style: string = "classic"): string {
+function getPiecePath(
+  color: PieceColor,
+  type: PieceType,
+  style: string = "classic"
+): string {
   return `/pieces/${style}/${color}/${type}.svg`;
 }
 
@@ -29,13 +34,14 @@ export default function PromotionDialog({
   onSelect,
   pieceStyle = "classic",
 }: PromotionDialogProps) {
+  const t = useTranslations("promotion");
   const pieces: PieceType[] = ["queen", "rook", "bishop", "knight"];
 
   return (
     <Dialog open={isOpen}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Choisir une pièce pour la promotion</DialogTitle>
+          <DialogTitle>{t("selectPiece")}</DialogTitle>
         </DialogHeader>
         <div className="grid grid-cols-4 gap-4 py-4">
           {pieces.map((pieceType) => (

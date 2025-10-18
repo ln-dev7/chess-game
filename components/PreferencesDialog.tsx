@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,10 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { usePreferencesStore, AnimationSpeed } from "@/store/usePreferencesStore";
+import {
+  usePreferencesStore,
+  AnimationSpeed,
+} from "@/store/usePreferencesStore";
 
 interface PreferencesDialogProps {
   isOpen: boolean;
@@ -26,6 +30,9 @@ export default function PreferencesDialog({
   isOpen,
   onClose,
 }: PreferencesDialogProps) {
+  const t = useTranslations("preferences");
+  const tCommon = useTranslations("common");
+
   const {
     boardRotation,
     showCoordinates,
@@ -43,7 +50,7 @@ export default function PreferencesDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Paramètres</DialogTitle>
+          <DialogTitle className="text-2xl">{t("title")}</DialogTitle>
         </DialogHeader>
 
         <ScrollArea className="max-h-[70vh] pr-4">
@@ -51,17 +58,22 @@ export default function PreferencesDialog({
             {/* Section Apparence */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                Apparence
+                Appearance
               </h3>
 
               {/* Rotation de l'échiquier */}
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <Label htmlFor="board-rotation" className="text-sm font-medium">
-                    Rotation de l&apos;échiquier
+                  <Label
+                    htmlFor="board-rotation"
+                    className="text-sm font-medium"
+                  >
+                    {t("boardRotation")}
                   </Label>
                   <p className="text-xs text-gray-600 mt-1">
-                    {boardRotation ? "Noirs en bas" : "Blancs en bas"}
+                    {boardRotation
+                      ? `${tCommon("black")} at bottom`
+                      : `${tCommon("white")} at bottom`}
                   </p>
                 </div>
                 <button
@@ -82,11 +94,14 @@ export default function PreferencesDialog({
               {/* Affichage des coordonnées */}
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <Label htmlFor="show-coordinates" className="text-sm font-medium">
-                    Afficher les coordonnées
+                  <Label
+                    htmlFor="show-coordinates"
+                    className="text-sm font-medium"
+                  >
+                    {t("coordinates")}
                   </Label>
                   <p className="text-xs text-gray-600 mt-1">
-                    Lettres et chiffres sur l&apos;échiquier
+                    Letters and numbers on the board
                   </p>
                 </div>
                 <button
@@ -112,21 +127,26 @@ export default function PreferencesDialog({
               </h3>
 
               <div className="space-y-2">
-                <Label htmlFor="animation-speed" className="text-sm font-medium">
-                  Vitesse des animations
+                <Label
+                  htmlFor="animation-speed"
+                  className="text-sm font-medium"
+                >
+                  {t("animationSpeed")}
                 </Label>
                 <Select
                   value={animationSpeed}
-                  onValueChange={(value) => setAnimationSpeed(value as AnimationSpeed)}
+                  onValueChange={(value) =>
+                    setAnimationSpeed(value as AnimationSpeed)
+                  }
                 >
                   <SelectTrigger id="animation-speed">
-                    <SelectValue placeholder="Sélectionner la vitesse" />
+                    <SelectValue placeholder="Select speed" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="slow">Lente</SelectItem>
-                    <SelectItem value="normal">Normale</SelectItem>
-                    <SelectItem value="fast">Rapide</SelectItem>
-                    <SelectItem value="instant">Instantanée</SelectItem>
+                    <SelectItem value="slow">{t("slow")}</SelectItem>
+                    <SelectItem value="normal">{t("normal")}</SelectItem>
+                    <SelectItem value="fast">{t("fast")}</SelectItem>
+                    <SelectItem value="instant">{t("instant")}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -135,17 +155,20 @@ export default function PreferencesDialog({
             {/* Section Son */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">
-                Son
+                {t("sound")}
               </h3>
 
               {/* Activation/Désactivation du son */}
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div>
-                  <Label htmlFor="sound-enabled" className="text-sm font-medium">
-                    Effets sonores
+                  <Label
+                    htmlFor="sound-enabled"
+                    className="text-sm font-medium"
+                  >
+                    {t("sound")}
                   </Label>
                   <p className="text-xs text-gray-600 mt-1">
-                    Sons de déplacement, capture, échec, etc.
+                    Move, capture, check sounds, etc.
                   </p>
                 </div>
                 <button
@@ -168,7 +191,7 @@ export default function PreferencesDialog({
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <Label htmlFor="volume" className="text-sm font-medium">
-                      Volume
+                      {t("volume")}
                     </Label>
                     <span className="text-sm text-gray-500">
                       {Math.round(soundVolume * 100)}%
@@ -181,9 +204,7 @@ export default function PreferencesDialog({
                     max="1"
                     step="0.01"
                     value={soundVolume}
-                    onChange={(e) =>
-                      setSoundVolume(parseFloat(e.target.value))
-                    }
+                    onChange={(e) => setSoundVolume(parseFloat(e.target.value))}
                     className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
                     style={{
                       background: `linear-gradient(to right, #4f46e5 0%, #4f46e5 ${
@@ -202,7 +223,7 @@ export default function PreferencesDialog({
             onClick={onClose}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
           >
-            Fermer
+            {t("close")}
           </button>
         </div>
       </DialogContent>
