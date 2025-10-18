@@ -39,7 +39,7 @@ export default function AnimatedPiece({
 
   return (
     <motion.div
-      className="absolute flex items-center justify-center select-none pointer-events-none z-50 p-1"
+      className="absolute flex items-center justify-center select-none pointer-events-none z-50 p-2"
       style={{
         width: "12.5%",
         height: "12.5%",
@@ -61,9 +61,12 @@ export default function AnimatedPiece({
         alt={`${piece.color} ${piece.type}`}
         width={64}
         height={64}
-        className="w-full h-full object-contain drop-shadow-md"
+        className="w-[90%] h-[90%] object-contain drop-shadow-md"
         style={{
-          filter: piece.color === "white" ? "drop-shadow(0 1px 2px rgba(0,0,0,0.5))" : "none"
+          filter:
+            piece.color === "white"
+              ? "drop-shadow(0 1px 2px rgba(0,0,0,0.5))"
+              : "none",
         }}
       />
     </motion.div>
