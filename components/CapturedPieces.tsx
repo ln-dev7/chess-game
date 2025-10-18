@@ -64,12 +64,12 @@ export default function CapturedPieces({
   );
 
   return (
-    <div className="flex items-center gap-2 min-h-[32px]">
-      <div className="flex items-center gap-1 flex-wrap">
+    <div className="flex items-center gap-1.5 md:gap-2 min-h-[24px] md:min-h-[32px]">
+      <div className="flex items-center gap-0.5 md:gap-1 flex-wrap">
         {sortedCapturedPieces.map((piece, index) => (
           <div
             key={index}
-            className="w-6 h-6 flex items-center justify-center opacity-70 relative"
+            className="w-5 h-5 md:w-6 md:h-6 flex items-center justify-center opacity-70 relative"
           >
             <Image
               src={`/pieces/${pieceStyle}/${piece.color}/${piece.type}.svg`}
@@ -81,7 +81,7 @@ export default function CapturedPieces({
         ))}
       </div>
       {materialAdvantage > 0 && (
-        <span className="text-sm font-semibold text-green-600">
+        <span className="text-xs md:text-sm font-semibold text-green-600">
           +{materialAdvantage}
         </span>
       )}

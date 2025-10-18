@@ -77,7 +77,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
         }}
       >
         <div className="w-full flex flex-col items-center justify-start gap-3">
-          <div className="w-full max-w-[600px] h-10 px-2 flex items-start gap-4">
+          <div className="w-full max-w-[600px] h-8 md:h-10 px-2 flex items-start gap-2 md:gap-4">
             <div className="flex-1">
               <CapturedPieces
                 moveHistory={gameState.moveHistory}
