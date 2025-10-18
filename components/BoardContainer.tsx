@@ -70,20 +70,28 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
     return (
       <div
         ref={ref}
-        className="lg:col-span-2 flex justify-center items-center relative"
+        className="flex justify-center items-start relative"
         style={{
           backgroundColor: isFullscreen ? "#1a1a1a" : "transparent",
           minHeight: isFullscreen ? "100vh" : "auto",
         }}
       >
-        <div className="w-full flex flex-col items-center gap-3">
-          {/* Pièces capturées par les noirs (en haut) */}
-          <div className="w-full max-w-[600px] px-2">
-            <CapturedPieces
-              moveHistory={gameState.moveHistory}
-              color="black"
-              pieceStyle={pieceStyle}
-            />
+        <div className="w-full flex flex-col items-center justify-start gap-3">
+          <div className="w-full max-w-[600px] h-10 px-2 flex items-start gap-4">
+            <div className="flex-1">
+              <CapturedPieces
+                moveHistory={gameState.moveHistory}
+                color="white"
+                pieceStyle={pieceStyle}
+              />
+            </div>
+            <div className="flex-1">
+              <CapturedPieces
+                moveHistory={gameState.moveHistory}
+                color="black"
+                pieceStyle={pieceStyle}
+              />
+            </div>
           </div>
 
           <div
@@ -106,15 +114,6 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
               showCoordinates={showCoordinates}
               isRotated={isRotated}
               animationDuration={animationDuration}
-            />
-          </div>
-
-          {/* Pièces capturées par les blancs (en bas) */}
-          <div className="w-full max-w-[600px] px-2">
-            <CapturedPieces
-              moveHistory={gameState.moveHistory}
-              color="white"
-              pieceStyle={pieceStyle}
             />
           </div>
         </div>

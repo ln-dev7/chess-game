@@ -463,25 +463,27 @@ export default function ChessGame() {
           </a>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pb-8">
-          <BoardContainer
-            ref={boardRef}
-            gameState={gameState}
-            onSquareClick={handleSquareClick}
-            theme={theme}
-            animatingMove={animatingMove}
-            onAnimationComplete={handleAnimationComplete}
-            pieceStyle={pieceStyle.id}
-            showCoordinates={showCoordinates}
-            isRotated={boardRotation}
-            animationDuration={animationDuration}
-            showCheckmateAnimation={showCheckmateAnimation}
-            onCheckmateAnimationComplete={() =>
-              setShowCheckmateAnimation(false)
-            }
-          />
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 pb-8">
+          <div className="flex-1 lg:flex-[2]">
+            <BoardContainer
+              ref={boardRef}
+              gameState={gameState}
+              onSquareClick={handleSquareClick}
+              theme={theme}
+              animatingMove={animatingMove}
+              onAnimationComplete={handleAnimationComplete}
+              pieceStyle={pieceStyle.id}
+              showCoordinates={showCoordinates}
+              isRotated={boardRotation}
+              animationDuration={animationDuration}
+              showCheckmateAnimation={showCheckmateAnimation}
+              onCheckmateAnimationComplete={() =>
+                setShowCheckmateAnimation(false)
+              }
+            />
+          </div>
 
-          <div className="space-y-6">
+          <div className="flex-1 space-y-6">
             <GameInfo gameState={gameState} />
             {selectedTimeControl.initialTime > 0 && (
               <ChessClock
