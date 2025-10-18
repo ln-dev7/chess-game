@@ -24,7 +24,10 @@ function getPiecePath(piece: Piece, style: string = "classic"): string {
 /**
  * Convertit une position logique en position d'affichage selon la rotation
  */
-function getDisplayPosition(position: Position, isRotated: boolean): { x: number; y: number } {
+function getDisplayPosition(
+  position: Position,
+  isRotated: boolean
+): { x: number; y: number } {
   if (isRotated) {
     // Si l'échiquier est tourné, inverser les coordonnées
     return {
@@ -68,18 +71,21 @@ export default function AnimatedPiece({
         height: "12.5%",
         left: `${fromPos.x}%`,
         top: `${fromPos.y}%`,
-        willChange: "left, top",
       }}
       animate={{
         left: `${toPos.x}%`,
         top: `${toPos.y}%`,
       }}
       transition={{
-        duration: animationDuration / 1000, // Convertir ms en secondes pour motion
-        ease: [0.4, 0, 0.2, 1], // Cubic bezier optimisé pour mobile
-        type: "tween", // Plus performant que spring sur mobile
+        duration: animationDuration / 1000,
+        ease: [0.4, 0, 0.2, 1],
+        type: "tween",
       }}
-      onAnimationComplete={onComplete}
+      onAnimationComplete={() => {
+        // Petit délai pour garantir que la pièce finale est rendue avant de retirer l'animation
+        // Cela évite le clignotement sur mobile
+        setTimeout(onComplete, 16); // ~1 frame (16ms à 60fps)
+      }}
     >
       <Image
         src={piecePath}

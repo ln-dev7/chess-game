@@ -538,49 +538,55 @@ export default function ChessGame() {
   const handleAnimationComplete = useCallback(() => {
     if (!animatingMove || !gameState.selectedSquare) return;
 
-    // Petit délai pour éviter le clignotement
-    setTimeout(() => {
-      // Vérifier si c'est une capture
-      const targetPiece =
-        gameState.board[animatingMove.to.row][animatingMove.to.col];
-      const isCapture = targetPiece !== null;
+    // Vérifier si c'est une capture
+    const targetPiece =
+      gameState.board[animatingMove.to.row][animatingMove.to.col];
+    const isCapture = targetPiece !== null;
 
-      const newState = executeMove(
-        gameState,
-        animatingMove.from,
-        animatingMove.to
-      );
+    const newState = executeMove(
+      gameState,
+      animatingMove.from,
+      animatingMove.to
+    );
 
-      // Ajouter l'incrément de temps au joueur qui vient de jouer
-      if (selectedTimeControl.increment > 0) {
-        if (gameState.currentPlayer === "white") {
-          setWhiteTime((prev) => prev + selectedTimeControl.increment);
-        } else {
-          setBlackTime((prev) => prev + selectedTimeControl.increment);
-        }
-      }
-
-      // Jouer les sons appropriés
-      if (newState.isCheckmate) {
-        playSound("checkmate");
-        // Déclencher l'animation d'échec et mat après un court délai
-        setTimeout(() => {
-          setShowCheckmateAnimation(true);
-        }, 500);
-      } else if (newState.isStalemate || newState.isDraw) {
-        playSound("draw");
-      } else if (newState.isCheck) {
-        playSound("check");
-      } else if (isCapture) {
-        playSound("capture");
+    // Ajouter l'incrément de temps au joueur qui vient de jouer
+    if (selectedTimeControl.increment > 0) {
+      if (gameState.currentPlayer === "white") {
+        setWhiteTime((prev) => prev + selectedTimeControl.increment);
       } else {
-        playSound("move");
+        setBlackTime((prev) => prev + selectedTimeControl.increment);
       }
+    }
 
-      setGameState(newState);
-      setAnimatingMove(null);
-      setIsAnimating(false);
-    }, 50);
+    // Jouer les sons appropriés
+    if (newState.isCheckmate) {
+      playSound("checkmate");
+      // Déclencher l'animation d'échec et mat après un court délai
+      setTimeout(() => {
+        setShowCheckmateAnimation(true);
+      }, 500);
+    } else if (newState.isStalemate || newState.isDraw) {
+      playSound("draw");
+    } else if (newState.isCheck) {
+      playSound("check");
+    } else if (isCapture) {
+      playSound("capture");
+    } else {
+      playSound("move");
+    }
+
+    // IMPORTANT : Mettre à jour l'état du jeu AVANT de retirer l'animation
+    // Cela garantit que la pièce finale est affichée avant que la pièce animée ne disparaisse
+    setGameState(newState);
+
+    // Retirer l'animation après un court délai pour éviter le clignotement sur mobile
+    // requestAnimationFrame garantit que le rendu est terminé avant de retirer l'animation
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        setAnimatingMove(null);
+        setIsAnimating(false);
+      });
+    });
   }, [animatingMove, gameState, selectedTimeControl.increment]);
 
   const handleNewGame = useCallback(() => {
