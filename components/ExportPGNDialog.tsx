@@ -101,7 +101,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="flex-1">
+        <Button variant="outline" className="w-full">
           <Download className="w-4 h-4 mr-2" />
           Exporter PGN
         </Button>

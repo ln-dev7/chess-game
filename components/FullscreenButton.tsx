@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, RefObject } from "react";
+import { Maximize, Minimize } from "lucide-react";
 
-export default function FullscreenButton() {
+interface FullscreenButtonProps {
+  boardRef?: RefObject<HTMLDivElement | null>;
+}
+
+export default function FullscreenButton({ boardRef }: FullscreenButtonProps) {
   const [isFullscreen, setIsFullscreen] = useState(false);
 
   useEffect(() => {
@@ -19,7 +24,13 @@ export default function FullscreenButton() {
   const toggleFullscreen = async () => {
     try {
       if (!document.fullscreenElement) {
-        await document.documentElement.requestFullscreen();
+        // Si on a une référence à l'échiquier, mettre uniquement celui-ci en plein écran
+        if (boardRef?.current) {
+          await boardRef.current.requestFullscreen();
+        } else {
+          // Sinon, mettre toute la page en plein écran
+          await document.documentElement.requestFullscreen();
+        }
       } else {
         await document.exitFullscreen();
       }
@@ -35,39 +46,9 @@ export default function FullscreenButton() {
       title={isFullscreen ? "Quitter le plein écran" : "Mode plein écran"}
     >
       {isFullscreen ? (
-        <svg
-          className="w-5 h-5 text-gray-700"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M6 18L18 6M6 6l12 12"
-          />
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M9 9H4v5M15 15h5v-5"
-          />
-        </svg>
+        <Minimize className="w-5 h-5 text-gray-700" />
       ) : (
-        <svg
-          className="w-5 h-5 text-gray-700"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 8V4m0 0h4M4 4l5 5m11-5v4m0-4h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"
-          />
-        </svg>
+        <Maximize className="w-5 h-5 text-gray-700" />
       )}
     </button>
   );

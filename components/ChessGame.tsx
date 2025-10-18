@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { GameState, Position, PieceType, Piece } from "@/types/chess";
 import {
   createInitialGameState,
@@ -14,7 +14,7 @@ import { getAnimationDuration } from "@/lib/constants";
 import { soundManager, playSound } from "@/lib/chess-sounds";
 import { usePreferencesStore } from "@/store/usePreferencesStore";
 import { useThemeStore } from "@/store/useThemeStore";
-import ChessBoard from "./ChessBoard";
+import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
@@ -27,6 +27,8 @@ interface AnimatingMove {
 }
 
 export default function ChessGame() {
+  const boardRef = useRef<HTMLDivElement>(null);
+
   const [gameState, setGameState] = useState<GameState>(
     createInitialGameState()
   );
@@ -319,20 +321,20 @@ export default function ChessGame() {
           </a>
         </div>
 
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
-          <div className="lg:col-span-2 flex justify-center items-start">
-            <ChessBoard
-              gameState={gameState}
-              onSquareClick={handleSquareClick}
-              theme={theme}
-              animatingMove={animatingMove}
-              onAnimationComplete={handleAnimationComplete}
-              pieceStyle={pieceStyle.id}
-              showCoordinates={showCoordinates}
-              isRotated={boardRotation}
-              animationDuration={animationDuration}
-            />
-          </div>
+          <BoardContainer
+            ref={boardRef}
+            gameState={gameState}
+            onSquareClick={handleSquareClick}
+            theme={theme}
+            animatingMove={animatingMove}
+            onAnimationComplete={handleAnimationComplete}
+            pieceStyle={pieceStyle.id}
+            showCoordinates={showCoordinates}
+            isRotated={boardRotation}
+            animationDuration={animationDuration}
+          />
 
           <div className="space-y-6">
             <GameInfo gameState={gameState} />
@@ -344,6 +346,7 @@ export default function ChessGame() {
               currentPlayer={gameState.currentPlayer}
               isGameOver={isGameOver}
               gameState={gameState}
+              boardRef={boardRef}
             />
           </div>
         </div>
