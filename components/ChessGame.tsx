@@ -19,6 +19,7 @@ import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
+import CheckmateAnimation from "./CheckmateAnimation";
 
 interface AnimatingMove {
   from: Position;
@@ -40,6 +41,7 @@ export default function ChessGame() {
     null
   );
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showCheckmateAnimation, setShowCheckmateAnimation] = useState(false);
 
   // Zustand stores
   const {
@@ -214,6 +216,10 @@ export default function ChessGame() {
         // Jouer les sons appropriés
         if (newState.isCheckmate) {
           playSound("checkmate");
+          // Déclencher l'animation d'échec et mat après un court délai
+          setTimeout(() => {
+            setShowCheckmateAnimation(true);
+          }, 500);
         } else if (newState.isStalemate || newState.isDraw) {
           playSound("draw");
         } else if (newState.isCheck) {
@@ -251,6 +257,10 @@ export default function ChessGame() {
       // Jouer les sons appropriés
       if (newState.isCheckmate) {
         playSound("checkmate");
+        // Déclencher l'animation d'échec et mat après un court délai
+        setTimeout(() => {
+          setShowCheckmateAnimation(true);
+        }, 500);
       } else if (newState.isStalemate || newState.isDraw) {
         playSound("draw");
       } else if (newState.isCheck) {
@@ -272,6 +282,7 @@ export default function ChessGame() {
     setPendingPromotion(null);
     setAnimatingMove(null);
     setIsAnimating(false);
+    setShowCheckmateAnimation(false);
   }, []);
 
   const handleResign = useCallback(() => {
@@ -358,6 +369,15 @@ export default function ChessGame() {
         onSelect={handlePromotion}
         pieceStyle={pieceStyle.id}
       />
+
+      {/* Animation d'échec et mat */}
+      {showCheckmateAnimation && (
+        <CheckmateAnimation
+          loserColor={gameState.currentPlayer === "white" ? "black" : "white"}
+          pieceStyle={pieceStyle.id}
+          onComplete={() => setShowCheckmateAnimation(false)}
+        />
+      )}
     </div>
   );
 }
