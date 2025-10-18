@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Move, Piece, PieceColor } from "@/types/chess";
 
 interface CapturedPiecesProps {
@@ -68,12 +69,13 @@ export default function CapturedPieces({
         {sortedCapturedPieces.map((piece, index) => (
           <div
             key={index}
-            className="w-6 h-6 flex items-center justify-center opacity-70"
+            className="w-6 h-6 flex items-center justify-center opacity-70 relative"
           >
-            <img
+            <Image
               src={`/pieces/${pieceStyle}/${piece.color}/${piece.type}.svg`}
               alt={`${piece.color} ${piece.type}`}
-              className="w-full h-full"
+              fill
+              className="object-contain"
             />
           </div>
         ))}
