@@ -6,6 +6,7 @@
     "white": "White",
     "black": "Black",
     "newGame": "New Game",
+    "startGame": "Start Game",
     "resign": "Resign",
     "offerDraw": "Offer Draw",
     "undo": "Undo",
@@ -100,5 +101,60 @@
       "draw": "by Agreement"
     },
     "playAgain": "Play Again"
+  },
+  "gameMode": {
+    "title": "Game Mode",
+    "subtitle": "Choose your game mode",
+    "pvp": "Player vs Player",
+    "pvpDescription": "Local two-player game",
+    "vsAI": "Player vs LN",
+    "vsAIDescription": "Play against the computer",
+    "playerColor": "Your color",
+    "playAsWhite": "Play as White",
+    "playAsBlack": "Play as Black",
+    "cannotChangeDuringGame": "Cannot change mode during a game"
+  },
+  "aiDifficulty": {
+    "title": "LN Level",
+    "subtitle": "Choose the difficulty level",
+    "cannotChangeDuringGame": "Cannot change level during a game",
+    "levels": {
+      "400": "LN Beginner",
+      "800": "LN Amateur",
+      "1200": "LN Intermediate",
+      "1600": "LN Advanced"
+    }
+  },
+  "sound": {
+    "title": "Sounds",
+    "enable": "Enable sound",
+    "disable": "Disable sound",
+    "volume": "Volume"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Page Not Found",
+    "message": "The page you are looking for does not exist.",
+    "returnHome": "Return Home"
+  },
+  "dialog": {
+    "newGame": {
+      "title": "Start a new game?",
+      "description": "This will reset the current game. This action cannot be undone."
+    },
+    "resign": {
+      "title": "Resign the game?",
+      "descriptionWhite": "White resigns. Black wins the game.",
+      "descriptionBlack": "Black resigns. White wins the game."
+    },
+    "draw": {
+      "title": "Offer a draw?",
+      "description": "Do both players accept the draw?"
+    },
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "accept": "Accept",
+    "decline": "Decline",
+    "settings": "Settings"
   }
 }

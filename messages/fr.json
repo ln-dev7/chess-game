@@ -6,6 +6,7 @@
     "white": "Blancs",
     "black": "Noirs",
     "newGame": "Nouvelle Partie",
+    "startGame": "Lancer la partie",
     "resign": "Abandonner",
     "offerDraw": "Proposer Nulle",
     "undo": "Annuler",
@@ -100,5 +101,60 @@
       "draw": "par accord"
     },
     "playAgain": "Rejouer"
+  },
+  "gameMode": {
+    "title": "Mode de jeu",
+    "subtitle": "Choisissez votre mode de jeu",
+    "pvp": "Joueur vs Joueur",
+    "pvpDescription": "Partie locale à deux joueurs",
+    "vsAI": "Joueur vs LN",
+    "vsAIDescription": "Jouer contre l'ordinateur",
+    "playerColor": "Votre couleur",
+    "playAsWhite": "Jouer Blancs",
+    "playAsBlack": "Jouer Noirs",
+    "cannotChangeDuringGame": "Impossible de changer le mode pendant une partie"
+  },
+  "aiDifficulty": {
+    "title": "Niveau de LN",
+    "subtitle": "Choisissez le niveau de difficulté",
+    "cannotChangeDuringGame": "Impossible de changer le niveau pendant une partie",
+    "levels": {
+      "400": "LN Débutant",
+      "800": "LN Amateur",
+      "1200": "LN Intermédiaire",
+      "1600": "LN Avancé"
+    }
+  },
+  "sound": {
+    "title": "Sons",
+    "enable": "Activer le son",
+    "disable": "Désactiver le son",
+    "volume": "Volume"
+  },
+  "notFound": {
+    "title": "404",
+    "heading": "Page non trouvée",
+    "message": "La page que vous recherchez n'existe pas.",
+    "returnHome": "Retour à l'accueil"
+  },
+  "dialog": {
+    "newGame": {
+      "title": "Commencer une nouvelle partie ?",
+      "description": "Cela réinitialisera la partie en cours. Cette action ne peut pas être annulée."
+    },
+    "resign": {
+      "title": "Abandonner la partie ?",
+      "descriptionWhite": "Les Blancs abandonnent. Les Noirs gagnent la partie.",
+      "descriptionBlack": "Les Noirs abandonnent. Les Blancs gagnent la partie."
+    },
+    "draw": {
+      "title": "Proposer une nulle ?",
+      "description": "Est-ce que les deux joueurs acceptent la nulle ?"
+    },
+    "cancel": "Annuler",
+    "confirm": "Confirmer",
+    "accept": "Accepter",
+    "decline": "Refuser",
+    "settings": "Paramètres"
   }
 }

@@ -16,6 +16,8 @@ import { soundManager, playSound } from "@/lib/chess-sounds";
 import { usePreferencesStore } from "@/store/usePreferencesStore";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useTimeControlStore } from "@/store/useTimeControlStore";
+import { useGameModeStore } from "@/store/useGameModeStore";
+import { getAIMove } from "@/lib/chess-ai";
 import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
@@ -24,6 +26,8 @@ import MoveHistory from "./MoveHistory";
 import CheckmateAnimation from "./CheckmateAnimation";
 import ChessClock from "./ChessClock";
 import LanguageSelector from "./LanguageSelector";
+import GameModeSelector from "./GameModeSelector";
+import AIDifficultySelector from "./AIDifficultySelector";
 
 interface AnimatingMove {
   from: Position;
@@ -47,6 +51,8 @@ export default function ChessGame() {
   );
   const [isAnimating, setIsAnimating] = useState(false);
   const [showCheckmateAnimation, setShowCheckmateAnimation] = useState(false);
+  const [isAIThinking, setIsAIThinking] = useState(false);
+  const [gameStarted, setGameStarted] = useState(false);
 
   // Zustand stores
   const {
@@ -59,6 +65,7 @@ export default function ChessGame() {
 
   const { themeId, pieceStyleId } = useThemeStore();
   const { selectedTimeControl } = useTimeControlStore();
+  const { gameMode, aiLevel, aiColor } = useGameModeStore();
 
   // États pour l'horloge
   const [whiteTime, setWhiteTime] = useState(selectedTimeControl.initialTime);
@@ -161,6 +168,173 @@ export default function ChessGame() {
     PIECE_STYLES.find((s) => s.id === pieceStyleId) || PIECE_STYLES[0];
   const animationDuration = getAnimationDuration(animationSpeed);
 
+  // Effet pour faire jouer l'IA
+  useEffect(() => {
+    // Vérifier si c'est le tour de l'IA
+    const isAITurn = gameMode === "ai" && gameState.currentPlayer === aiColor;
+    const isGameOver =
+      gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
+
+    // Ne pas faire jouer l'IA si la partie n'est pas lancée (en mode IA)
+    if (gameMode === "ai" && !gameStarted) {
+      return;
+    }
+
+    if (
+      isAITurn &&
+      !isGameOver &&
+      !isAnimating &&
+      !pendingPromotion &&
+      !isAIThinking
+    ) {
+      setIsAIThinking(true);
+
+      // Laisser un petit délai avant que l'IA joue
+      setTimeout(async () => {
+        try {
+          const aiMove = await getAIMove(gameState, aiLevel, aiColor);
+
+          if (aiMove) {
+            const piece = gameState.board[aiMove.from.row][aiMove.from.col];
+
+            if (piece) {
+              // Vérifier si c'est une promotion
+              if (
+                piece.type === "pawn" &&
+                (aiMove.to.row === 0 || aiMove.to.row === 7)
+              ) {
+                // L'IA fait une promotion
+                setIsAnimating(true);
+                setAnimatingMove({
+                  from: aiMove.from,
+                  to: aiMove.to,
+                  piece,
+                });
+
+                setTimeout(() => {
+                  const targetPiece =
+                    gameState.board[aiMove.to.row][aiMove.to.col];
+                  const isCapture = targetPiece !== null;
+
+                  const newState = executeMove(
+                    gameState,
+                    aiMove.from,
+                    aiMove.to,
+                    aiMove.promotionPiece
+                  );
+
+                  // Ajouter l'incrément de temps
+                  if (selectedTimeControl.increment > 0) {
+                    if (aiColor === "white") {
+                      setWhiteTime(
+                        (prev) => prev + selectedTimeControl.increment
+                      );
+                    } else {
+                      setBlackTime(
+                        (prev) => prev + selectedTimeControl.increment
+                      );
+                    }
+                  }
+
+                  // Jouer les sons appropriés
+                  if (newState.isCheckmate) {
+                    playSound("checkmate");
+                    setTimeout(() => {
+                      setShowCheckmateAnimation(true);
+                    }, 500);
+                  } else if (newState.isStalemate || newState.isDraw) {
+                    playSound("draw");
+                  } else if (newState.isCheck) {
+                    playSound("check");
+                  } else if (isCapture) {
+                    playSound("capture");
+                  } else {
+                    playSound("move");
+                  }
+
+                  setGameState(newState);
+                  setAnimatingMove(null);
+                  setIsAnimating(false);
+                  setIsAIThinking(false);
+                }, animationDuration);
+              } else {
+                // Mouvement normal de l'IA
+                setIsAnimating(true);
+                setAnimatingMove({
+                  from: aiMove.from,
+                  to: aiMove.to,
+                  piece,
+                });
+
+                setTimeout(() => {
+                  const targetPiece =
+                    gameState.board[aiMove.to.row][aiMove.to.col];
+                  const isCapture = targetPiece !== null;
+
+                  const newState = executeMove(
+                    gameState,
+                    aiMove.from,
+                    aiMove.to
+                  );
+
+                  // Ajouter l'incrément de temps
+                  if (selectedTimeControl.increment > 0) {
+                    if (aiColor === "white") {
+                      setWhiteTime(
+                        (prev) => prev + selectedTimeControl.increment
+                      );
+                    } else {
+                      setBlackTime(
+                        (prev) => prev + selectedTimeControl.increment
+                      );
+                    }
+                  }
+
+                  // Jouer les sons appropriés
+                  if (newState.isCheckmate) {
+                    playSound("checkmate");
+                    setTimeout(() => {
+                      setShowCheckmateAnimation(true);
+                    }, 500);
+                  } else if (newState.isStalemate || newState.isDraw) {
+                    playSound("draw");
+                  } else if (newState.isCheck) {
+                    playSound("check");
+                  } else if (isCapture) {
+                    playSound("capture");
+                  } else {
+                    playSound("move");
+                  }
+
+                  setGameState(newState);
+                  setAnimatingMove(null);
+                  setIsAnimating(false);
+                  setIsAIThinking(false);
+                }, animationDuration);
+              }
+            }
+          } else {
+            setIsAIThinking(false);
+          }
+        } catch (error) {
+          console.error("Erreur IA:", error);
+          setIsAIThinking(false);
+        }
+      }, 300);
+    }
+  }, [
+    gameMode,
+    aiColor,
+    aiLevel,
+    gameState,
+    isAnimating,
+    pendingPromotion,
+    isAIThinking,
+    animationDuration,
+    selectedTimeControl.increment,
+    gameStarted,
+  ]);
+
   const handleSquareClick = useCallback(
     (position: Position) => {
       // Si une animation est en cours ou la partie est terminée, ne rien faire
@@ -170,6 +344,21 @@ export default function ChessGame() {
         gameState.isStalemate ||
         gameState.isDraw
       ) {
+        return;
+      }
+
+      // Empêcher le joueur de jouer si la partie n'est pas lancée en mode IA
+      if (gameMode === "ai" && !gameStarted) {
+        return;
+      }
+
+      // Empêcher le joueur de jouer si c'est le tour de l'IA
+      if (gameMode === "ai" && gameState.currentPlayer === aiColor) {
+        return;
+      }
+
+      // Empêcher le joueur de jouer si l'IA réfléchit
+      if (isAIThinking) {
         return;
       }
 
@@ -268,7 +457,7 @@ export default function ChessGame() {
         });
       }
     },
-    [gameState, isAnimating]
+    [gameState, isAnimating, gameMode, aiColor, isAIThinking, gameStarted]
   );
 
   const handlePromotion = useCallback(
@@ -400,6 +589,8 @@ export default function ChessGame() {
     setAnimatingMove(null);
     setIsAnimating(false);
     setShowCheckmateAnimation(false);
+    setIsAIThinking(false);
+    setGameStarted(false);
     setWhiteTime(selectedTimeControl.initialTime);
     setBlackTime(selectedTimeControl.initialTime);
     if (timerRef.current) {
@@ -407,6 +598,10 @@ export default function ChessGame() {
       timerRef.current = null;
     }
   }, [selectedTimeControl.initialTime]);
+
+  const handleStartGame = useCallback(() => {
+    setGameStarted(true);
+  }, []);
 
   const handleResign = useCallback(() => {
     setGameState({
@@ -436,6 +631,14 @@ export default function ChessGame() {
   const isGameOver =
     gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
 
+  const hasMovesPlayed = gameState.moveHistory.length > 0;
+  const canChangeSettings = gameMode === "pvp" ? !hasMovesPlayed : !gameStarted;
+
+  // Rotation automatique de l'échiquier en mode IA
+  // Si on joue contre l'IA et qu'on a les noirs, on retourne l'échiquier
+  const effectiveBoardRotation =
+    gameMode === "ai" ? aiColor === "white" : boardRotation;
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl w-full mx-auto px-4 md:px-8 pt-4 md:pt-8">
@@ -446,7 +649,7 @@ export default function ChessGame() {
               {t("chess")}
             </h1>
             <p className="text-gray-600 text-center text-sm md:text-base">
-              {t("localGame")}
+              {gameMode === "ai" ? `${t("localGame")} vs LN` : t("localGame")}
             </p>
           </div>
 
@@ -474,7 +677,7 @@ export default function ChessGame() {
               onAnimationComplete={handleAnimationComplete}
               pieceStyle={pieceStyle.id}
               showCoordinates={showCoordinates}
-              isRotated={boardRotation}
+              isRotated={effectiveBoardRotation}
               animationDuration={animationDuration}
               showCheckmateAnimation={showCheckmateAnimation}
               onCheckmateAnimationComplete={() =>
@@ -484,6 +687,14 @@ export default function ChessGame() {
           </div>
 
           <div className="flex-1 space-y-6">
+            <GameModeSelector
+              disabled={!canChangeSettings}
+              onStartGame={handleStartGame}
+              showStartButton={
+                gameMode === "ai" && !gameStarted && !hasMovesPlayed
+              }
+            />
+            <AIDifficultySelector disabled={!canChangeSettings} />
             <GameInfo gameState={gameState} />
             {selectedTimeControl.initialTime > 0 && (
               <ChessClock

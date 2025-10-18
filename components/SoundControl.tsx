@@ -1,9 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { soundManager } from "@/lib/chess-sounds";
 
 export default function SoundControl() {
+  const t = useTranslations("sound");
   const [isMuted, setIsMuted] = useState(false);
   const [volume, setVolume] = useState(0.3);
 
@@ -25,7 +27,7 @@ export default function SoundControl() {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-4 border border-gray-200">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Sons</h3>
+      <h3 className="text-lg font-semibold text-gray-900 mb-4">{t("title")}</h3>
 
       <div className="space-y-4">
         {/* Bouton Mute/Unmute */}
@@ -54,7 +56,7 @@ export default function SoundControl() {
                   d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
                 />
               </svg>
-              <span>Activer le son</span>
+              <span>{t("enable")}</span>
             </>
           ) : (
             <>
@@ -71,7 +73,7 @@ export default function SoundControl() {
                   d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"
                 />
               </svg>
-              <span>Désactiver le son</span>
+              <span>{t("disable")}</span>
             </>
           )}
         </button>
@@ -79,10 +81,15 @@ export default function SoundControl() {
         {/* Contrôle du volume */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <label htmlFor="volume" className="text-sm font-medium text-gray-700">
-              Volume
+            <label
+              htmlFor="volume"
+              className="text-sm font-medium text-gray-700"
+            >
+              {t("volume")}
             </label>
-            <span className="text-sm text-gray-500">{Math.round(volume * 100)}%</span>
+            <span className="text-sm text-gray-500">
+              {Math.round(volume * 100)}%
+            </span>
           </div>
           <input
             id="volume"
@@ -97,7 +104,9 @@ export default function SoundControl() {
             style={{
               background: isMuted
                 ? undefined
-                : `linear-gradient(to right, #4f46e5 0%, #4f46e5 ${volume * 100}%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
+                : `linear-gradient(to right, #4f46e5 0%, #4f46e5 ${
+                    volume * 100
+                  }%, #e5e7eb ${volume * 100}%, #e5e7eb 100%)`,
             }}
           />
         </div>

@@ -46,6 +46,7 @@ export default function GameControls({
   boardRef,
 }: GameControlsProps) {
   const t = useTranslations("common");
+  const tDialog = useTranslations("dialog");
   const [isPreferencesOpen, setIsPreferencesOpen] = useState(false);
   const { themeId, pieceStyleId, setThemeId, setPieceStyleId } =
     useThemeStore();
@@ -70,14 +71,16 @@ export default function GameControls({
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Start a new game?</AlertDialogTitle>
+              <AlertDialogTitle>{tDialog("newGame.title")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This will reset the current game. This action cannot be undone.
+                {tDialog("newGame.description")}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={onNewGame}>Confirm</AlertDialogAction>
+              <AlertDialogCancel>{tDialog("cancel")}</AlertDialogCancel>
+              <AlertDialogAction onClick={onNewGame}>
+                {tDialog("confirm")}
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -93,17 +96,17 @@ export default function GameControls({
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Resign the game?</AlertDialogTitle>
+                  <AlertDialogTitle>{tDialog("resign.title")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {currentPlayer === "white" ? "White" : "Black"} resigns.{" "}
-                    {currentPlayer === "white" ? "Black" : "White"} wins the
-                    game.
+                    {currentPlayer === "white"
+                      ? tDialog("resign.descriptionWhite")
+                      : tDialog("resign.descriptionBlack")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{tDialog("cancel")}</AlertDialogCancel>
                   <AlertDialogAction onClick={onResign}>
-                    Confirm
+                    {tDialog("confirm")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -117,15 +120,15 @@ export default function GameControls({
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Offer a draw?</AlertDialogTitle>
+                  <AlertDialogTitle>{tDialog("draw.title")}</AlertDialogTitle>
                   <AlertDialogDescription>
-                    Do both players accept the draw?
+                    {tDialog("draw.description")}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Decline</AlertDialogCancel>
+                  <AlertDialogCancel>{tDialog("decline")}</AlertDialogCancel>
                   <AlertDialogAction onClick={onOfferDraw}>
-                    Accept
+                    {tDialog("accept")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -157,7 +160,7 @@ export default function GameControls({
           className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
           <Settings className="w-5 h-5" />
-          Settings
+          {tDialog("settings")}
         </button>
 
         <FullscreenButton boardRef={boardRef} />

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { GameState } from "@/types/chess";
 import { generatePGN, downloadPGN, generatePGNFilename } from "@/lib/pgn-utils";
 import {
@@ -23,6 +24,8 @@ interface ExportPGNDialogProps {
 }
 
 export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
+  const t = useTranslations("export");
+  const tDialog = useTranslations("dialog");
   const [open, setOpen] = useState(false);
   const [metadata, setMetadata] = useState({
     event: "Partie locale",
@@ -103,12 +106,12 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <Download className="w-4 h-4 mr-2" />
-          Exporter PGN
+          {t("title")}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Exporter la partie au format PGN</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
             Format standard FIDE pour enregistrer et partager des parties
             d&apos;échecs
@@ -118,7 +121,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
         <div className="grid gap-4 py-4">
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="event" className="text-right">
-              Événement
+              {t("eventLabel")}
             </Label>
             <Input
               id="event"
@@ -127,13 +130,12 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                 setMetadata({ ...metadata, event: e.target.value })
               }
               className="col-span-3"
-              placeholder="Nom du tournoi ou de l'événement"
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="site" className="text-right">
-              Lieu
+              {t("siteLabel")}
             </Label>
             <Input
               id="site"
@@ -142,28 +144,24 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                 setMetadata({ ...metadata, site: e.target.value })
               }
               className="col-span-3"
-              placeholder="Ville, pays ou plateforme"
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="round" className="text-right">
-              Ronde
+            <Label htmlFor="date" className="text-right">
+              {t("dateLabel")}
             </Label>
             <Input
-              id="round"
-              value={metadata.round}
-              onChange={(e) =>
-                setMetadata({ ...metadata, round: e.target.value })
-              }
+              id="date"
+              value={new Date().toLocaleDateString()}
+              disabled
               className="col-span-3"
-              placeholder="Numéro de ronde"
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="white" className="text-right">
-              Blancs
+              {t("whiteLabel")}
             </Label>
             <Input
               id="white"
@@ -172,13 +170,12 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                 setMetadata({ ...metadata, white: e.target.value })
               }
               className="col-span-3"
-              placeholder="Nom du joueur des Blancs"
             />
           </div>
 
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="black" className="text-right">
-              Noirs
+              {t("blackLabel")}
             </Label>
             <Input
               id="black"
@@ -187,13 +184,12 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                 setMetadata({ ...metadata, black: e.target.value })
               }
               className="col-span-3"
-              placeholder="Nom du joueur des Noirs"
             />
           </div>
 
           <div className="pt-4">
             <div className="flex items-center justify-between mb-2">
-              <Label className="text-sm font-medium">Aperçu du PGN</Label>
+              <Label className="text-sm font-medium">{t("title")}</Label>
               <Button
                 variant="outline"
                 size="sm"
@@ -203,12 +199,12 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                 {copied ? (
                   <>
                     <Check className="w-4 h-4" />
-                    Copié
+                    {t("copied")}
                   </>
                 ) : (
                   <>
                     <Copy className="w-4 h-4" />
-                    Copier
+                    {t("copy")}
                   </>
                 )}
               </Button>
@@ -224,11 +220,11 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
 
         <DialogFooter>
           <Button variant="outline" onClick={() => setOpen(false)}>
-            Annuler
+            {tDialog("cancel")}
           </Button>
           <Button onClick={handleExport}>
             <Download className="w-4 h-4 mr-2" />
-            Télécharger
+            {t("download")}
           </Button>
         </DialogFooter>
       </DialogContent>
