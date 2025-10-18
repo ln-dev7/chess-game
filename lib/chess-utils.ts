@@ -44,6 +44,100 @@ export function algebraicToPosition(notation: string): Position {
 }
 
 /**
+ * Convertit un GameState en notation FEN (Forsyth-Edwards Notation)
+ */
+export function gameStateToFEN(gameState: {
+  board: (Piece | null)[][];
+  currentPlayer: PieceColor;
+  castlingRights?: {
+    white?: { kingSide?: boolean; queenSide?: boolean };
+    black?: { kingSide?: boolean; queenSide?: boolean };
+  };
+  enPassantTarget?: Position | null;
+  halfMoveClock?: number;
+  fullMoveNumber?: number;
+}): string {
+  const {
+    board,
+    currentPlayer,
+    castlingRights,
+    enPassantTarget,
+    halfMoveClock,
+    fullMoveNumber,
+  } = gameState;
+
+  // 1. Position des pièces
+  let fenPosition = "";
+  for (let row = 0; row < 8; row++) {
+    let emptyCount = 0;
+    for (let col = 0; col < 8; col++) {
+      const piece = board[row][col];
+      if (!piece) {
+        emptyCount++;
+      } else {
+        if (emptyCount > 0) {
+          fenPosition += emptyCount;
+          emptyCount = 0;
+        }
+
+        const pieceChar = getPieceFENChar(piece);
+        fenPosition += pieceChar;
+      }
+    }
+    if (emptyCount > 0) {
+      fenPosition += emptyCount;
+    }
+    if (row < 7) {
+      fenPosition += "/";
+    }
+  }
+
+  // 2. Joueur actif
+  const activeColor = currentPlayer === "white" ? "w" : "b";
+
+  // 3. Droits de roque
+  let castling = "";
+  if (castlingRights) {
+    if (castlingRights.white?.kingSide) castling += "K";
+    if (castlingRights.white?.queenSide) castling += "Q";
+    if (castlingRights.black?.kingSide) castling += "k";
+    if (castlingRights.black?.queenSide) castling += "q";
+  }
+  if (castling === "") castling = "-";
+
+  // 4. Case en passant
+  let enPassant = "-";
+  if (enPassantTarget) {
+    enPassant = positionToAlgebraic(enPassantTarget);
+  }
+
+  // 5. Compteur de demi-coups
+  const halfMoves = halfMoveClock || 0;
+
+  // 6. Numéro du coup complet
+  const fullMoves = fullMoveNumber || 1;
+
+  return `${fenPosition} ${activeColor} ${castling} ${enPassant} ${halfMoves} ${fullMoves}`;
+}
+
+/**
+ * Obtient le caractère FEN pour une pièce
+ */
+function getPieceFENChar(piece: Piece): string {
+  const pieceChars: Record<string, string> = {
+    pawn: "p",
+    knight: "n",
+    bishop: "b",
+    rook: "r",
+    queen: "q",
+    king: "k",
+  };
+
+  const char = pieceChars[piece.type] || "p";
+  return piece.color === "white" ? char.toUpperCase() : char;
+}
+
+/**
  * Génère une clé unique pour une position du plateau (pour détecter les répétitions)
  */
 export function getBoardHash(

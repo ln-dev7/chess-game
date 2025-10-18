@@ -2,7 +2,7 @@ import { GameState, Position, Piece, PieceColor } from "@/types/chess";
 import { getPossibleMoves, executeMove } from "./chess-engine";
 import { positionsEqual } from "./chess-utils";
 
-export type AILevel = 400 | 800 | 1200 | 1600 | 2000;
+export type AILevel = 400 | 800 | 1200 | 1600 | 2000 | 2500;
 
 export interface AIMove {
   from: Position;
@@ -83,6 +83,18 @@ const AI_CONFIGS: Record<AILevel, AILevelConfig> = {
     tacticalDepth: 5, // Profondeur 5-7 demi-coups
     strategicWeight: 1.0, // Compréhension complète
     randomness: 0.03, // Presque pas d'aléatoire
+    developpementWeight: 1.0, // Parfait
+    centerControlWeight: 1.0, // Parfait
+    kingSafetyWeight: 1.0, // Parfait
+  },
+  2500: {
+    name: "LN Maître",
+    elo: 2500,
+    description: "Niveau maître - Jeu quasi-parfait",
+    blunderProbability: 0.005, // 0.5% - Presque jamais d'erreurs
+    tacticalDepth: 6, // Profondeur 6-8 demi-coups
+    strategicWeight: 1.0, // Compréhension parfaite
+    randomness: 0.01, // Variance minimale
     developpementWeight: 1.0, // Parfait
     centerControlWeight: 1.0, // Parfait
     kingSafetyWeight: 1.0, // Parfait
@@ -213,6 +225,44 @@ function getPiecePositionValue(
     default:
       return 0;
   }
+}
+
+/**
+ * Détermine la phase du jeu
+ */
+function getGamePhase(
+  gameState: GameState
+): "opening" | "middlegame" | "endgame" {
+  const moveCount = gameState.moveHistory.length;
+
+  // Phase d'ouverture : < 10 coups
+  if (moveCount < 10) {
+    return "opening";
+  }
+
+  // Compter le matériel pour déterminer milieu/finale
+  let pieceCount = 0;
+  let queenCount = 0;
+  let minorPieceCount = 0;
+
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const piece = gameState.board[row][col];
+      if (piece && piece.type !== "king" && piece.type !== "pawn") {
+        pieceCount++;
+        if (piece.type === "queen") queenCount++;
+        if (piece.type === "bishop" || piece.type === "knight")
+          minorPieceCount++;
+      }
+    }
+  }
+
+  // Finale si : peu de pièces OU pas de dames et peu de pièces mineures
+  if (pieceCount <= 6 || (queenCount === 0 && minorPieceCount <= 2)) {
+    return "endgame";
+  }
+
+  return "middlegame";
 }
 
 /**
@@ -573,11 +623,22 @@ function findBestMove(
     const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.15));
     const topMoves = evaluatedMoves.slice(0, topMovesCount);
     selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
-  } else {
+  } else if (config.elo <= 2000) {
     // Niveau 2000 : choisit dans le top 10% (quasi-optimal)
     const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.1));
     const topMoves = evaluatedMoves.slice(0, topMovesCount);
     selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  } else {
+    // Niveau 2500 : choisit dans le top 5% (presque toujours le meilleur)
+    const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.05));
+    const topMoves = evaluatedMoves.slice(0, topMovesCount);
+
+    // Préférence forte pour le meilleur coup (80% du temps)
+    if (Math.random() < 0.8) {
+      selectedMove = topMoves[0]; // Meilleur coup
+    } else {
+      selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+    }
   }
 
   // Vérifier la promotion
@@ -609,6 +670,7 @@ function findBestMove(
 
 /**
  * Fonction principale pour obtenir le coup de l'IA
+ * Utilise un algorithme heuristique avancé adapté au niveau
  */
 export async function getAIMove(
   gameState: GameState,
@@ -616,19 +678,35 @@ export async function getAIMove(
   aiColor: PieceColor
 ): Promise<AIMove | null> {
   const config = AI_CONFIGS[aiLevel];
+  const phase = getGamePhase(gameState);
 
-  // Simuler un temps de réflexion réaliste selon le niveau
-  // 400 Elo : 300-500ms (joue vite, sans réfléchir)
-  // 800 Elo : 400-800ms (réfléchit un peu)
-  // 1200 Elo : 600-1200ms (prend son temps)
-  // 1600 Elo : 800-1500ms (calcule davantage)
-  // 2000 Elo : 1000-2000ms (analyse profonde)
-  const baseTime = 200 + (config.elo / 2000) * 800;
-  const variation = baseTime * 0.5;
-  const thinkingTime = baseTime + Math.random() * variation;
+  // Temps de base par niveau (en ms)
+  const baseTimeByLevel: Record<AILevel, number> = {
+    400: 250, // Joue vite
+    800: 400, // Réfléchit un peu
+    1200: 650, // Prend son temps
+    1600: 900, // Calcule davantage
+    2000: 1200, // Analyse profonde
+    2500: 1800, // Analyse très profonde
+  };
 
-  await new Promise((resolve) => setTimeout(resolve, thinkingTime));
+  let baseTime = baseTimeByLevel[aiLevel];
 
+  // Ajustement selon la phase
+  if (phase === "opening") {
+    baseTime *= 0.7; // Plus rapide en ouverture
+  } else if (phase === "endgame") {
+    baseTime *= 1.3; // Plus lent en finale (calculs précis)
+  }
+
+  // Variation aléatoire réaliste (±40%)
+  const variation = baseTime * 0.8;
+  const thinkingTime = baseTime + (Math.random() - 0.5) * variation;
+
+  // Algorithme heuristique avancé
+  await new Promise((resolve) =>
+    setTimeout(resolve, Math.max(200, thinkingTime))
+  );
   return findBestMove(gameState, aiColor, config);
 }
 

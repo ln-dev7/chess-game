@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useGameModeStore } from "@/store/useGameModeStore";
 import { AILevel, getAILevelInfo } from "@/lib/chess-ai";
 import { Card } from "./ui/card";
-import { Brain, Zap, TrendingUp, Award, Crown } from "lucide-react";
+import { Brain, Zap, TrendingUp, Award, Crown, Trophy } from "lucide-react";
 
 interface AIDifficultySelectorProps {
   disabled?: boolean;
@@ -57,6 +57,13 @@ export default function AIDifficultySelector({
       gradient: "from-purple-500 to-indigo-600",
       shadowColor: "shadow-purple-200",
       textColor: "text-purple-600",
+    },
+    {
+      level: 2500,
+      icon: <Trophy className="w-6 h-6" />,
+      gradient: "from-amber-400 to-yellow-500",
+      shadowColor: "shadow-amber-200",
+      textColor: "text-amber-600",
     },
   ];
 
