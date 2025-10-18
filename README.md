@@ -25,6 +25,8 @@ Un jeu d'échecs complet et interactif développé avec React, Next.js et shadcn
 - 🎯 Indicateurs visuels pour les mouvements possibles
 - 🔴 Mise en évidence de l'échec
 - 📊 Affichage des informations de la partie
+- 📜 Historique des coups en notation algébrique FIDE
+- 💾 Export PGN (format standard FIDE)
 - 🎮 Contrôles de jeu (nouvelle partie, abandon, proposition nulle)
 
 ## Technologies utilisées
@@ -64,6 +66,7 @@ npm run dev
 3. Les mouvements valides sont indiqués par des cercles
 4. Cliquez sur une case valide pour déplacer la pièce
 5. Le jeu détecte automatiquement les échecs, échecs et mat, et les pats
+6. Exportez votre partie au format PGN pour la sauvegarder ou la partager
 
 ## Structure du projet
 
@@ -83,7 +86,12 @@ chess-game/
 │   └── chess-utils.ts       # Fonctions utilitaires
 ├── types/                   # Types TypeScript
 │   └── chess.ts            # Types du jeu d'échecs
-└── public/                  # Fichiers statiques
+├── public/                  # Fichiers statiques
+└── Documentation/
+    ├── README.md           # Ce fichier
+    ├── REGLES.md          # Règles complètes
+    ├── NOTATION-PGN.md    # Format PGN et notation
+    └── ...                # Autres guides
 ```
 
 ## Règles implémentées

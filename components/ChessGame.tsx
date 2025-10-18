@@ -186,6 +186,7 @@ export default function ChessGame() {
               onOfferDraw={handleOfferDraw}
               currentPlayer={gameState.currentPlayer}
               isGameOver={isGameOver}
+              gameState={gameState}
             />
           </div>
         </div>

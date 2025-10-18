@@ -73,6 +73,7 @@ npm start
 - **🔄 Nouvelle partie** : Recommencer une nouvelle partie
 - **🏳️ Abandonner** : Déclarer forfait (l'adversaire gagne)
 - **🤝 Proposer nulle** : Proposer un match nul aux deux joueurs
+- **💾 Exporter PGN** : Sauvegarder la partie au format standard FIDE
 
 #### Panneau d'information
 
@@ -173,6 +174,7 @@ Pour plus d'informations, consultez :
 
 - **[README.md](./README.md)** : Documentation technique complète
 - **[REGLES.md](./REGLES.md)** : Toutes les règles du jeu d'échecs
+- **[NOTATION-PGN.md](./NOTATION-PGN.md)** : Format PGN et notation algébrique
 - **[AMELIORATIONS.md](./AMELIORATIONS.md)** : Fonctionnalités futures possibles
 
 ## 🎓 Conseils pour débuter

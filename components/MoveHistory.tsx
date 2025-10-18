@@ -9,45 +9,74 @@ interface MoveHistoryProps {
   moves: Move[];
 }
 
-const PIECE_SYMBOLS: Record<string, string> = {
-  king: "R",
-  queen: "D",
-  rook: "T",
-  bishop: "F",
-  knight: "C",
+/**
+ * Notation FIDE standard (lettre anglaise)
+ */
+const PIECE_SYMBOLS_FIDE: Record<string, string> = {
+  king: "K",
+  queen: "Q",
+  rook: "R",
+  bishop: "B",
+  knight: "N",
   pawn: "",
 };
 
+/**
+ * Notation française (optionnel, pour usage futur)
+ * Décommenter pour utiliser la notation française au lieu de la FIDE
+ */
+// const PIECE_SYMBOLS_FR: Record<string, string> = {
+//   king: "R",
+//   queen: "D",
+//   rook: "T",
+//   bishop: "F",
+//   knight: "C",
+//   pawn: "",
+// };
+
+// Utiliser la notation FIDE par défaut
+const PIECE_SYMBOLS = PIECE_SYMBOLS_FIDE;
+
 function formatMove(move: Move): string {
+  // Roque
+  if (move.isCastling) {
+    return move.to.col === 6 ? "O-O" : "O-O-O";
+  }
+
   const pieceSymbol = PIECE_SYMBOLS[move.piece.type];
   const from = positionToAlgebraic(move.from);
   const to = positionToAlgebraic(move.to);
+  let notation = "";
 
-  // Cas spéciaux
-  if (move.isCastling) {
-    return move.to.col === 6 ? "0-0" : "0-0-0"; // Petit ou grand roque
+  // Lettre de la pièce (sauf pour les pions)
+  if (move.piece.type !== "pawn") {
+    notation += pieceSymbol;
+    // Note : La désambiguïsation complète nécessiterait l'état du jeu
+    // Pour l'instant, on affiche juste le coup de base
+  } else if (move.capturedPiece || move.isEnPassant) {
+    // Pour les pions qui capturent, on ajoute la colonne de départ
+    notation += from[0];
   }
 
+  // Symbole de capture
+  if (move.capturedPiece || move.isEnPassant) {
+    notation += "x";
+  }
+
+  // Case de destination
+  notation += to;
+
+  // Promotion
+  if (move.isPromotion && move.promotionPiece) {
+    notation += "=" + PIECE_SYMBOLS[move.promotionPiece];
+  }
+
+  // Prise en passant (ajout optionnel)
   if (move.isEnPassant) {
-    return `${from}x${to} e.p.`;
+    notation += " e.p.";
   }
 
-  if (move.isPromotion) {
-    const promotionSymbol = PIECE_SYMBOLS[move.promotionPiece || "queen"];
-    return `${pieceSymbol}${from}-${to}=${promotionSymbol}`;
-  }
-
-  const capture = move.capturedPiece ? "x" : "-";
-
-  // Pour les pions, on affiche juste la destination (ou la colonne de départ pour les captures)
-  if (move.piece.type === "pawn") {
-    if (move.capturedPiece) {
-      return `${from[0]}x${to}`;
-    }
-    return to;
-  }
-
-  return `${pieceSymbol}${from}${capture}${to}`;
+  return notation;
 }
 
 export default function MoveHistory({ moves }: MoveHistoryProps) {
