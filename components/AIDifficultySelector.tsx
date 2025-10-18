@@ -4,7 +4,7 @@ import { useTranslations } from "next-intl";
 import { useGameModeStore } from "@/store/useGameModeStore";
 import { AILevel, getAILevelInfo } from "@/lib/chess-ai";
 import { Card } from "./ui/card";
-import { Brain, Zap, TrendingUp, Award } from "lucide-react";
+import { Brain, Zap, TrendingUp, Award, Crown } from "lucide-react";
 
 interface AIDifficultySelectorProps {
   disabled?: boolean;
@@ -51,6 +51,13 @@ export default function AIDifficultySelector({
       shadowColor: "shadow-red-200",
       textColor: "text-red-600",
     },
+    {
+      level: 2000,
+      icon: <Crown className="w-6 h-6" />,
+      gradient: "from-purple-500 to-indigo-600",
+      shadowColor: "shadow-purple-200",
+      textColor: "text-purple-600",
+    },
   ];
 
   if (gameMode !== "ai") {
@@ -65,7 +72,7 @@ export default function AIDifficultySelector({
           <p className="text-sm text-gray-600">{t("subtitle")}</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
           {levels.map((levelData) => {
             const info = getAILevelInfo(levelData.level);
             const isSelected = aiLevel === levelData.level;

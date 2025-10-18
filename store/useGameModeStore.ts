@@ -18,7 +18,7 @@ export const useGameModeStore = create<GameModeState>()(
   persist(
     (set) => ({
       gameMode: "pvp",
-      aiLevel: 800,
+      aiLevel: 1200, // Niveau intermédiaire par défaut
       aiColor: "black",
       setGameMode: (mode) => set({ gameMode: mode }),
       setAILevel: (level) => set({ aiLevel: level }),

@@ -122,7 +122,8 @@
       "400": "LN Débutant",
       "800": "LN Amateur",
       "1200": "LN Intermédiaire",
-      "1600": "LN Avancé"
+      "1600": "LN Avancé",
+      "2000": "LN Expert"
     }
   },
   "sound": {

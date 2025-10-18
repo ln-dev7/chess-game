@@ -2,7 +2,7 @@ import { GameState, Position, Piece, PieceColor } from "@/types/chess";
 import { getPossibleMoves, executeMove } from "./chess-engine";
 import { positionsEqual } from "./chess-utils";
 
-export type AILevel = 400 | 800 | 1200 | 1600;
+export type AILevel = 400 | 800 | 1200 | 1600 | 2000;
 
 export interface AIMove {
   from: Position;
@@ -30,50 +30,62 @@ const AI_CONFIGS: Record<AILevel, AILevelConfig> = {
   400: {
     name: "LN Débutant",
     elo: 400,
-    description: "Connaît les règles mais fait beaucoup d'erreurs",
-    blunderProbability: 0.35, // 35% de chance de blunder
-    tacticalDepth: 1, // Ne regarde qu'un coup à l'avance
-    strategicWeight: 0.1, // Peu de compréhension stratégique
-    randomness: 0.6, // Très aléatoire
-    developpementWeight: 0.2,
-    centerControlWeight: 0.3,
-    kingSafetyWeight: 0.4,
+    description: "Débutant total - Connaît les règles mais vision limitée",
+    blunderProbability: 0.35, // 35% - Gaffes constantes
+    tacticalDepth: 1, // Profondeur 1-2 demi-coups
+    strategicWeight: 0.05, // Presque aucune compréhension stratégique
+    randomness: 0.7, // Très aléatoire - joue souvent au hasard
+    developpementWeight: 0.1, // Ignore développement
+    centerControlWeight: 0.2, // Peu d'intérêt pour le centre
+    kingSafetyWeight: 0.3, // Roque tardif ou oublié
   },
   800: {
     name: "LN Amateur",
     elo: 800,
-    description: "Comprend les principes de base mais rate des tactiques",
-    blunderProbability: 0.2, // 20% de chance de blunder
-    tacticalDepth: 2, // Regarde 2 coups à l'avance
-    strategicWeight: 0.3,
-    randomness: 0.4,
-    developpementWeight: 0.5,
-    centerControlWeight: 0.6,
-    kingSafetyWeight: 0.7,
+    description: "Débutant avancé - Applique principes de base",
+    blunderProbability: 0.25, // 25% - Erreurs fréquentes
+    tacticalDepth: 2, // Profondeur 2-3 demi-coups
+    strategicWeight: 0.3, // Compréhension basique
+    randomness: 0.4, // Assez aléatoire
+    developpementWeight: 0.5, // Commence à développer
+    centerControlWeight: 0.6, // Connaît l'importance du centre
+    kingSafetyWeight: 0.65, // Roque plus régulièrement
   },
   1200: {
     name: "LN Intermédiaire",
     elo: 1200,
-    description: "Joue avec un plan et repère la plupart des tactiques",
-    blunderProbability: 0.08, // 8% de chance de blunder
-    tacticalDepth: 3, // Regarde 3 coups à l'avance
-    strategicWeight: 0.6,
-    randomness: 0.2,
-    developpementWeight: 0.8,
-    centerControlWeight: 0.8,
-    kingSafetyWeight: 0.9,
+    description: "Intermédiaire débutant - A un plan mais imprécis",
+    blunderProbability: 0.12, // 12% - Erreurs occasionnelles
+    tacticalDepth: 3, // Profondeur 3-4 demi-coups
+    strategicWeight: 0.6, // Bonne compréhension
+    randomness: 0.2, // Moins aléatoire
+    developpementWeight: 0.75, // Bon développement
+    centerControlWeight: 0.8, // Contrôle actif du centre
+    kingSafetyWeight: 0.85, // Roque systématique
   },
   1600: {
     name: "LN Avancé",
     elo: 1600,
-    description: "Joue solidement avec compréhension stratégique",
-    blunderProbability: 0.03, // 3% de chance de blunder
-    tacticalDepth: 4, // Regarde 4 coups à l'avance
-    strategicWeight: 0.9,
-    randomness: 0.05,
-    developpementWeight: 1.0,
-    centerControlWeight: 1.0,
-    kingSafetyWeight: 1.0,
+    description: "Intermédiaire confirmé - Solide tactiquement",
+    blunderProbability: 0.05, // 5% - Erreurs rares
+    tacticalDepth: 4, // Profondeur 4-5 demi-coups
+    strategicWeight: 0.85, // Très bonne compréhension
+    randomness: 0.08, // Peu aléatoire
+    developpementWeight: 0.95, // Développement optimal
+    centerControlWeight: 0.95, // Maîtrise du centre
+    kingSafetyWeight: 0.98, // Sécurité du roi prioritaire
+  },
+  2000: {
+    name: "LN Expert",
+    elo: 2000,
+    description: "Quasi-expert - Compréhension positionnelle avancée",
+    blunderProbability: 0.02, // 2% - Erreurs très rares
+    tacticalDepth: 5, // Profondeur 5-7 demi-coups
+    strategicWeight: 1.0, // Compréhension complète
+    randomness: 0.03, // Presque pas d'aléatoire
+    developpementWeight: 1.0, // Parfait
+    centerControlWeight: 1.0, // Parfait
+    kingSafetyWeight: 1.0, // Parfait
   },
 };
 
@@ -425,24 +437,41 @@ function findBestMove(
   if (allMoves.length === 0) return null;
 
   // Simuler un blunder selon la probabilité
+  // Plus le niveau est bas, plus les blunders sont probables et graves
   if (Math.random() < config.blunderProbability) {
-    // Faire un mauvais coup : laisser une pièce en prise ou un coup aléatoire
-    const blunderMoves = allMoves.filter((move) =>
-      isMoveLeavingPieceHanging(gameState, move, aiColor)
-    );
+    // À bas niveau (400-800), les blunders sont plus flagrants
+    if (config.elo <= 800) {
+      // Chercher des coups qui laissent des pièces en prise
+      const blunderMoves = allMoves.filter((move) =>
+        isMoveLeavingPieceHanging(gameState, move, aiColor)
+      );
 
-    if (blunderMoves.length > 0) {
-      const randomBlunder =
-        blunderMoves[Math.floor(Math.random() * blunderMoves.length)];
-      return { from: randomBlunder.from, to: randomBlunder.to };
+      if (blunderMoves.length > 0) {
+        // Choisir le pire blunder (pièce la plus précieuse en prise)
+        const worstBlunder = blunderMoves.sort(
+          (a, b) => PIECE_VALUES[b.piece.type] - PIECE_VALUES[a.piece.type]
+        )[0];
+        return { from: worstBlunder.from, to: worstBlunder.to };
+      }
+
+      // Sinon, coup complètement aléatoire
+      const randomMove = allMoves[Math.floor(Math.random() * allMoves.length)];
+      return { from: randomMove.from, to: randomMove.to };
     }
 
-    // Si pas de blunder disponible, jouer un coup très faible (aléatoire)
-    const randomMove = allMoves[Math.floor(Math.random() * allMoves.length)];
-    return { from: randomMove.from, to: randomMove.to };
+    // À niveau intermédiaire (1200-1600), blunders plus subtils
+    // Jouer un coup qui n'est pas optimal mais pas catastrophique
+    const weakMoves = allMoves.slice(
+      Math.floor(allMoves.length * 0.6),
+      allMoves.length
+    );
+    if (weakMoves.length > 0) {
+      const weakMove = weakMoves[Math.floor(Math.random() * weakMoves.length)];
+      return { from: weakMove.from, to: weakMove.to };
+    }
   }
 
-  // Évaluer chaque mouvement
+  // Évaluer chaque mouvement selon la profondeur tactique du niveau
   interface EvaluatedMove {
     from: Position;
     to: Position;
@@ -454,33 +483,64 @@ function findBestMove(
     const tempState = executeMove(gameState, move.from, move.to);
     let score = evaluateBoard(tempState, aiColor, config);
 
-    // Bonus pour les captures
+    // Bonus pour les captures (pondéré par le niveau)
     const capturedPiece = gameState.board[move.to.row][move.to.col];
     if (capturedPiece) {
-      score += PIECE_VALUES[capturedPiece.type] * 0.1;
+      const captureBonus = PIECE_VALUES[capturedPiece.type] * 0.15;
+      score += captureBonus;
+
+      // Les niveaux faibles surévaluent les captures
+      if (config.elo < 1200) {
+        score += captureBonus * 0.5;
+      }
     }
 
-    // Bonus pour l'échec
+    // Bonus pour l'échec (les débutants aiment donner échec)
     if (tempState.isCheck) {
-      score += 30;
+      const checkBonus = config.elo < 1200 ? 50 : 30;
+      score += checkBonus;
     }
 
-    // Bonus pour l'échec et mat
+    // Bonus massif pour l'échec et mat
     if (tempState.isCheckmate) {
       score += 100000;
     }
 
-    // Pénalité pour laisser une pièce en prise (sauf pour les bas niveaux)
+    // Pénalité pour laisser une pièce en prise
+    // Plus le niveau est élevé, plus la pénalité est importante
+    if (isMoveLeavingPieceHanging(gameState, move, aiColor)) {
+      const penalty = PIECE_VALUES[move.piece.type] * config.strategicWeight;
+      score -= penalty;
+
+      // Les débutants ne voient pas toujours le danger
+      if (config.elo < 800 && Math.random() > 0.5) {
+        score += penalty; // Annuler la pénalité 50% du temps
+      }
+    }
+
+    // Bonus pour le développement en ouverture (< 10 coups)
+    if (gameState.moveHistory.length < 10) {
+      const isDevelopmentMove =
+        (move.piece.type === "knight" || move.piece.type === "bishop") &&
+        !move.piece.hasMoved;
+      if (isDevelopmentMove) {
+        score += 20 * config.developpementWeight;
+      }
+    }
+
+    // Bonus pour le roque (sécurité du roi)
     if (
-      config.elo >= 800 &&
-      isMoveLeavingPieceHanging(gameState, move, aiColor)
+      move.piece.type === "king" &&
+      Math.abs(move.to.col - move.from.col) === 2
     ) {
-      score -= PIECE_VALUES[move.piece.type] * 0.8;
+      score += 40 * config.kingSafetyWeight;
     }
 
     // Ajouter de l'aléatoire selon le niveau
+    // Plus le niveau est bas, plus c'est aléatoire
     if (config.randomness > 0) {
-      const randomFactor = (Math.random() - 0.5) * 200 * config.randomness;
+      const randomRange = 150 * config.randomness;
+      const randomFactor = (Math.random() - 0.5) * randomRange;
       score += randomFactor;
     }
 
@@ -490,15 +550,35 @@ function findBestMove(
   // Trier par score décroissant
   evaluatedMoves.sort((a, b) => b.score - a.score);
 
-  // Pour ajouter de la variété, choisir parmi les meilleurs coups
-  const topMovesCount = Math.max(
-    1,
-    Math.floor(evaluatedMoves.length * 0.2 * (1 + config.randomness))
-  );
-  const topMoves = evaluatedMoves.slice(0, topMovesCount);
+  // Sélection du coup selon le niveau
+  let selectedMove: EvaluatedMove;
 
-  // Sélectionner un coup parmi les meilleurs
-  const selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  if (config.elo <= 400) {
+    // Niveau 400 : très aléatoire, peut choisir dans le top 60%
+    const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.6));
+    const topMoves = evaluatedMoves.slice(0, topMovesCount);
+    selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  } else if (config.elo <= 800) {
+    // Niveau 800 : choisit dans le top 40%
+    const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.4));
+    const topMoves = evaluatedMoves.slice(0, topMovesCount);
+    selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  } else if (config.elo <= 1200) {
+    // Niveau 1200 : choisit dans le top 25%
+    const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.25));
+    const topMoves = evaluatedMoves.slice(0, topMovesCount);
+    selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  } else if (config.elo <= 1600) {
+    // Niveau 1600 : choisit dans le top 15%
+    const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.15));
+    const topMoves = evaluatedMoves.slice(0, topMovesCount);
+    selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  } else {
+    // Niveau 2000 : choisit dans le top 10% (quasi-optimal)
+    const topMovesCount = Math.max(1, Math.floor(evaluatedMoves.length * 0.1));
+    const topMoves = evaluatedMoves.slice(0, topMovesCount);
+    selectedMove = topMoves[Math.floor(Math.random() * topMoves.length)];
+  }
 
   // Vérifier la promotion
   let promotionPiece: "queen" | "rook" | "bishop" | "knight" | undefined;
@@ -537,8 +617,16 @@ export async function getAIMove(
 ): Promise<AIMove | null> {
   const config = AI_CONFIGS[aiLevel];
 
-  // Simuler un temps de réflexion (plus long pour les niveaux supérieurs)
-  const thinkingTime = 300 + (config.elo / 1600) * 700; // 300ms à 1000ms
+  // Simuler un temps de réflexion réaliste selon le niveau
+  // 400 Elo : 300-500ms (joue vite, sans réfléchir)
+  // 800 Elo : 400-800ms (réfléchit un peu)
+  // 1200 Elo : 600-1200ms (prend son temps)
+  // 1600 Elo : 800-1500ms (calcule davantage)
+  // 2000 Elo : 1000-2000ms (analyse profonde)
+  const baseTime = 200 + (config.elo / 2000) * 800;
+  const variation = baseTime * 0.5;
+  const thinkingTime = baseTime + Math.random() * variation;
+
   await new Promise((resolve) => setTimeout(resolve, thinkingTime));
 
   return findBestMove(gameState, aiColor, config);
