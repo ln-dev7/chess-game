@@ -182,8 +182,8 @@ export default function ChessGame() {
           <p className="text-gray-600">Partie locale à deux joueurs</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
-          <div className="lg:col-span-2 flex justify-center">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-start">
+          <div className="lg:col-span-2 flex justify-center items-start">
             <ChessBoard
               gameState={gameState}
               onSquareClick={handleSquareClick}
