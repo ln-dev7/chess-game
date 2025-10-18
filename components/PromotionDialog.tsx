@@ -1,6 +1,7 @@
 "use client";
 
 import { PieceType, PieceColor } from "@/types/chess";
+import Image from "next/image";
 import {
   Dialog,
   DialogContent,
@@ -12,23 +13,21 @@ interface PromotionDialogProps {
   isOpen: boolean;
   color: PieceColor;
   onSelect: (pieceType: PieceType) => void;
+  pieceStyle?: string;
 }
 
-const PIECE_SYMBOLS: Record<string, string> = {
-  "white-queen": "♕",
-  "white-rook": "♖",
-  "white-bishop": "♗",
-  "white-knight": "♘",
-  "black-queen": "♛",
-  "black-rook": "♜",
-  "black-bishop": "♝",
-  "black-knight": "♞",
-};
+/**
+ * Retourne le chemin vers le SVG de la pièce selon le style choisi
+ */
+function getPiecePath(color: PieceColor, type: PieceType, style: string = "classic"): string {
+  return `/pieces/${style}/${color}/${type}.svg`;
+}
 
 export default function PromotionDialog({
   isOpen,
   color,
   onSelect,
+  pieceStyle = "classic",
 }: PromotionDialogProps) {
   const pieces: PieceType[] = ["queen", "rook", "bishop", "knight"];
 
@@ -43,9 +42,21 @@ export default function PromotionDialog({
             <button
               key={pieceType}
               onClick={() => onSelect(pieceType)}
-              className="aspect-square flex items-center justify-center text-6xl hover:bg-gray-100 rounded-lg transition-colors border-2 border-gray-300 hover:border-gray-500"
+              className="aspect-square flex items-center justify-center p-4 hover:bg-gray-100 rounded-lg transition-colors border-2 border-gray-300 hover:border-gray-500"
             >
-              {PIECE_SYMBOLS[`${color}-${pieceType}`]}
+              <Image
+                src={getPiecePath(color, pieceType, pieceStyle)}
+                alt={`${color} ${pieceType}`}
+                width={80}
+                height={80}
+                className="w-full h-full object-contain"
+                style={{
+                  filter:
+                    color === "white"
+                      ? "drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
+                      : "none",
+                }}
+              />
             </button>
           ))}
         </div>

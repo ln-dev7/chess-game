@@ -354,6 +354,7 @@ export default function ChessGame() {
         isOpen={pendingPromotion !== null}
         color={gameState.currentPlayer}
         onSelect={handlePromotion}
+        pieceStyle={pieceStyle.id}
       />
     </div>
   );
