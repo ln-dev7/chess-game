@@ -3,9 +3,7 @@
 import { motion } from "motion/react";
 import { Piece, Position } from "@/types/chess";
 import Image from "next/image";
-
-// Durée de l'animation en millisecondes
-const ANIMATION_DURATION_MS = 300;
+import { ANIMATION_DURATION_MS } from "@/lib/constants";
 
 interface AnimatedPieceProps {
   piece: Piece;

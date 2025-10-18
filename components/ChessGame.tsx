@@ -10,6 +10,7 @@ import {
 import { positionsEqual } from "@/lib/chess-utils";
 import { ChessTheme, getSavedTheme, saveTheme } from "@/lib/chess-themes";
 import { PieceStyle, getSavedPieceStyle, savePieceStyle } from "@/lib/piece-styles";
+import { ANIMATION_DURATION_MS } from "@/lib/constants";
 import ChessBoard from "./ChessBoard";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
@@ -17,9 +18,6 @@ import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
 import ThemeSelector from "./ThemeSelector";
 import PieceStyleSelector from "./PieceStyleSelector";
-
-// Durée de l'animation en millisecondes
-const ANIMATION_DURATION = 300;
 
 interface AnimatingMove {
   from: Position;
@@ -202,7 +200,7 @@ export default function ChessGame() {
         setPendingPromotion(null);
         setAnimatingMove(null);
         setIsAnimating(false);
-      }, ANIMATION_DURATION);
+      }, ANIMATION_DURATION_MS);
     },
     [gameState, pendingPromotion]
   );
@@ -210,14 +208,18 @@ export default function ChessGame() {
   const handleAnimationComplete = useCallback(() => {
     if (!animatingMove || !gameState.selectedSquare) return;
 
-    const newState = executeMove(
-      gameState,
-      animatingMove.from,
-      animatingMove.to
-    );
-    setGameState(newState);
-    setAnimatingMove(null);
-    setIsAnimating(false);
+    // Petit délai pour éviter le clignotement lors de la transition
+    // entre la pièce animée et la pièce statique
+    setTimeout(() => {
+      const newState = executeMove(
+        gameState,
+        animatingMove.from,
+        animatingMove.to
+      );
+      setGameState(newState);
+      setAnimatingMove(null);
+      setIsAnimating(false);
+    }, 50);
   }, [animatingMove, gameState]);
 
   const handleNewGame = useCallback(() => {

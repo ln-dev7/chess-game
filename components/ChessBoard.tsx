@@ -65,9 +65,12 @@ export default function ChessBoard({
               ? positionsEqual(position, kingInCheckPos)
               : false;
 
-            // Vérifier si cette case est la source de l'animation
+            // Vérifier si cette case est la source ou la destination de l'animation
             const isAnimatingFrom = animatingMove
               ? positionsEqual(position, animatingMove.from)
+              : false;
+            const isAnimatingTo = animatingMove
+              ? positionsEqual(position, animatingMove.to)
               : false;
 
             return (
@@ -83,6 +86,7 @@ export default function ChessBoard({
                 onClick={() => onSquareClick(position)}
                 theme={theme}
                 isAnimatingFrom={isAnimatingFrom}
+                isAnimatingTo={isAnimatingTo}
                 animatingMove={animatingMove}
                 pieceStyle={pieceStyle}
               />
