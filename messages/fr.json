@@ -53,7 +53,19 @@
     "slow": "Lent",
     "sound": "Son",
     "volume": "Volume",
-    "close": "Fermer"
+    "close": "Fermer",
+    "reset": "Réinitialiser",
+    "resetConfirm": "Réinitialiser tous les paramètres par défaut ?"
+  },
+  "theme": {
+    "title": "Choisir un thème de couleurs",
+    "description": "Sélectionnez une palette de couleurs pour personnaliser l'échiquier",
+    "buttonLabel": "Thème"
+  },
+  "pieceStyle": {
+    "title": "Choisir un style de pièces",
+    "description": "Sélectionnez un style pour personnaliser l'apparence des pièces",
+    "buttonLabel": "Style de pièces"
   },
   "controls": {
     "exportPGN": "Exporter PGN",
@@ -61,7 +73,7 @@
     "preferences": "Préférences"
   },
   "timeControl": {
-    "title": "Contrôle du temps",
+    "title": "Type de partie",
     "noTime": "Sans limite de temps",
     "bullet": "Bullet",
     "blitz": "Blitz",
@@ -70,7 +82,66 @@
     "custom": "Personnalisé",
     "minutes": "Minutes",
     "increment": "Incrément (secondes)",
-    "cannotChange": "Impossible de changer la cadence pendant une partie"
+    "cannotChange": "Impossible de changer la cadence pendant une partie",
+    "currently": "Actuellement",
+    "controls": {
+      "none": {
+        "name": "Sans limite",
+        "description": "Partie sans chronomètre"
+      },
+      "bullet1": {
+        "name": "Bullet",
+        "description": "1 minute par joueur"
+      },
+      "bullet1_1": {
+        "name": "Bullet 1+1",
+        "description": "1 min + 1 sec par coup"
+      },
+      "bullet2_1": {
+        "name": "Bullet 2+1",
+        "description": "2 min + 1 sec par coup"
+      },
+      "blitz3": {
+        "name": "Blitz",
+        "description": "3 minutes par joueur"
+      },
+      "blitz3_2": {
+        "name": "Blitz 3+2",
+        "description": "3 min + 2 sec par coup"
+      },
+      "blitz5": {
+        "name": "Blitz 5+0",
+        "description": "5 minutes par joueur"
+      },
+      "blitz5_3": {
+        "name": "Blitz 5+3",
+        "description": "5 min + 3 sec par coup"
+      },
+      "rapid10": {
+        "name": "Rapid 10+0",
+        "description": "10 minutes par joueur"
+      },
+      "rapid10_5": {
+        "name": "Rapid 10+5",
+        "description": "10 min + 5 sec par coup"
+      },
+      "rapid15_10": {
+        "name": "Rapid 15+10",
+        "description": "15 min + 10 sec par coup"
+      },
+      "rapid30": {
+        "name": "Rapid 30+0",
+        "description": "30 minutes par joueur"
+      },
+      "classical60": {
+        "name": "Classique 60+0",
+        "description": "60 minutes par joueur"
+      },
+      "classical90_30": {
+        "name": "Classique 90+30",
+        "description": "90 min + 30 sec par coup"
+      }
+    }
   },
   "promotion": {
     "title": "Promotion du pion",

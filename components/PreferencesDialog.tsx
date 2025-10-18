@@ -20,6 +20,10 @@ import {
   usePreferencesStore,
   AnimationSpeed,
 } from "@/store/usePreferencesStore";
+import { useThemeStore } from "@/store/useThemeStore";
+import { useGameModeStore } from "@/store/useGameModeStore";
+import { useTimeControlStore } from "@/store/useTimeControlStore";
+import { TIME_CONTROLS } from "@/lib/time-controls";
 
 interface PreferencesDialogProps {
   isOpen: boolean;
@@ -45,6 +49,10 @@ export default function PreferencesDialog({
     setSoundEnabled,
     setSoundVolume,
   } = usePreferencesStore();
+
+  const { setThemeId, setPieceStyleId } = useThemeStore();
+  const { setGameMode, setAILevel, setAIColor } = useGameModeStore();
+  const { setTimeControl } = useTimeControlStore();
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -218,7 +226,34 @@ export default function PreferencesDialog({
           </div>
         </ScrollArea>
 
-        <div className="flex justify-end gap-2 pt-4 border-t">
+        <div className="flex justify-between gap-2 pt-4 border-t">
+          <button
+            onClick={() => {
+              if (confirm(t("resetConfirm"))) {
+                // Réinitialiser TOUTES les préférences
+                setBoardRotation(false);
+                setShowCoordinates(true);
+                setAnimationSpeed("normal");
+                setSoundEnabled(true);
+                setSoundVolume(0.3);
+
+                // Réinitialiser les thèmes
+                setThemeId("wood");
+                setPieceStyleId("colorful");
+
+                // Réinitialiser le mode de jeu
+                setGameMode("pvp");
+                setAILevel(1200);
+                setAIColor("black");
+
+                // Réinitialiser le type de partie
+                setTimeControl(TIME_CONTROLS[8]); // Rapid 10+0
+              }
+            }}
+            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+          >
+            {t("reset")}
+          </button>
           <button
             onClick={onClose}
             className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"

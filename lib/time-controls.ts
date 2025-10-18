@@ -2,10 +2,16 @@
  * Types de contrôle du temps pour les parties d'échecs
  */
 
-export type TimeControlType = "none" | "bullet" | "blitz" | "rapid" | "classical";
+export type TimeControlType =
+  | "none"
+  | "bullet"
+  | "blitz"
+  | "rapid"
+  | "classical";
 
 export interface TimeControl {
   type: TimeControlType;
+  id?: string; // Identifiant unique pour la traduction (optionnel pour rétrocompatibilité)
   name: string;
   description: string;
   initialTime: number; // en secondes
@@ -16,6 +22,7 @@ export interface TimeControl {
 export const TIME_CONTROLS: TimeControl[] = [
   {
     type: "none",
+    id: "none",
     name: "Sans limite",
     description: "Partie sans chronomètre",
     initialTime: 0,
@@ -23,6 +30,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "bullet",
+    id: "bullet1",
     name: "Bullet",
     description: "1 minute par joueur",
     initialTime: 60,
@@ -30,6 +38,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "bullet",
+    id: "bullet1_1",
     name: "Bullet 1+1",
     description: "1 min + 1 sec par coup",
     initialTime: 60,
@@ -37,6 +46,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "bullet",
+    id: "bullet2_1",
     name: "Bullet 2+1",
     description: "2 min + 1 sec par coup",
     initialTime: 120,
@@ -44,6 +54,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "blitz",
+    id: "blitz3",
     name: "Blitz",
     description: "3 minutes par joueur",
     initialTime: 180,
@@ -51,6 +62,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "blitz",
+    id: "blitz3_2",
     name: "Blitz 3+2",
     description: "3 min + 2 sec par coup",
     initialTime: 180,
@@ -58,6 +70,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "blitz",
+    id: "blitz5",
     name: "Blitz 5+0",
     description: "5 minutes par joueur",
     initialTime: 300,
@@ -65,6 +78,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "blitz",
+    id: "blitz5_3",
     name: "Blitz 5+3",
     description: "5 min + 3 sec par coup",
     initialTime: 300,
@@ -72,6 +86,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "rapid",
+    id: "rapid10",
     name: "Rapid 10+0",
     description: "10 minutes par joueur",
     initialTime: 600,
@@ -79,6 +94,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "rapid",
+    id: "rapid10_5",
     name: "Rapid 10+5",
     description: "10 min + 5 sec par coup",
     initialTime: 600,
@@ -86,6 +102,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "rapid",
+    id: "rapid15_10",
     name: "Rapid 15+10",
     description: "15 min + 10 sec par coup",
     initialTime: 900,
@@ -93,6 +110,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "rapid",
+    id: "rapid30",
     name: "Rapid 30+0",
     description: "30 minutes par joueur",
     initialTime: 1800,
@@ -100,6 +118,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "classical",
+    id: "classical60",
     name: "Classique 60+0",
     description: "60 minutes par joueur",
     initialTime: 3600,
@@ -107,6 +126,7 @@ export const TIME_CONTROLS: TimeControl[] = [
   },
   {
     type: "classical",
+    id: "classical90_30",
     name: "Classique 90+30",
     description: "90 min + 30 sec par coup",
     initialTime: 5400,

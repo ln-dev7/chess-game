@@ -91,8 +91,12 @@ export default function TimeControlSelector({
             </div>
           ) : (
             <p className="text-sm text-gray-600 mt-2">
-              Currently:{" "}
-              <span className="font-semibold">{selectedTimeControl.name}</span>
+              {t("currently")}:{" "}
+              <span className="font-semibold">
+                {selectedTimeControl.id
+                  ? t(`controls.${selectedTimeControl.id}.name`)
+                  : selectedTimeControl.name}
+              </span>
             </p>
           )}
         </DialogHeader>
@@ -129,10 +133,14 @@ export default function TimeControlSelector({
                           <div className="flex items-center justify-between">
                             <div>
                               <div className="font-semibold text-gray-900">
-                                {control.name}
+                                {control.id
+                                  ? t(`controls.${control.id}.name`)
+                                  : control.name}
                               </div>
                               <div className="text-sm text-gray-600">
-                                {control.description}
+                                {control.id
+                                  ? t(`controls.${control.id}.description`)
+                                  : control.description}
                               </div>
                             </div>
                             {isSelected && (

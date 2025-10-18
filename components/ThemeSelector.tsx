@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { ChessTheme, CHESS_THEMES } from "@/lib/chess-themes";
 import {
   Dialog,
@@ -23,6 +24,7 @@ export default function ThemeSelector({
   currentTheme,
   onThemeChange,
 }: ThemeSelectorProps) {
+  const t = useTranslations("theme");
   const [open, setOpen] = useState(false);
 
   const handleThemeSelect = (theme: ChessTheme) => {
@@ -35,16 +37,13 @@ export default function ThemeSelector({
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <Palette className="w-4 h-4 mr-2" />
-          Thème : {currentTheme.name}
+          {t("buttonLabel")} : {currentTheme.name}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Choisir un thème de couleurs</DialogTitle>
-          <DialogDescription>
-            Sélectionnez une palette de couleurs pour personnaliser
-            l&apos;échiquier
-          </DialogDescription>
+          <DialogTitle>{t("title")}</DialogTitle>
+          <DialogDescription>{t("description")}</DialogDescription>
         </DialogHeader>
 
         <ScrollArea className="h-[400px] w-full pr-4">

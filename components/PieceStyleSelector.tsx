@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { PieceStyle, PIECE_STYLES } from "@/lib/piece-styles";
 import {
   Dialog,
@@ -24,6 +25,7 @@ export default function PieceStyleSelector({
   currentStyle,
   onStyleChange,
 }: PieceStyleSelectorProps) {
+  const t = useTranslations("pieceStyle");
   const [open, setOpen] = useState(false);
 
   const handleStyleSelect = (style: PieceStyle) => {
@@ -36,14 +38,14 @@ export default function PieceStyleSelector({
       <DialogTrigger asChild>
         <Button variant="outline" className="w-full">
           <Shapes className="w-4 h-4 mr-2" />
-          Style de pièces : {currentStyle.name}
+          {t("buttonLabel")} : {currentStyle.name}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>Choisir un style de pièces</DialogTitle>
+          <DialogTitle>{t("title")}</DialogTitle>
           <DialogDescription>
-            Sélectionnez un style pour personnaliser l&apos;apparence des pièces
+            {t("description")}
           </DialogDescription>
         </DialogHeader>
 

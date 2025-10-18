@@ -28,6 +28,7 @@ import ChessClock from "./ChessClock";
 import LanguageSelector from "./LanguageSelector";
 import GameModeSelector from "./GameModeSelector";
 import AIDifficultySelector from "./AIDifficultySelector";
+import TimeControlSelector from "./TimeControlSelector";
 
 interface AnimatingMove {
   from: Position;
@@ -685,34 +686,134 @@ export default function ChessGame() {
           </div>
 
           <div className="flex-1 space-y-6">
-            <GameModeSelector
-              disabled={!canChangeSettings}
-              onStartGame={handleStartGame}
-              showStartButton={
-                gameMode === "ai" && !gameStarted && !hasMovesPlayed
-              }
-            />
-            <AIDifficultySelector disabled={!canChangeSettings} />
-            <GameInfo gameState={gameState} />
-            {selectedTimeControl.initialTime > 0 && (
-              <ChessClock
-                whiteTime={whiteTime}
-                blackTime={blackTime}
-                currentPlayer={gameState.currentPlayer}
-                isGameOver={isGameOver}
-                initialTime={selectedTimeControl.initialTime}
-              />
+            {/* Réorganisation intelligente selon l'état de la partie */}
+            {!gameStarted && !hasMovesPlayed ? (
+              /* PARTIE NON LANCÉE - Configuration en haut */
+              <>
+                <GameModeSelector
+                  disabled={!canChangeSettings}
+                  onStartGame={handleStartGame}
+                  showStartButton={
+                    gameMode === "ai" && !gameStarted && !hasMovesPlayed
+                  }
+                />
+                <AIDifficultySelector disabled={!canChangeSettings} />
+                <TimeControlSelector gameStarted={!canChangeSettings} />
+                {/* GameInfo et MoveHistory masqués avant le début */}
+                <GameControls
+                  onNewGame={handleNewGame}
+                  onResign={handleResign}
+                  onOfferDraw={handleOfferDraw}
+                  currentPlayer={gameState.currentPlayer}
+                  isGameOver={isGameOver}
+                  gameState={gameState}
+                  boardRef={boardRef}
+                />
+              </>
+            ) : isGameOver ? (
+              /* PARTIE TERMINÉE - Bouton New Game en haut */
+              <>
+                <GameControls
+                  onNewGame={handleNewGame}
+                  onResign={handleResign}
+                  onOfferDraw={handleOfferDraw}
+                  currentPlayer={gameState.currentPlayer}
+                  isGameOver={isGameOver}
+                  gameState={gameState}
+                  boardRef={boardRef}
+                />
+                {selectedTimeControl.initialTime > 0 && (
+                  <ChessClock
+                    whiteTime={whiteTime}
+                    blackTime={blackTime}
+                    currentPlayer={gameState.currentPlayer}
+                    isGameOver={isGameOver}
+                    initialTime={selectedTimeControl.initialTime}
+                  />
+                )}
+                <GameInfo gameState={gameState} />
+                <MoveHistory moves={gameState.moveHistory} />
+                {/* Configuration désactivée en bas */}
+                <div className="pt-4 border-t border-gray-200">
+                  <GameModeSelector
+                    disabled={!canChangeSettings}
+                    onStartGame={handleStartGame}
+                    showStartButton={false}
+                  />
+                  <div className="mt-4">
+                    <AIDifficultySelector disabled={!canChangeSettings} />
+                  </div>
+                  <div className="mt-4">
+                    <TimeControlSelector gameStarted={!canChangeSettings} />
+                  </div>
+                </div>
+              </>
+            ) : selectedTimeControl.initialTime > 0 ? (
+              /* PARTIE LANCÉE AVEC TEMPS - Horloge en priorité */
+              <>
+                <ChessClock
+                  whiteTime={whiteTime}
+                  blackTime={blackTime}
+                  currentPlayer={gameState.currentPlayer}
+                  isGameOver={isGameOver}
+                  initialTime={selectedTimeControl.initialTime}
+                />
+                <GameInfo gameState={gameState} />
+                <MoveHistory moves={gameState.moveHistory} />
+                <GameControls
+                  onNewGame={handleNewGame}
+                  onResign={handleResign}
+                  onOfferDraw={handleOfferDraw}
+                  currentPlayer={gameState.currentPlayer}
+                  isGameOver={isGameOver}
+                  gameState={gameState}
+                  boardRef={boardRef}
+                />
+                {/* Configuration désactivée en bas */}
+                <div className="pt-4 border-t border-gray-200">
+                  <GameModeSelector
+                    disabled={!canChangeSettings}
+                    onStartGame={handleStartGame}
+                    showStartButton={false}
+                  />
+                  <div className="mt-4">
+                    <AIDifficultySelector disabled={!canChangeSettings} />
+                  </div>
+                  <div className="mt-4">
+                    <TimeControlSelector gameStarted={!canChangeSettings} />
+                  </div>
+                </div>
+              </>
+            ) : (
+              /* PARTIE LANCÉE SANS TEMPS - Info de jeu en priorité */
+              <>
+                <GameInfo gameState={gameState} />
+                <MoveHistory moves={gameState.moveHistory} />
+                <GameControls
+                  onNewGame={handleNewGame}
+                  onResign={handleResign}
+                  onOfferDraw={handleOfferDraw}
+                  currentPlayer={gameState.currentPlayer}
+                  isGameOver={isGameOver}
+                  gameState={gameState}
+                  boardRef={boardRef}
+                />
+                {/* Configuration désactivée en bas */}
+                <div className="pt-4 border-t border-gray-200">
+                  <GameModeSelector
+                    disabled={!canChangeSettings}
+                    onStartGame={handleStartGame}
+                    showStartButton={false}
+                  />
+                  <div className="mt-4">
+                    <AIDifficultySelector disabled={!canChangeSettings} />
+                  </div>
+                  <div className="mt-4">
+                    <TimeControlSelector gameStarted={!canChangeSettings} />
+                  </div>
+                </div>
+              </>
             )}
-            <MoveHistory moves={gameState.moveHistory} />
-            <GameControls
-              onNewGame={handleNewGame}
-              onResign={handleResign}
-              onOfferDraw={handleOfferDraw}
-              currentPlayer={gameState.currentPlayer}
-              isGameOver={isGameOver}
-              gameState={gameState}
-              boardRef={boardRef}
-            />
           </div>
         </div>
       </div>

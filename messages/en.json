@@ -53,7 +53,19 @@
     "slow": "Slow",
     "sound": "Sound",
     "volume": "Volume",
-    "close": "Close"
+    "close": "Close",
+    "reset": "Reset",
+    "resetConfirm": "Reset all settings to default?"
+  },
+  "theme": {
+    "title": "Choose a Color Theme",
+    "description": "Select a color palette to customize the chessboard",
+    "buttonLabel": "Theme"
+  },
+  "pieceStyle": {
+    "title": "Choose a Piece Style",
+    "description": "Select a style to customize the appearance of pieces",
+    "buttonLabel": "Piece Style"
   },
   "controls": {
     "exportPGN": "Export PGN",
@@ -61,7 +73,7 @@
     "preferences": "Preferences"
   },
   "timeControl": {
-    "title": "Time Control",
+    "title": "Game Type",
     "noTime": "No Time Limit",
     "bullet": "Bullet",
     "blitz": "Blitz",
@@ -70,7 +82,66 @@
     "custom": "Custom",
     "minutes": "Minutes",
     "increment": "Increment (seconds)",
-    "cannotChange": "Cannot change time control during a game"
+    "cannotChange": "Cannot change time control during a game",
+    "currently": "Currently",
+    "controls": {
+      "none": {
+        "name": "No Limit",
+        "description": "Game without time limit"
+      },
+      "bullet1": {
+        "name": "Bullet",
+        "description": "1 minute per player"
+      },
+      "bullet1_1": {
+        "name": "Bullet 1+1",
+        "description": "1 min + 1 sec per move"
+      },
+      "bullet2_1": {
+        "name": "Bullet 2+1",
+        "description": "2 min + 1 sec per move"
+      },
+      "blitz3": {
+        "name": "Blitz",
+        "description": "3 minutes per player"
+      },
+      "blitz3_2": {
+        "name": "Blitz 3+2",
+        "description": "3 min + 2 sec per move"
+      },
+      "blitz5": {
+        "name": "Blitz 5+0",
+        "description": "5 minutes per player"
+      },
+      "blitz5_3": {
+        "name": "Blitz 5+3",
+        "description": "5 min + 3 sec per move"
+      },
+      "rapid10": {
+        "name": "Rapid 10+0",
+        "description": "10 minutes per player"
+      },
+      "rapid10_5": {
+        "name": "Rapid 10+5",
+        "description": "10 min + 5 sec per move"
+      },
+      "rapid15_10": {
+        "name": "Rapid 15+10",
+        "description": "15 min + 10 sec per move"
+      },
+      "rapid30": {
+        "name": "Rapid 30+0",
+        "description": "30 minutes per player"
+      },
+      "classical60": {
+        "name": "Classical 60+0",
+        "description": "60 minutes per player"
+      },
+      "classical90_30": {
+        "name": "Classical 90+30",
+        "description": "90 min + 30 sec per move"
+      }
+    }
   },
   "promotion": {
     "title": "Promote Pawn",
