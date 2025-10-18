@@ -20,6 +20,7 @@ import ThemeSelector from "./ThemeSelector";
 import PieceStyleSelector from "./PieceStyleSelector";
 import PreferencesDialog from "./PreferencesDialog";
 import FullscreenButton from "./FullscreenButton";
+import TimeControlSelector from "./TimeControlSelector";
 import { useThemeStore } from "@/store/useThemeStore";
 import { CHESS_THEMES } from "@/lib/chess-themes";
 import { PIECE_STYLES } from "@/lib/piece-styles";
@@ -137,6 +138,9 @@ export default function GameControls({
       {gameState.moveHistory.length > 0 && (
         <ExportPGNDialog gameState={gameState} />
       )}
+
+      {/* Time Control Selector */}
+      <TimeControlSelector />
 
       {/* Theme and Piece Style Selectors */}
       <ThemeSelector

@@ -14,12 +14,14 @@ import { getAnimationDuration } from "@/lib/constants";
 import { soundManager, playSound } from "@/lib/chess-sounds";
 import { usePreferencesStore } from "@/store/usePreferencesStore";
 import { useThemeStore } from "@/store/useThemeStore";
+import { useTimeControlStore } from "@/store/useTimeControlStore";
 import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
 import CheckmateAnimation from "./CheckmateAnimation";
+import ChessClock from "./ChessClock";
 
 interface AnimatingMove {
   from: Position;
@@ -53,6 +55,12 @@ export default function ChessGame() {
   } = usePreferencesStore();
 
   const { themeId, pieceStyleId } = useThemeStore();
+  const { selectedTimeControl } = useTimeControlStore();
+
+  // États pour l'horloge
+  const [whiteTime, setWhiteTime] = useState(selectedTimeControl.initialTime);
+  const [blackTime, setBlackTime] = useState(selectedTimeControl.initialTime);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Initialiser le gestionnaire audio
   useEffect(() => {
@@ -63,6 +71,70 @@ export default function ChessGame() {
       soundManager.toggleMute();
     }
   }, [soundEnabled, soundVolume]);
+
+  // Effet pour gérer le timer
+  useEffect(() => {
+    const isGameOver = gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
+
+    // Si pas de temps ou partie terminée, ne pas démarrer le timer
+    if (selectedTimeControl.initialTime === 0 || isGameOver) {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+      return;
+    }
+
+    // Ne pas démarrer le timer si c'est le début de la partie (pas de coups)
+    if (gameState.moveHistory.length === 0) {
+      return;
+    }
+
+    // Démarrer le timer
+    timerRef.current = setInterval(() => {
+      if (gameState.currentPlayer === "white") {
+        setWhiteTime((prev) => {
+          if (prev <= 0) {
+            clearInterval(timerRef.current!);
+            // Défaite par timeout
+            setGameState((gs) => ({ ...gs, isCheckmate: true }));
+            playSound("checkmate");
+            setTimeout(() => {
+              setShowCheckmateAnimation(true);
+            }, 500);
+            return 0;
+          }
+          return prev - 1;
+        });
+      } else {
+        setBlackTime((prev) => {
+          if (prev <= 0) {
+            clearInterval(timerRef.current!);
+            // Défaite par timeout
+            setGameState((gs) => ({ ...gs, isCheckmate: true }));
+            playSound("checkmate");
+            setTimeout(() => {
+              setShowCheckmateAnimation(true);
+            }, 500);
+            return 0;
+          }
+          return prev - 1;
+        });
+      }
+    }, 1000);
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+      }
+    };
+  }, [gameState.currentPlayer, gameState.moveHistory.length, gameState.isCheckmate, gameState.isStalemate, gameState.isDraw, selectedTimeControl.initialTime]);
+
+  // Réinitialiser les temps quand le contrôle de temps change
+  useEffect(() => {
+    setWhiteTime(selectedTimeControl.initialTime);
+    setBlackTime(selectedTimeControl.initialTime);
+  }, [selectedTimeControl]);
 
   // Récupérer le thème et le style de pièce
   const theme = CHESS_THEMES.find((t) => t.id === themeId) || CHESS_THEMES[0];
@@ -213,6 +285,15 @@ export default function ChessGame() {
           pieceType
         );
 
+        // Ajouter l'incrément de temps au joueur qui vient de jouer
+        if (selectedTimeControl.increment > 0) {
+          if (gameState.currentPlayer === "white") {
+            setWhiteTime((prev) => prev + selectedTimeControl.increment);
+          } else {
+            setBlackTime((prev) => prev + selectedTimeControl.increment);
+          }
+        }
+
         // Jouer les sons appropriés
         if (newState.isCheckmate) {
           playSound("checkmate");
@@ -236,7 +317,7 @@ export default function ChessGame() {
         setIsAnimating(false);
       }, animationDuration);
     },
-    [gameState, pendingPromotion, animationDuration]
+    [gameState, pendingPromotion, animationDuration, selectedTimeControl.increment]
   );
 
   const handleAnimationComplete = useCallback(() => {
@@ -253,6 +334,15 @@ export default function ChessGame() {
         animatingMove.from,
         animatingMove.to
       );
+
+      // Ajouter l'incrément de temps au joueur qui vient de jouer
+      if (selectedTimeControl.increment > 0) {
+        if (gameState.currentPlayer === "white") {
+          setWhiteTime((prev) => prev + selectedTimeControl.increment);
+        } else {
+          setBlackTime((prev) => prev + selectedTimeControl.increment);
+        }
+      }
 
       // Jouer les sons appropriés
       if (newState.isCheckmate) {
@@ -275,7 +365,7 @@ export default function ChessGame() {
       setAnimatingMove(null);
       setIsAnimating(false);
     }, 50);
-  }, [animatingMove, gameState]);
+  }, [animatingMove, gameState, selectedTimeControl.increment]);
 
   const handleNewGame = useCallback(() => {
     setGameState(createInitialGameState());
@@ -283,7 +373,13 @@ export default function ChessGame() {
     setAnimatingMove(null);
     setIsAnimating(false);
     setShowCheckmateAnimation(false);
-  }, []);
+    setWhiteTime(selectedTimeControl.initialTime);
+    setBlackTime(selectedTimeControl.initialTime);
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  }, [selectedTimeControl.initialTime]);
 
   const handleResign = useCallback(() => {
     setGameState({
@@ -349,6 +445,15 @@ export default function ChessGame() {
 
           <div className="space-y-6">
             <GameInfo gameState={gameState} />
+            {selectedTimeControl.initialTime > 0 && (
+              <ChessClock
+                whiteTime={whiteTime}
+                blackTime={blackTime}
+                currentPlayer={gameState.currentPlayer}
+                isGameOver={isGameOver}
+                initialTime={selectedTimeControl.initialTime}
+              />
+            )}
             <MoveHistory moves={gameState.moveHistory} />
             <GameControls
               onNewGame={handleNewGame}
