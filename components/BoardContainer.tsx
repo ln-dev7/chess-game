@@ -95,6 +95,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
           </div>
 
           <div
+            id="chess-board"
             className={`w-full flex justify-center ${
               isFullscreen ? "items-center" : ""
             }`}

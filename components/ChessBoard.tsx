@@ -51,11 +51,17 @@ export default function ChessBoard({
     : null;
 
   // Créer une copie du plateau et potentiellement le retourner
-  const displayBoard = isRotated ? [...board].reverse().map(row => [...row].reverse()) : board;
+  const displayBoard = isRotated
+    ? [...board].reverse().map((row) => [...row].reverse())
+    : board;
 
   return (
     <div className="w-full max-w-2xl">
-      <div className="grid grid-cols-8 aspect-square w-full border-0 border-gray-800 shadow-2xl relative" style={{ transform: "translateZ(0)" }}>
+      <div
+        id="chess-board-export"
+        className="grid grid-cols-8 aspect-square w-full border-0 border-gray-800 shadow-2xl relative"
+        style={{ transform: "translateZ(0)" }}
+      >
         {displayBoard.map((row, displayRowIndex) =>
           row.map((piece, displayColIndex) => {
             // Calculer la position réelle en tenant compte de la rotation

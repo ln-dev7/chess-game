@@ -149,17 +149,31 @@
     "selectPiece": "Select a piece for promotion:"
   },
   "export": {
-    "title": "Export PGN",
+    "title": "Export Game",
+    "description": "Export your game in different formats",
     "eventLabel": "Event",
     "siteLabel": "Site",
     "dateLabel": "Date",
     "whiteLabel": "White Player",
     "blackLabel": "Black Player",
     "resultLabel": "Result",
-    "copy": "Copy to Clipboard",
-    "download": "Download PGN File",
+    "copy": "Copy",
+    "download": "Download",
     "close": "Close",
-    "copied": "PGN copied to clipboard!"
+    "copied": "Copied!",
+    "exporting": "Exporting...",
+    "formats": {
+      "image": "Image",
+      "pgn": "PGN",
+      "fen": "FEN",
+      "imageDescription": "Export the current board position as a high-quality PNG image.",
+      "imageReady": "Ready to export as PNG",
+      "pgnDescription": "Standard FIDE format for recording and sharing chess games.",
+      "fenDescription": "Forsyth-Edwards Notation - represents the current board position.",
+      "fenNotation": "FEN Notation",
+      "fenInfo": "Use this notation to load the position in other chess applications.",
+      "preview": "Preview"
+    }
   },
   "checkmate": {
     "title": "Game Over!",

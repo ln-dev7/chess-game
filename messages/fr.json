@@ -149,17 +149,31 @@
     "selectPiece": "Sélectionnez une pièce pour la promotion :"
   },
   "export": {
-    "title": "Exporter PGN",
+    "title": "Exporter la partie",
+    "description": "Exportez votre partie dans différents formats",
     "eventLabel": "Événement",
     "siteLabel": "Site",
     "dateLabel": "Date",
     "whiteLabel": "Joueur blanc",
     "blackLabel": "Joueur noir",
     "resultLabel": "Résultat",
-    "copy": "Copier dans le presse-papiers",
-    "download": "Télécharger le fichier PGN",
+    "copy": "Copier",
+    "download": "Télécharger",
     "close": "Fermer",
-    "copied": "PGN copié dans le presse-papiers !"
+    "copied": "Copié !",
+    "exporting": "Export en cours...",
+    "formats": {
+      "image": "Image",
+      "pgn": "PGN",
+      "fen": "FEN",
+      "imageDescription": "Exportez la position actuelle de l'échiquier en image PNG haute qualité.",
+      "imageReady": "Prêt à exporter en PNG",
+      "pgnDescription": "Format standard FIDE pour enregistrer et partager des parties d'échecs.",
+      "fenDescription": "Notation Forsyth-Edwards - représente la position actuelle de l'échiquier.",
+      "fenNotation": "Notation FEN",
+      "fenInfo": "Utilisez cette notation pour charger la position dans d'autres applications d'échecs.",
+      "preview": "Aperçu"
+    }
   },
   "checkmate": {
     "title": "Partie terminée !",
