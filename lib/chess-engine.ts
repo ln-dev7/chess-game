@@ -5,6 +5,7 @@ import {
   Move,
   PieceColor,
   PieceType,
+  GameVariant,
 } from "@/types/chess";
 import {
   cloneBoard,
@@ -16,12 +17,47 @@ import {
   hasInsufficientMaterial,
   getBoardHash,
 } from "./chess-utils";
+import {
+  generateChess960Position,
+  generateRandomChess960Position,
+  findRookPositions,
+  findKingPosition,
+} from "./chess960-utils";
 
 /**
  * Crée l'état initial du jeu
  */
-export function createInitialGameState(): GameState {
-  const board = createInitialBoard();
+export function createInitialGameState(
+  variant: GameVariant = "standard",
+  chess960PositionNumber?: number
+): GameState {
+  const isChess960 = variant === "chess960";
+  const board = isChess960
+    ? chess960PositionNumber !== undefined
+      ? generateChess960Position(chess960PositionNumber)
+      : generateRandomChess960Position()
+    : createInitialBoard();
+
+  // Pour Chess960, trouver les positions initiales des tours et du roi
+  let whiteKingInitialCol: number | undefined;
+  let blackKingInitialCol: number | undefined;
+  let whiteQueenRookInitialCol: number | undefined;
+  let whiteKingRookInitialCol: number | undefined;
+  let blackQueenRookInitialCol: number | undefined;
+  let blackKingRookInitialCol: number | undefined;
+
+  if (isChess960) {
+    whiteKingInitialCol = findKingPosition(board, "white");
+    blackKingInitialCol = findKingPosition(board, "black");
+
+    const whiteRooks = findRookPositions(board, "white");
+    const blackRooks = findRookPositions(board, "black");
+
+    whiteQueenRookInitialCol = whiteRooks.queenSideRook;
+    whiteKingRookInitialCol = whiteRooks.kingSideRook;
+    blackQueenRookInitialCol = blackRooks.queenSideRook;
+    blackKingRookInitialCol = blackRooks.kingSideRook;
+  }
 
   return {
     board,
@@ -43,6 +79,13 @@ export function createInitialGameState(): GameState {
     blackRookHMoved: false,
     halfMoveClock: 0,
     positionHistory: new Map([[getBoardHash(board, "white"), 1]]),
+    isChess960,
+    whiteKingInitialCol,
+    blackKingInitialCol,
+    whiteQueenRookInitialCol,
+    whiteKingRookInitialCol,
+    blackQueenRookInitialCol,
+    blackKingRookInitialCol,
   };
 }
 
@@ -379,68 +422,265 @@ function getKingMoves(
       : gameState.blackKingMoved;
 
   if (!kingMoved && !isKingInCheck(board, piece.color)) {
-    const row = piece.color === "white" ? 7 : 0;
+    if (gameState.isChess960) {
+      // Roque Chess960
+      moves.push(...getChess960CastlingMoves(board, from, piece, gameState));
+    } else {
+      // Roque standard
+      moves.push(...getStandardCastlingMoves(board, from, piece, gameState));
+    }
+  }
 
-    // Petit roque (côté roi)
-    const kingRookMoved =
-      piece.color === "white"
-        ? gameState.whiteRookHMoved
-        : gameState.blackRookHMoved;
-    if (!kingRookMoved) {
-      const kingRook = board[row][7];
-      if (
-        kingRook &&
-        kingRook.type === "rook" &&
-        kingRook.color === piece.color
-      ) {
-        if (board[row][5] === null && board[row][6] === null) {
-          // Vérifier que les cases traversées ne sont pas attaquées
-          const passThrough = { row, col: 5 };
-          const destination = { row, col: 6 };
-          if (
-            !isSquareAttacked(
-              board,
-              passThrough,
-              getOppositeColor(piece.color)
-            ) &&
-            !isSquareAttacked(board, destination, getOppositeColor(piece.color))
-          ) {
-            moves.push(destination);
-          }
+  return moves;
+}
+
+/**
+ * Roque standard
+ */
+function getStandardCastlingMoves(
+  board: (Piece | null)[][],
+  from: Position,
+  piece: Piece,
+  gameState: GameState
+): Position[] {
+  const moves: Position[] = [];
+  const row = piece.color === "white" ? 7 : 0;
+
+  // Petit roque (côté roi)
+  const kingRookMoved =
+    piece.color === "white"
+      ? gameState.whiteRookHMoved
+      : gameState.blackRookHMoved;
+  if (!kingRookMoved) {
+    const kingRook = board[row][7];
+    if (
+      kingRook &&
+      kingRook.type === "rook" &&
+      kingRook.color === piece.color
+    ) {
+      if (board[row][5] === null && board[row][6] === null) {
+        // Vérifier que les cases traversées ne sont pas attaquées
+        const passThrough = { row, col: 5 };
+        const destination = { row, col: 6 };
+        if (
+          !isSquareAttacked(
+            board,
+            passThrough,
+            getOppositeColor(piece.color)
+          ) &&
+          !isSquareAttacked(board, destination, getOppositeColor(piece.color))
+        ) {
+          moves.push(destination);
         }
       }
     }
+  }
 
-    // Grand roque (côté dame)
-    const queenRookMoved =
-      piece.color === "white"
-        ? gameState.whiteRookAMoved
-        : gameState.blackRookAMoved;
-    if (!queenRookMoved) {
-      const queenRook = board[row][0];
+  // Grand roque (côté dame)
+  const queenRookMoved =
+    piece.color === "white"
+      ? gameState.whiteRookAMoved
+      : gameState.blackRookAMoved;
+  if (!queenRookMoved) {
+    const queenRook = board[row][0];
+    if (
+      queenRook &&
+      queenRook.type === "rook" &&
+      queenRook.color === piece.color
+    ) {
       if (
-        queenRook &&
-        queenRook.type === "rook" &&
-        queenRook.color === piece.color
+        board[row][1] === null &&
+        board[row][2] === null &&
+        board[row][3] === null
       ) {
+        // Vérifier que les cases traversées ne sont pas attaquées
+        const passThrough = { row, col: 3 };
+        const destination = { row, col: 2 };
         if (
-          board[row][1] === null &&
-          board[row][2] === null &&
-          board[row][3] === null
+          !isSquareAttacked(
+            board,
+            passThrough,
+            getOppositeColor(piece.color)
+          ) &&
+          !isSquareAttacked(board, destination, getOppositeColor(piece.color))
         ) {
-          // Vérifier que les cases traversées ne sont pas attaquées
-          const passThrough = { row, col: 3 };
-          const destination = { row, col: 2 };
-          if (
-            !isSquareAttacked(
-              board,
-              passThrough,
-              getOppositeColor(piece.color)
-            ) &&
-            !isSquareAttacked(board, destination, getOppositeColor(piece.color))
-          ) {
-            moves.push(destination);
+          moves.push(destination);
+        }
+      }
+    }
+  }
+
+  return moves;
+}
+
+/**
+ * Roque Chess960 (Fischer Random)
+ * Le roi et la tour finissent toujours sur les mêmes cases qu'en échecs standard :
+ * - Petit roque (O-O): roi en g1/g8, tour en f1/f8
+ * - Grand roque (O-O-O): roi en c1/c8, tour en d1/d8
+ */
+function getChess960CastlingMoves(
+  board: (Piece | null)[][],
+  from: Position,
+  piece: Piece,
+  gameState: GameState
+): Position[] {
+  const moves: Position[] = [];
+  const row = piece.color === "white" ? 7 : 0;
+  const kingInitialCol =
+    piece.color === "white"
+      ? gameState.whiteKingInitialCol
+      : gameState.blackKingInitialCol;
+
+  // Le roi doit être à sa position initiale pour pouvoir roquer
+  if (from.col !== kingInitialCol) {
+    return moves;
+  }
+
+  // Petit roque (côté roi)
+  const kingRookMoved =
+    piece.color === "white"
+      ? gameState.whiteRookHMoved
+      : gameState.blackRookHMoved;
+  const kingSideRookCol =
+    piece.color === "white"
+      ? gameState.whiteKingRookInitialCol
+      : gameState.blackKingRookInitialCol;
+
+  if (
+    !kingRookMoved &&
+    kingSideRookCol !== undefined &&
+    kingInitialCol !== undefined
+  ) {
+    const kingRook = board[row][kingSideRookCol];
+    if (
+      kingRook &&
+      kingRook.type === "rook" &&
+      kingRook.color === piece.color
+    ) {
+      // Destinations finales : roi en g (col 6), tour en f (col 5)
+      const kingDest = 6;
+      const rookDest = 5;
+
+      // Vérifier que toutes les cases entre les positions initiales et finales sont vides
+      // (sauf le roi et la tour eux-mêmes)
+      const minCol = Math.min(
+        kingInitialCol,
+        kingSideRookCol,
+        kingDest,
+        rookDest
+      );
+      const maxCol = Math.max(
+        kingInitialCol,
+        kingSideRookCol,
+        kingDest,
+        rookDest
+      );
+
+      let pathClear = true;
+      for (let col = minCol; col <= maxCol; col++) {
+        if (col !== kingInitialCol && col !== kingSideRookCol) {
+          if (board[row][col] !== null) {
+            pathClear = false;
+            break;
           }
+        }
+      }
+
+      if (pathClear) {
+        // Vérifier que le roi ne traverse pas une case attaquée
+        // Le roi doit vérifier toutes les cases entre sa position initiale et finale
+        const kingPath = [];
+        const start = Math.min(kingInitialCol, kingDest);
+        const end = Math.max(kingInitialCol, kingDest);
+        for (let col = start; col <= end; col++) {
+          kingPath.push({ row, col });
+        }
+
+        let canCastle = true;
+        for (const pos of kingPath) {
+          if (isSquareAttacked(board, pos, getOppositeColor(piece.color))) {
+            canCastle = false;
+            break;
+          }
+        }
+
+        if (canCastle) {
+          moves.push({ row, col: kingDest });
+        }
+      }
+    }
+  }
+
+  // Grand roque (côté dame)
+  const queenRookMoved =
+    piece.color === "white"
+      ? gameState.whiteRookAMoved
+      : gameState.blackRookAMoved;
+  const queenSideRookCol =
+    piece.color === "white"
+      ? gameState.whiteQueenRookInitialCol
+      : gameState.blackQueenRookInitialCol;
+
+  if (
+    !queenRookMoved &&
+    queenSideRookCol !== undefined &&
+    kingInitialCol !== undefined
+  ) {
+    const queenRook = board[row][queenSideRookCol];
+    if (
+      queenRook &&
+      queenRook.type === "rook" &&
+      queenRook.color === piece.color
+    ) {
+      // Destinations finales : roi en c (col 2), tour en d (col 3)
+      const kingDest = 2;
+      const rookDest = 3;
+
+      // Vérifier que toutes les cases entre les positions initiales et finales sont vides
+      // (sauf le roi et la tour eux-mêmes)
+      const minCol = Math.min(
+        kingInitialCol,
+        queenSideRookCol,
+        kingDest,
+        rookDest
+      );
+      const maxCol = Math.max(
+        kingInitialCol,
+        queenSideRookCol,
+        kingDest,
+        rookDest
+      );
+
+      let pathClear = true;
+      for (let col = minCol; col <= maxCol; col++) {
+        if (col !== kingInitialCol && col !== queenSideRookCol) {
+          if (board[row][col] !== null) {
+            pathClear = false;
+            break;
+          }
+        }
+      }
+
+      if (pathClear) {
+        // Vérifier que le roi ne traverse pas une case attaquée
+        const kingPath = [];
+        const start = Math.min(kingInitialCol, kingDest);
+        const end = Math.max(kingInitialCol, kingDest);
+        for (let col = start; col <= end; col++) {
+          kingPath.push({ row, col });
+        }
+
+        let canCastle = true;
+        for (const pos of kingPath) {
+          if (isSquareAttacked(board, pos, getOppositeColor(piece.color))) {
+            canCastle = false;
+            break;
+          }
+        }
+
+        if (canCastle) {
+          moves.push({ row, col: kingDest });
         }
       }
     }
@@ -487,21 +727,77 @@ export function executeMove(
   }
 
   // Vérifier le roque
-  if (piece.type === "king" && Math.abs(to.col - from.col) === 2) {
-    move.isCastling = true;
+  if (piece.type === "king") {
     const row = from.row;
-    if (to.col === 6) {
-      // Petit roque
-      const rook = newBoard[row][7];
-      newBoard[row][5] = rook;
-      newBoard[row][7] = null;
-      if (rook) rook.hasMoved = true;
-    } else if (to.col === 2) {
-      // Grand roque
-      const rook = newBoard[row][0];
-      newBoard[row][3] = rook;
-      newBoard[row][0] = null;
-      if (rook) rook.hasMoved = true;
+    let isCastlingMove = false;
+
+    if (gameState.isChess960) {
+      // En Chess960, le roque est détecté par la case d'arrivée ET le roi doit être à sa position initiale
+      const kingInitialCol =
+        piece.color === "white"
+          ? gameState.whiteKingInitialCol
+          : gameState.blackKingInitialCol;
+      isCastlingMove =
+        from.col === kingInitialCol && (to.col === 6 || to.col === 2);
+    } else {
+      // En standard, on détecte par la distance
+      isCastlingMove = Math.abs(to.col - from.col) === 2;
+    }
+
+    if (isCastlingMove) {
+      move.isCastling = true;
+
+      if (gameState.isChess960) {
+        // Roque Chess960
+        if (to.col === 6) {
+          // Petit roque: trouver la tour côté roi et la déplacer
+          const rookCol =
+            piece.color === "white"
+              ? gameState.whiteKingRookInitialCol
+              : gameState.blackKingRookInitialCol;
+          if (rookCol !== undefined) {
+            const rook = newBoard[row][rookCol];
+            // Déplacer la tour seulement si elle n'est pas déjà à sa position finale
+            // et si elle n'est pas sur la même case que le roi
+            if (rookCol !== 5 && rookCol !== to.col) {
+              newBoard[row][5] = rook;
+              newBoard[row][rookCol] = null;
+            }
+            if (rook) rook.hasMoved = true;
+          }
+        } else if (to.col === 2) {
+          // Grand roque: trouver la tour côté dame et la déplacer
+          const rookCol =
+            piece.color === "white"
+              ? gameState.whiteQueenRookInitialCol
+              : gameState.blackQueenRookInitialCol;
+          if (rookCol !== undefined) {
+            const rook = newBoard[row][rookCol];
+            // Déplacer la tour seulement si elle n'est pas déjà à sa position finale
+            // et si elle n'est pas sur la même case que le roi
+            if (rookCol !== 3 && rookCol !== to.col) {
+              newBoard[row][3] = rook;
+              newBoard[row][rookCol] = null;
+            }
+            if (rook) rook.hasMoved = true;
+          }
+        }
+      } else {
+        // Roque standard
+        if (to.col === 6) {
+          // Petit roque
+          const rook = newBoard[row][7];
+          newBoard[row][5] = rook;
+          newBoard[row][7] = null;
+          if (rook) rook.hasMoved = true;
+        } else if (to.col === 2) {
+          // Grand roque
+          const rook = newBoard[row][0];
+          newBoard[row][3] = rook;
+          newBoard[row][0] = null;
+          if (rook) rook.hasMoved = true;
+        }
+      }
     }
   }
 
@@ -534,16 +830,32 @@ export function executeMove(
       (piece.type === "king" && piece.color === "black"),
     whiteRookAMoved:
       gameState.whiteRookAMoved ||
-      (piece.type === "rook" && piece.color === "white" && from.col === 0),
+      (piece.type === "rook" &&
+        piece.color === "white" &&
+        (gameState.isChess960
+          ? from.col === gameState.whiteQueenRookInitialCol
+          : from.col === 0)),
     whiteRookHMoved:
       gameState.whiteRookHMoved ||
-      (piece.type === "rook" && piece.color === "white" && from.col === 7),
+      (piece.type === "rook" &&
+        piece.color === "white" &&
+        (gameState.isChess960
+          ? from.col === gameState.whiteKingRookInitialCol
+          : from.col === 7)),
     blackRookAMoved:
       gameState.blackRookAMoved ||
-      (piece.type === "rook" && piece.color === "black" && from.col === 0),
+      (piece.type === "rook" &&
+        piece.color === "black" &&
+        (gameState.isChess960
+          ? from.col === gameState.blackQueenRookInitialCol
+          : from.col === 0)),
     blackRookHMoved:
       gameState.blackRookHMoved ||
-      (piece.type === "rook" && piece.color === "black" && from.col === 7),
+      (piece.type === "rook" &&
+        piece.color === "black" &&
+        (gameState.isChess960
+          ? from.col === gameState.blackKingRookInitialCol
+          : from.col === 7)),
     halfMoveClock:
       move.capturedPiece || piece.type === "pawn"
         ? 0

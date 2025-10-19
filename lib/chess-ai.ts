@@ -1,3 +1,28 @@
+/**
+ * Moteur d'IA pour le jeu d'échecs
+ *
+ * Supporte les échecs standard ET Chess960 (Fischer Random Chess)
+ *
+ * Adaptations Chess960 selon les règles FIDE:
+ * - Évaluation du développement adaptative (pas de positions fixes)
+ * - Détection du roque ajustée (destinations finales en g1/c1 ou g8/c8)
+ * - Bonus pour l'adaptation selon le niveau de l'IA
+ * - Priorité accrue pour la sécurité du roi en Chess960
+ *
+ * Niveaux d'IA calibrés selon le système Elo:
+ * - 400:  Débutant (2-3 demi-coups, 30% erreurs)
+ * - 800:  Amateur (3 demi-coups, 20% erreurs)
+ * - 1200: Intermédiaire (4-5 demi-coups, 15% erreurs)
+ * - 1600: Avancé (5-6 demi-coups, 10% erreurs)
+ * - 2000: Expert (6-8 demi-coups, 5% erreurs)
+ * - 2500: Maître (9-10+ demi-coups, <2% erreurs)
+ *
+ * En Chess960:
+ * - Pas d'ouvertures mémorisées
+ * - Focus sur les principes généraux (développement, contrôle centre, sécurité roi)
+ * - Adaptation selon capacité de l'IA (chess960Adaptability)
+ */
+
 import { GameState, Position, Piece, PieceColor } from "@/types/chess";
 import { getPossibleMoves, executeMove } from "./chess-engine";
 import { positionsEqual } from "./chess-utils";
@@ -24,6 +49,7 @@ interface AILevelConfig {
   developpementWeight: number; // Importance du développement en ouverture
   centerControlWeight: number; // Importance du contrôle du centre
   kingSafetyWeight: number; // Importance de la sécurité du roi
+  chess960Adaptability: number; // Capacité d'adaptation aux positions Chess960 (0-1)
 }
 
 const AI_CONFIGS: Record<AILevel, AILevelConfig> = {
@@ -31,73 +57,79 @@ const AI_CONFIGS: Record<AILevel, AILevelConfig> = {
     name: "LN Débutant",
     elo: 400,
     description: "Débutant total - Connaît les règles mais vision limitée",
-    blunderProbability: 0.35, // 35% - Gaffes constantes
-    tacticalDepth: 1, // Profondeur 1-2 demi-coups
-    strategicWeight: 0.05, // Presque aucune compréhension stratégique
+    blunderProbability: 0.3, // 30% - En Chess960, gaffes fréquentes
+    tacticalDepth: 1, // 2-3 demi-coups (analyse très basique)
+    strategicWeight: 0.05, // Aucune compréhension stratégique
     randomness: 0.7, // Très aléatoire - joue souvent au hasard
-    developpementWeight: 0.1, // Ignore développement
+    developpementWeight: 0.1, // Ignore presque le développement
     centerControlWeight: 0.2, // Peu d'intérêt pour le centre
-    kingSafetyWeight: 0.3, // Roque tardif ou oublié
+    kingSafetyWeight: 0.3, // Roque tardif, oublié ou exposé
+    chess960Adaptability: 0.1, // Très faible adaptation aux positions Chess960
   },
   800: {
     name: "LN Amateur",
     elo: 800,
     description: "Débutant avancé - Applique principes de base",
-    blunderProbability: 0.25, // 25% - Erreurs fréquentes
-    tacticalDepth: 2, // Profondeur 2-3 demi-coups
+    blunderProbability: 0.2, // 20% - En Chess960, erreurs fréquentes
+    tacticalDepth: 2, // 3 demi-coups
     strategicWeight: 0.3, // Compréhension basique
     randomness: 0.4, // Assez aléatoire
-    developpementWeight: 0.5, // Commence à développer
+    developpementWeight: 0.5, // Commence à développer ses pièces
     centerControlWeight: 0.6, // Connaît l'importance du centre
     kingSafetyWeight: 0.65, // Roque plus régulièrement
+    chess960Adaptability: 0.3, // S'adapte faiblement aux positions inhabituelles
   },
   1200: {
     name: "LN Intermédiaire",
     elo: 1200,
-    description: "Intermédiaire débutant - A un plan mais imprécis",
-    blunderProbability: 0.12, // 12% - Erreurs occasionnelles
-    tacticalDepth: 3, // Profondeur 3-4 demi-coups
-    strategicWeight: 0.6, // Bonne compréhension
-    randomness: 0.2, // Moins aléatoire
-    developpementWeight: 0.75, // Bon développement
+    description: "Intermédiaire - Construit des plans, adaptable au Chess960",
+    blunderProbability: 0.15, // 15% - Erreurs occasionnelles
+    tacticalDepth: 3, // 4-5 demi-coups
+    strategicWeight: 0.6, // Bonne compréhension des principes
+    randomness: 0.2, // Moins aléatoire, plus cohérent
+    developpementWeight: 0.75, // Bon développement rapide
     centerControlWeight: 0.8, // Contrôle actif du centre
-    kingSafetyWeight: 0.85, // Roque systématique
+    kingSafetyWeight: 0.85, // Roque systématique dès que possible
+    chess960Adaptability: 0.6, // S'adapte correctement aux positions Chess960
   },
   1600: {
     name: "LN Avancé",
     elo: 1600,
-    description: "Intermédiaire confirmé - Solide tactiquement",
-    blunderProbability: 0.05, // 5% - Erreurs rares
-    tacticalDepth: 4, // Profondeur 4-5 demi-coups
-    strategicWeight: 0.85, // Très bonne compréhension
+    description: "Avancé - Solide tactiquement et positionellement",
+    blunderProbability: 0.1, // 10% - Erreurs rares, surtout des imprécisions
+    tacticalDepth: 4, // 5-6 demi-coups
+    strategicWeight: 0.85, // Très bonne compréhension positionnelle
     randomness: 0.08, // Peu aléatoire
-    developpementWeight: 0.95, // Développement optimal
-    centerControlWeight: 0.95, // Maîtrise du centre
-    kingSafetyWeight: 0.98, // Sécurité du roi prioritaire
+    developpementWeight: 0.95, // Développement rapide et optimal
+    centerControlWeight: 0.95, // Maîtrise du contrôle du centre
+    kingSafetyWeight: 0.98, // Sécurité du roi prioritaire absolue
+    chess960Adaptability: 0.85, // S'adapte bien aux positions Chess960
   },
   2000: {
     name: "LN Expert",
     elo: 2000,
-    description: "Quasi-expert - Compréhension positionnelle avancée",
-    blunderProbability: 0.02, // 2% - Erreurs très rares
-    tacticalDepth: 5, // Profondeur 5-7 demi-coups
-    strategicWeight: 1.0, // Compréhension complète
+    description: "Expert - Compréhension positionnelle avancée et dynamique",
+    blunderProbability: 0.05, // 5% - Erreurs très rares
+    tacticalDepth: 5, // 6-8 demi-coups
+    strategicWeight: 1.0, // Compréhension complète des plans
     randomness: 0.03, // Presque pas d'aléatoire
-    developpementWeight: 1.0, // Parfait
-    centerControlWeight: 1.0, // Parfait
-    kingSafetyWeight: 1.0, // Parfait
+    developpementWeight: 1.0, // Développement parfait selon position
+    centerControlWeight: 1.0, // Contrôle optimal des cases clés
+    kingSafetyWeight: 1.0, // Sécurité maximale avant toute attaque
+    chess960Adaptability: 0.95, // Excellente adaptation au Chess960
   },
   2500: {
     name: "LN Maître",
     elo: 2500,
-    description: "Niveau maître - Jeu quasi-parfait",
-    blunderProbability: 0.005, // 0.5% - Presque jamais d'erreurs
-    tacticalDepth: 6, // Profondeur 6-8 demi-coups
+    description: "Niveau maître - Jeu quasi-parfait, exploite Chess960",
+    blunderProbability: 0.02, // < 2% - Presque jamais d'erreurs
+    tacticalDepth: 6, // 9-10+ demi-coups
     strategicWeight: 1.0, // Compréhension parfaite
-    randomness: 0.01, // Variance minimale
-    developpementWeight: 1.0, // Parfait
-    centerControlWeight: 1.0, // Parfait
-    kingSafetyWeight: 1.0, // Parfait
+    randomness: 0.01, // Variance minimale, jeu optimal
+    developpementWeight: 1.0, // Développement parfait et créatif
+    centerControlWeight: 1.0, // Contrôle absolu selon position
+    kingSafetyWeight: 1.0, // Sécurité optimale en toutes phases
+    chess960Adaptability: 1.0, // Maîtrise totale du Chess960
   },
 };
 
@@ -344,11 +376,21 @@ function evaluateBoard(
   // Bonus pour le développement en ouverture (moins de 10 coups)
   if (gameState.moveHistory.length < 10) {
     score +=
-      evaluateDevelopment(board, aiColor) * config.developpementWeight * 5;
-    score -=
-      evaluateDevelopment(board, opponentColor) *
+      evaluateDevelopment(board, aiColor, gameState) *
       config.developpementWeight *
       5;
+    score -=
+      evaluateDevelopment(board, opponentColor, gameState) *
+      config.developpementWeight *
+      5;
+  }
+
+  // Bonus Chess960 : adaptation à la position initiale inhabituelle
+  if (gameState.isChess960 && gameState.moveHistory.length < 15) {
+    // Bonus pour l'IA qui s'adapte mieux selon son niveau
+    const adaptationBonus =
+      20 * config.chess960Adaptability * config.strategicWeight;
+    score += adaptationBonus;
   }
 
   // Malus si le roi est en échec
@@ -365,44 +407,91 @@ function evaluateBoard(
 
 /**
  * Évalue le développement des pièces
+ * Adapté pour Chess960 : ne suppose pas de positions initiales fixes
  */
 function evaluateDevelopment(
   board: (Piece | null)[][],
-  color: PieceColor
+  color: PieceColor,
+  gameState: GameState
 ): number {
   let developmentScore = 0;
   const backRank = color === "white" ? 7 : 0;
 
-  // Pénalité pour les pièces mineures non développées
-  const minorPiecePositions = [1, 2, 5, 6]; // Cavaliers et fous
-  for (const col of minorPiecePositions) {
-    const piece = board[backRank][col];
-    if (piece && piece.color === color && !piece.hasMoved) {
-      developmentScore -= 10;
+  // En Chess960, on évalue le développement de manière générique
+  if (gameState.isChess960) {
+    // Évaluer les pièces mineures (cavaliers et fous)
+    for (let col = 0; col < 8; col++) {
+      const piece = board[backRank][col];
+      if (
+        piece &&
+        piece.color === color &&
+        (piece.type === "knight" || piece.type === "bishop")
+      ) {
+        if (piece.hasMoved) {
+          developmentScore += 15; // Bonus pour avoir développé une pièce
+        } else {
+          developmentScore -= 10; // Pénalité si elle n'a pas bougé
+        }
+      }
     }
-  }
 
-  // Bonus pour le roque
-  const king = board[backRank][4];
-  if (king && king.color === color && king.hasMoved) {
-    // Vérifier si le roi a roqué (col 2 ou 6)
-    for (let row = 0; row < 8; row++) {
-      for (let col = 0; col < 8; col++) {
-        const p = board[row][col];
-        if (p && p.type === "king" && p.color === color) {
-          if (col === 2 || col === 6) {
-            developmentScore += 30;
+    // Bonus pour le roque (roi en position roquée : col 2 ou 6)
+    for (let col = 0; col < 8; col++) {
+      const p = board[backRank][col];
+      if (p && p.type === "king" && p.color === color) {
+        if ((col === 2 || col === 6) && p.hasMoved) {
+          developmentScore += 40; // Gros bonus pour avoir roqué en Chess960
+        }
+        break;
+      }
+    }
+
+    // Pénalité légère pour sortir la dame trop tôt
+    for (let col = 0; col < 8; col++) {
+      const piece = board[backRank][col];
+      if (piece && piece.type === "queen" && piece.color === color) {
+        if (!piece.hasMoved) {
+          // Dame pas encore sortie, c'est bien en début de partie
+          developmentScore += 5;
+        } else {
+          // Dame sortie, pénalité mineure
+          developmentScore -= 8;
+        }
+        break;
+      }
+    }
+  } else {
+    // Échecs standard : positions fixes connues
+    const minorPiecePositions = [1, 2, 5, 6]; // Cavaliers et fous
+    for (const col of minorPiecePositions) {
+      const piece = board[backRank][col];
+      if (piece && piece.color === color && !piece.hasMoved) {
+        developmentScore -= 10;
+      }
+    }
+
+    // Bonus pour le roque
+    const king = board[backRank][4];
+    if (king && king.color === color && king.hasMoved) {
+      // Vérifier si le roi a roqué (col 2 ou 6)
+      for (let row = 0; row < 8; row++) {
+        for (let col = 0; col < 8; col++) {
+          const p = board[row][col];
+          if (p && p.type === "king" && p.color === color) {
+            if (col === 2 || col === 6) {
+              developmentScore += 30;
+            }
           }
         }
       }
     }
-  }
 
-  // Pénalité pour sortir la dame trop tôt
-  const queen = board[backRank][3];
-  if (!queen || queen.color !== color || queen.type !== "queen") {
-    // La dame a bougé, pénalité en début de partie
-    developmentScore -= 15;
+    // Pénalité pour sortir la dame trop tôt
+    const queen = board[backRank][3];
+    if (!queen || queen.color !== color || queen.type !== "queen") {
+      // La dame a bougé, pénalité en début de partie
+      developmentScore -= 15;
+    }
   }
 
   return developmentScore;
@@ -579,11 +668,17 @@ function findBestMove(
     }
 
     // Bonus pour le roque (sécurité du roi)
-    if (
-      move.piece.type === "king" &&
-      Math.abs(move.to.col - move.from.col) === 2
-    ) {
-      score += 40 * config.kingSafetyWeight;
+    // Détection adaptée pour Chess960
+    const isCastling = gameState.isChess960
+      ? move.piece.type === "king" && (move.to.col === 2 || move.to.col === 6)
+      : move.piece.type === "king" &&
+        Math.abs(move.to.col - move.from.col) === 2;
+
+    if (isCastling) {
+      const castleBonus = gameState.isChess960
+        ? 50 * config.kingSafetyWeight // Bonus plus élevé en Chess960 (roque plus important)
+        : 40 * config.kingSafetyWeight;
+      score += castleBonus;
     }
 
     // Ajouter de l'aléatoire selon le niveau

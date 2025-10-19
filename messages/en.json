@@ -225,6 +225,16 @@
     "message": "The page you are looking for does not exist.",
     "returnHome": "Return Home"
   },
+  "gameVariant": {
+    "title": "Game Variant",
+    "subtitle": "Choose your chess variant",
+    "standard": "Standard",
+    "standardDescription": "Classical Chess",
+    "chess960": "Chess960",
+    "chess960Description": "Fischer Random Chess",
+    "chess960Info": "In Chess960, the back-rank pieces are placed randomly according to FIDE rules. The king must be between the two rooks and the bishops on opposite-colored squares. Castling is possible with the same final squares as in classical chess.",
+    "cannotChangeDuringGame": "Cannot change variant during a game"
+  },
   "dialog": {
     "newGame": {
       "title": "Start a new game?",

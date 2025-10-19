@@ -225,6 +225,16 @@
     "message": "La page que vous recherchez n'existe pas.",
     "returnHome": "Retour à l'accueil"
   },
+  "gameVariant": {
+    "title": "Variante de jeu",
+    "subtitle": "Choisissez la variante d'échecs",
+    "standard": "Standard",
+    "standardDescription": "Échecs classiques",
+    "chess960": "Chess960",
+    "chess960Description": "Fischer Random Chess",
+    "chess960Info": "En Chess960, les pièces de la première rangée sont placées aléatoirement selon les règles FIDE. Le roi doit être entre les deux tours et les fous sur des cases de couleurs opposées. Le roque est possible avec les mêmes cases finales qu'aux échecs classiques.",
+    "cannotChangeDuringGame": "Impossible de changer la variante pendant une partie"
+  },
   "dialog": {
     "newGame": {
       "title": "Commencer une nouvelle partie ?",

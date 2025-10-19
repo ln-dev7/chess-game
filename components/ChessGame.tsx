@@ -17,6 +17,7 @@ import { usePreferencesStore } from "@/store/usePreferencesStore";
 import { useThemeStore } from "@/store/useThemeStore";
 import { useTimeControlStore } from "@/store/useTimeControlStore";
 import { useGameModeStore } from "@/store/useGameModeStore";
+import { useGameVariantStore } from "@/store/useGameVariantStore";
 import { getAIMove } from "@/lib/chess-ai";
 import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
@@ -68,6 +69,7 @@ export default function ChessGame() {
   const { themeId, pieceStyleId } = useThemeStore();
   const { selectedTimeControl } = useTimeControlStore();
   const { gameMode, aiLevel, aiColor } = useGameModeStore();
+  const { gameVariant, chess960Position } = useGameVariantStore();
 
   // États pour l'horloge
   const [whiteTime, setWhiteTime] = useState(selectedTimeControl.initialTime);
@@ -173,6 +175,31 @@ export default function ChessGame() {
     setWhiteTime(selectedTimeControl.initialTime);
     setBlackTime(selectedTimeControl.initialTime);
   }, [selectedTimeControl]);
+
+  // Régénérer la position quand on change de variante
+  useEffect(() => {
+    // Ne pas régénérer si une partie est en cours
+    const hasMovesPlayed = gameState.moveHistory.length > 0;
+    if (hasMovesPlayed) {
+      return;
+    }
+
+    // Créer une nouvelle position selon la variante sélectionnée
+    const newState = createInitialGameState(
+      gameVariant,
+      chess960Position || undefined
+    );
+    setGameState(newState);
+
+    // Réinitialiser les états
+    setPendingPromotion(null);
+    setAnimatingMove(null);
+    setIsAnimating(false);
+    setShowCheckmateAnimation(false);
+    setIsAIThinking(false);
+    setGameStarted(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gameVariant, chess960Position]); // Se déclenche quand la variante change
 
   // Récupérer le thème et le style de pièce
   const theme = CHESS_THEMES.find((t) => t.id === themeId) || CHESS_THEMES[0];
@@ -638,7 +665,9 @@ export default function ChessGame() {
   }, [animatingMove, gameState, selectedTimeControl.increment]);
 
   const handleNewGame = useCallback(() => {
-    setGameState(createInitialGameState());
+    setGameState(
+      createInitialGameState(gameVariant, chess960Position || undefined)
+    );
     setPendingPromotion(null);
     setAnimatingMove(null);
     setIsAnimating(false);
@@ -651,7 +680,7 @@ export default function ChessGame() {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
-  }, [selectedTimeControl.initialTime]);
+  }, [selectedTimeControl.initialTime, gameVariant, chess960Position]);
 
   const handleStartGame = useCallback(() => {
     setGameStarted(true);

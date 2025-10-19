@@ -35,6 +35,16 @@ Un jeu d'échecs complet et interactif développé avec React, Next.js et shadcn
   - LN Expert (2000 Elo)
   - LN Maître (2500 Elo)
 
+#### Variantes de jeu
+
+- ♟️ **Échecs Standard** : Partie classique avec position de départ traditionnelle
+- 🎲 **Chess960 (Fischer Random)** : Position de départ aléatoire parmi 960 possibilités
+  - Génération automatique selon les règles FIDE
+  - Roi placé entre les deux tours
+  - Fous sur cases de couleurs opposées
+  - Roque adapté avec destinations finales identiques aux échecs classiques
+  - Documentation complète : [CHESS960.md](./CHESS960.md)
+
 #### Interface utilisateur
 
 - 🎨 Design minimaliste inspiré de chess.com
@@ -242,6 +252,16 @@ A complete and interactive chess game developed with React, Next.js and shadcn/u
   - LN Advanced (1600 Elo)
   - LN Expert (2000 Elo)
   - LN Master (2500 Elo)
+
+#### Game Variants
+
+- ♟️ **Standard Chess**: Classic game with traditional starting position
+- 🎲 **Chess960 (Fischer Random)**: Random starting position among 960 possibilities
+  - Automatic generation according to FIDE rules
+  - King placed between the two rooks
+  - Bishops on opposite-colored squares
+  - Adapted castling with final destinations identical to classical chess
+  - Complete documentation: [CHESS960.md](./CHESS960.md)
 
 #### User Interface
 

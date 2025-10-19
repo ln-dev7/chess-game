@@ -29,7 +29,14 @@ export interface Move {
   promotionPiece?: PieceType;
 }
 
-export type GameEndReason = "checkmate" | "timeout" | "resignation" | "draw" | null;
+export type GameEndReason =
+  | "checkmate"
+  | "timeout"
+  | "resignation"
+  | "draw"
+  | null;
+
+export type GameVariant = "standard" | "chess960";
 
 export interface GameState {
   board: (Piece | null)[][];
@@ -51,6 +58,14 @@ export interface GameState {
   blackRookHMoved: boolean;
   halfMoveClock: number; // Pour la règle des 50 coups
   positionHistory: Map<string, number>; // Pour la répétition de position
+  // Chess960 specific
+  isChess960: boolean;
+  whiteKingInitialCol?: number; // Position initiale du roi blanc (pour Chess960)
+  blackKingInitialCol?: number; // Position initiale du roi noir (pour Chess960)
+  whiteQueenRookInitialCol?: number; // Position initiale de la tour côté dame blanche (pour Chess960)
+  whiteKingRookInitialCol?: number; // Position initiale de la tour côté roi blanche (pour Chess960)
+  blackQueenRookInitialCol?: number; // Position initiale de la tour côté dame noire (pour Chess960)
+  blackKingRookInitialCol?: number; // Position initiale de la tour côté roi noire (pour Chess960)
 }
 
 export type GameStatus =
