@@ -85,16 +85,19 @@ Style vibrant et ludique avec des couleurs vives et audacieuses. Chaque pièce a
 Pour ajouter un nouveau style de pièces :
 
 1. **Créer la structure de dossiers :**
+
    ```bash
    mkdir -p pieces/nouveau-style/black
    mkdir -p pieces/nouveau-style/white
    ```
 
 2. **Ajouter les 12 fichiers SVG** (6 pièces × 2 couleurs) :
+
    - `black/bishop.svg`, `black/king.svg`, `black/knight.svg`, `black/pawn.svg`, `black/queen.svg`, `black/rook.svg`
    - `white/bishop.svg`, `white/king.svg`, `white/knight.svg`, `white/pawn.svg`, `white/queen.svg`, `white/rook.svg`
 
 3. **Enregistrer le style** dans `/lib/piece-styles.ts` :
+
    ```typescript
    export const PIECE_STYLES: PieceStyle[] = [
      {
@@ -256,16 +259,19 @@ Vibrant and playful style with bright, bold colors. Each piece has distinctive c
 To add a new piece style:
 
 1. **Create the folder structure:**
+
    ```bash
    mkdir -p pieces/new-style/black
    mkdir -p pieces/new-style/white
    ```
 
 2. **Add the 12 SVG files** (6 pieces × 2 colors):
+
    - `black/bishop.svg`, `black/king.svg`, `black/knight.svg`, `black/pawn.svg`, `black/queen.svg`, `black/rook.svg`
    - `white/bishop.svg`, `white/king.svg`, `white/knight.svg`, `white/pawn.svg`, `white/queen.svg`, `white/rook.svg`
 
 3. **Register the style** in `/lib/piece-styles.ts`:
+
    ```typescript
    export const PIECE_STYLES: PieceStyle[] = [
      {
