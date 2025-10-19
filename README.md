@@ -113,29 +113,43 @@ npm run dev
 chess-game/
 ├── app/                      # Pages Next.js
 ├── components/               # Composants React
-│   ├── ChessBoard.tsx       # Plateau d'échecs
-│   ├── ChessSquare.tsx      # Case individuelle
-│   ├── ChessPiece.tsx       # Pièce d'échecs
-│   ├── ChessGame.tsx        # Composant principal
-│   ├── GameInfo.tsx         # Informations de la partie
-│   ├── GameControls.tsx     # Contrôles du jeu
-│   ├── GameModeSelector.tsx # Sélecteur de mode
 │   ├── AIDifficultySelector.tsx # Sélecteur de difficulté IA
+│   ├── AnimatedPiece.tsx    # Animation des pièces
+│   ├── BoardContainer.tsx   # Conteneur du plateau
+│   ├── CapturedPieces.tsx   # Pièces capturées
+│   ├── CheckmateAnimation.tsx # Animation d'échec et mat
+│   ├── ChessBoard.tsx       # Plateau d'échecs
 │   ├── ChessClock.tsx       # Pendule d'échecs
+│   ├── ChessGame.tsx        # Composant principal
+│   ├── ChessPiece.tsx       # Pièce d'échecs
+│   ├── ChessSquare.tsx      # Case individuelle
+│   ├── ExportPGNDialog.tsx  # Dialogue d'export PGN
+│   ├── FullscreenButton.tsx # Bouton plein écran
+│   ├── GameControls.tsx     # Contrôles du jeu
+│   ├── GameInfo.tsx         # Informations de la partie
+│   ├── GameModeSelector.tsx # Sélecteur de mode
+│   ├── LanguageSelector.tsx # Sélecteur de langue
 │   ├── MoveHistory.tsx      # Historique des coups
-│   ├── PromotionDialog.tsx  # Dialogue de promotion
-│   ├── ThemeSelector.tsx    # Sélecteur de thème
 │   ├── PieceStyleSelector.tsx # Sélecteur de style
-│   └── LanguageSelector.tsx # Sélecteur de langue
+│   ├── PreferencesDialog.tsx # Dialogue des préférences
+│   ├── PromotionDialog.tsx  # Dialogue de promotion
+│   ├── SoundControl.tsx     # Contrôle du son
+│   ├── ThemeSelector.tsx    # Sélecteur de thème
+│   ├── TimeControlSelector.tsx # Sélecteur de cadence
+│   └── ui/                  # Composants UI shadcn
 ├── lib/                     # Logique du jeu
-│   ├── chess-engine.ts      # Moteur de jeu
 │   ├── chess-ai.ts          # Intelligence artificielle
-│   ├── chess-utils.ts       # Fonctions utilitaires
-│   ├── chess-themes.ts      # Thèmes de couleurs
+│   ├── chess-engine.ts      # Moteur de jeu
 │   ├── chess-sounds.ts      # Effets sonores
+│   ├── chess-themes.ts      # Thèmes de couleurs
+│   ├── chess-utils.ts       # Fonctions utilitaires
+│   ├── constants.ts         # Constantes du jeu
+│   ├── export-utils.ts      # Utilitaires d'export
+│   ├── pgn-utils.ts         # Utilitaires PGN
 │   ├── piece-styles.ts      # Styles de pièces
+│   ├── preferences.ts       # Gestion des préférences
 │   ├── time-controls.ts     # Contrôles de temps
-│   └── pgn-utils.ts         # Utilitaires PGN
+│   └── utils.ts             # Utilitaires généraux
 ├── store/                   # Gestion d'état Zustand
 ├── types/                   # Types TypeScript
 │   └── chess.ts            # Types du jeu d'échecs
@@ -143,14 +157,12 @@ chess-game/
 │   ├── en.json            # Anglais
 │   └── fr.json            # Français
 ├── public/                 # Fichiers statiques
-│   └── pieces/            # Images des pièces
-└── Documentation/
-    ├── README.md          # Ce fichier
-    ├── RULES.md          # Règles complètes
-    ├── PGN-NOTATION.md   # Format PGN et notation
-    ├── THEMES.md         # Thèmes de couleurs
-    ├── AI-IMPROVEMENTS.md # Documentation IA
-    └── IMPROVEMENTS.md   # Améliorations futures
+│   └── pieces/            # Images des pièces SVG
+├── README.md              # Documentation principale
+├── QUICK-START.md         # Guide de démarrage rapide
+├── RULES.md              # Règles complètes
+├── PGN-NOTATION.md       # Format PGN et notation
+└── THEMES.md             # Thèmes de couleurs
 ```
 
 ### 🎯 Règles implémentées
@@ -187,8 +199,6 @@ Pour plus d'informations, consultez :
 - **[RULES.md](./RULES.md)** : Toutes les règles du jeu d'échecs
 - **[PGN-NOTATION.md](./PGN-NOTATION.md)** : Format PGN et notation algébrique
 - **[THEMES.md](./THEMES.md)** : Guide des thèmes de couleurs
-- **[AI-IMPROVEMENTS.md](./AI-IMPROVEMENTS.md)** : Documentation de l'IA
-- **[IMPROVEMENTS.md](./IMPROVEMENTS.md)** : Fonctionnalités futures possibles
 
 ### 📄 Licence
 
@@ -311,29 +321,43 @@ npm run dev
 chess-game/
 ├── app/                      # Next.js pages
 ├── components/               # React components
-│   ├── ChessBoard.tsx       # Chess board
-│   ├── ChessSquare.tsx      # Individual square
-│   ├── ChessPiece.tsx       # Chess piece
-│   ├── ChessGame.tsx        # Main component
-│   ├── GameInfo.tsx         # Game information
-│   ├── GameControls.tsx     # Game controls
-│   ├── GameModeSelector.tsx # Mode selector
 │   ├── AIDifficultySelector.tsx # AI difficulty selector
+│   ├── AnimatedPiece.tsx    # Piece animations
+│   ├── BoardContainer.tsx   # Board container
+│   ├── CapturedPieces.tsx   # Captured pieces
+│   ├── CheckmateAnimation.tsx # Checkmate animation
+│   ├── ChessBoard.tsx       # Chess board
 │   ├── ChessClock.tsx       # Chess clock
+│   ├── ChessGame.tsx        # Main component
+│   ├── ChessPiece.tsx       # Chess piece
+│   ├── ChessSquare.tsx      # Individual square
+│   ├── ExportPGNDialog.tsx  # PGN export dialog
+│   ├── FullscreenButton.tsx # Fullscreen button
+│   ├── GameControls.tsx     # Game controls
+│   ├── GameInfo.tsx         # Game information
+│   ├── GameModeSelector.tsx # Mode selector
+│   ├── LanguageSelector.tsx # Language selector
 │   ├── MoveHistory.tsx      # Move history
-│   ├── PromotionDialog.tsx  # Promotion dialog
-│   ├── ThemeSelector.tsx    # Theme selector
 │   ├── PieceStyleSelector.tsx # Style selector
-│   └── LanguageSelector.tsx # Language selector
+│   ├── PreferencesDialog.tsx # Preferences dialog
+│   ├── PromotionDialog.tsx  # Promotion dialog
+│   ├── SoundControl.tsx     # Sound control
+│   ├── ThemeSelector.tsx    # Theme selector
+│   ├── TimeControlSelector.tsx # Time control selector
+│   └── ui/                  # shadcn UI components
 ├── lib/                     # Game logic
-│   ├── chess-engine.ts      # Game engine
 │   ├── chess-ai.ts          # Artificial intelligence
-│   ├── chess-utils.ts       # Utility functions
-│   ├── chess-themes.ts      # Color themes
+│   ├── chess-engine.ts      # Game engine
 │   ├── chess-sounds.ts      # Sound effects
+│   ├── chess-themes.ts      # Color themes
+│   ├── chess-utils.ts       # Utility functions
+│   ├── constants.ts         # Game constants
+│   ├── export-utils.ts      # Export utilities
+│   ├── pgn-utils.ts         # PGN utilities
 │   ├── piece-styles.ts      # Piece styles
+│   ├── preferences.ts       # Preferences management
 │   ├── time-controls.ts     # Time controls
-│   └── pgn-utils.ts         # PGN utilities
+│   └── utils.ts             # General utilities
 ├── store/                   # Zustand state management
 ├── types/                   # TypeScript types
 │   └── chess.ts            # Chess game types
@@ -341,14 +365,12 @@ chess-game/
 │   ├── en.json            # English
 │   └── fr.json            # French
 ├── public/                 # Static files
-│   └── pieces/            # Piece images
-└── Documentation/
-    ├── README.md          # This file
-    ├── RULES.md          # Complete rules
-    ├── PGN-NOTATION.md   # PGN format and notation
-    ├── THEMES.md         # Color themes
-    ├── AI-IMPROVEMENTS.md # AI documentation
-    └── IMPROVEMENTS.md   # Future improvements
+│   └── pieces/            # SVG piece images
+├── README.md              # Main documentation
+├── QUICK-START.md         # Quick start guide
+├── RULES.md              # Complete rules
+├── PGN-NOTATION.md       # PGN format and notation
+└── THEMES.md             # Color themes
 ```
 
 ### 🎯 Implemented Rules
@@ -385,8 +407,6 @@ For more information, see:
 - **[RULES.md](./RULES.md)** : All chess rules
 - **[PGN-NOTATION.md](./PGN-NOTATION.md)** : PGN format and algebraic notation
 - **[THEMES.md](./THEMES.md)** : Color themes guide
-- **[AI-IMPROVEMENTS.md](./AI-IMPROVEMENTS.md)** : AI documentation
-- **[IMPROVEMENTS.md](./IMPROVEMENTS.md)** : Possible future features
 
 ### 📄 License
 
