@@ -153,3 +153,19 @@ export function getTimeColor(seconds: number, initialTime: number): string {
   if (percentage > 20) return "text-orange-600";
   return "text-red-600";
 }
+
+/**
+ * Formate le TimeControl en notation PGN standard
+ * Format: "minutes+increment" (ex: "15+10", "3+2")
+ * Retourne "-" pour les parties sans limite de temps
+ */
+export function formatTimeControlForPGN(timeControl: TimeControl): string {
+  if (timeControl.type === "none" || timeControl.initialTime === 0) {
+    return "-";
+  }
+
+  const minutes = Math.floor(timeControl.initialTime / 60);
+  const increment = timeControl.increment;
+
+  return `${minutes}+${increment}`;
+}

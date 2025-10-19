@@ -39,7 +39,7 @@ Encadrés entre crochets `[]`, ils décrivent le contexte de la partie.
 [Result "1-0"]
 ```
 
-**Tags obligatoires définis par la FIDE :**
+**Tags obligatoires définis par la FIDE (Seven Tag Roster) :**
 
 | Tag    | Signification                                    |
 | ------ | ------------------------------------------------ |
@@ -51,17 +51,22 @@ Encadrés entre crochets `[]`, ils décrivent le contexte de la partie.
 | Black  | Nom du joueur des Noirs                          |
 | Result | Résultat de la partie (1-0, 0-1, 1/2-1/2, ou \*) |
 
-**Tags optionnels fréquents :**
+**Tags supplémentaires fréquents (Supplemental tag names) :**
 
+- `[WhiteElo "1500"]` - Classement Elo du joueur blanc
+- `[BlackElo "1450"]` - Classement Elo du joueur noir
+- `[TimeControl "15+10"]` - Cadence de jeu (minutes+incrément en secondes)
+- `[Termination "Normal"]` - Type de fin de partie (Normal, White resigns, Black resigns, Draw by agreement, Stalemate, etc.)
+- `[Variant "Standard"]` ou `[Variant "Chess960"]` - Variante d'échecs
+- `[SetUp "1"]` - Indique une position de départ non standard (utilisé avec FEN)
+- `[FEN "..."]` - Position de départ en notation FEN (pour Chess960 ou positions personnalisées)
 - `[ECO "C42"]` - Code d'ouverture
 - `[Opening "Petrov Defense"]` - Nom de l'ouverture
-- `[TimeControl "90+30"]` - Cadence de jeu
-- `[Termination "Normal"]` - Type de fin de partie
 - `[Annotator "GM X"]` - Annotateur
 
-### 2. La notation des coups
+### 2. La notation des coups (Movetext Section)
 
-La partie est listée en **notation algébrique standard**.
+La partie est listée en **notation algébrique standard (SAN)**.
 
 **Exemple :**
 
@@ -76,6 +81,52 @@ La partie est listée en **notation algébrique standard**.
 - `0-1` : Victoire des Noirs
 - `1/2-1/2` : Partie nulle
 - `*` : Partie en cours
+
+### 3. Terminaisons spéciales et commentaires
+
+Le format PGN permet d'ajouter des **commentaires** entre accolades `{...}` pour préciser la nature de la fin de partie :
+
+**Exemples :**
+
+- Abandon : `{White resigns.}` ou `{Black resigns.}`
+- Timeout : `{White wins by timeout.}` ou `{Black wins by timeout.}`
+- Pat : `{Stalemate.}`
+- Règle des 50 coups : `{Draw by fifty-move rule.}`
+- Nulle par accord : `{Draw by agreement.}`
+
+Le tag `[Termination "..."]` dans l'en-tête précise également le motif :
+
+- `[Termination "Normal"]` - Échec et mat
+- `[Termination "White resigns"]` - Les Blancs abandonnent
+- `[Termination "Black resigns"]` - Les Noirs abandonnent
+- `[Termination "Stalemate"]` - Pat
+- `[Termination "Draw by agreement"]` - Nulle par accord
+- `[Termination "Draw by fifty-move rule"]` - Règle des 50 coups
+
+### 4. Chess960 et positions non standard
+
+Pour les parties **Chess960** (Fischer Random Chess) ou toute position de départ non standard :
+
+- `[Variant "Chess960"]` - Indique la variante
+- `[SetUp "1"]` - Indique une position de départ non standard
+- `[FEN "..."]` - Position de départ en notation FEN
+
+**Exemple pour Chess960 :**
+
+```
+[Event "Chess960 Tournament"]
+[Site "chess-game"]
+[Date "2025.10.19"]
+[Round "1"]
+[White "Player 1"]
+[Black "Player 2"]
+[Result "1-0"]
+[Variant "Chess960"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. Ng5 d5 1-0
+```
 
 ## Notation algébrique standard
 
@@ -171,22 +222,69 @@ Quand deux pièces identiques peuvent aller à la même case, on précise :
 
 ## Exemple complet de fichier PGN
 
-```pgn
-[Event "Partie locale"]
-[Site "chess-game"]
-[Date "2025.10.18"]
-[Round "1"]
-[White "Joueur 1 (Blancs)"]
-[Black "Joueur 2 (Noirs)"]
-[Result "1-0"]
+### Exemple 1 : Partie classique avec tous les tags
 
-1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7
-6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
-11. c4 c6 12. Nc3 Qc7 13. Bg5 h6 14. Bh4 Re8 15. Rc1 Bf8
-16. cxb5 axb5 17. Nxb5 Qb8 18. Nc3 Ba6 19. dxe5 dxe5
-20. Na4 Bb5 21. Nc3 Ba6 22. Nd5 cxd5 23. Bxf6 Nxf6
-24. exd5 e4 25. Nd4 Qf4 26. Re3 Bd6 27. g3 Qg5 28. Rc6 Rad8
-29. Rxa6 Bxg3 30. Rxg3 Qh4 31. Nf5 1-0
+```pgn
+[Event "Casual Game"]
+[Site "chess-game"]
+[Date "2025.10.19"]
+[Round "1"]
+[White "Player 1"]
+[Black "Player 2"]
+[Result "1-0"]
+[WhiteElo "1600"]
+[BlackElo "1550"]
+[TimeControl "15+10"]
+[Variant "Standard"]
+[Termination "Normal"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6
+8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. c4 c6 12. Nc3 Qc7 13. Bg5 h6
+14. Bh4 Re8 15. Rc1 Bf8 16. cxb5 axb5 17. Nxb5 Qb8 18. Nc3 Ba6
+19. dxe5 dxe5 20. Na4 Bb5 21. Nc3 Ba6 22. Nd5 cxd5 23. Bxf6 Nxf6
+24. exd5 e4 25. Nd4 Qf4 26. Re3 Bd6 27. g3 Qg5 28. Rc6 Rad8 29. Rxa6 Bxg3
+30. Rxg3 Qh4 31. Nf5 Qxf2+ 32. Kh1 Qxf5 33. Qxd7 1-0
+```
+
+### Exemple 2 : Partie avec abandon
+
+```pgn
+[Event "Blitz Tournament"]
+[Site "chess-game"]
+[Date "2025.10.19"]
+[Round "5"]
+[White "Player A"]
+[Black "Player B"]
+[Result "0-1"]
+[WhiteElo "1500"]
+[BlackElo "1450"]
+[TimeControl "3+2"]
+[Variant "Standard"]
+[Termination "White resigns"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 {White resigns.} 0-1
+```
+
+### Exemple 3 : Partie Chess960
+
+```pgn
+[Event "Chess960 Tournament"]
+[Site "chess-game"]
+[Date "2025.10.19"]
+[Round "1"]
+[White "Player 1"]
+[Black "Player 2"]
+[Result "1/2-1/2"]
+[WhiteElo "1700"]
+[BlackElo "1680"]
+[TimeControl "10+5"]
+[Variant "Chess960"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+[Termination "Draw by agreement"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Be7 5. O-O O-O 6. c3 d6 7. Nbd2 Be6
+8. Bb3 Qd7 9. h3 Rad8 {Draw by agreement.} 1/2-1/2
 ```
 
 ## Utilisation dans l'application
@@ -197,14 +295,22 @@ Quand deux pièces identiques peuvent aller à la même case, on précise :
 2. Cliquez sur le bouton **"Exporter PGN"**
 3. **L'aperçu du PGN s'affiche automatiquement** avec les métadonnées par défaut
 4. **Personnalisez les métadonnées en temps réel** :
-   - Nom de l'événement
-   - Lieu
-   - Noms des joueurs
-   - Numéro de ronde
+   - **Événement** : Nom du tournoi ou de la partie
+   - **Joueurs** : Noms des joueurs blanc et noir
+   - **Elo** : Classement Elo de chaque joueur (optionnel)
    - L'aperçu se met à jour automatiquement à chaque modification
 5. **Deux options pour exporter** :
    - 📋 **Copier** : Copie le PGN dans le presse-papiers
    - 💾 **Télécharger** : Sauvegarde un fichier `.pgn`
+
+**Note :** Les informations suivantes sont ajoutées automatiquement :
+
+- Date actuelle au format AAAA.MM.JJ
+- Résultat de la partie (1-0, 0-1, 1/2-1/2, ou \*)
+- **Cadence** : Détectée automatiquement depuis les paramètres de la partie (ex: "15+10", "3+2", "-" pour sans limite)
+- Tag `[Termination "..."]` selon la fin de partie (échec et mat, abandon, timeout, pat, etc.)
+- Tag `[Variant "..."]` (Standard ou Chess960)
+- Tags `[SetUp "1"]` et `[FEN "..."]` pour les parties Chess960
 
 Le fichier sera téléchargé avec un nom automatique : `chess_YYYY-MM-DD_HH-MM-SS.pgn`
 
@@ -298,7 +404,7 @@ Enclosed in brackets `[]`, they describe the context of the game.
 [Result "1-0"]
 ```
 
-**Mandatory FIDE tags:**
+**Mandatory FIDE tags (Seven Tag Roster):**
 
 | Tag    | Meaning                                      |
 | ------ | -------------------------------------------- |
@@ -310,12 +416,17 @@ Enclosed in brackets `[]`, they describe the context of the game.
 | Black  | Black player's name                          |
 | Result | Game result (1-0, 0-1, 1/2-1/2, or \*)       |
 
-**Common optional tags:**
+**Common supplemental tags (Supplemental tag names):**
 
+- `[WhiteElo "1500"]` - White player's Elo rating
+- `[BlackElo "1450"]` - Black player's Elo rating
+- `[TimeControl "15+10"]` - Time control (minutes+increment in seconds)
+- `[Termination "Normal"]` - Game termination type (Normal, White resigns, Black resigns, Draw by agreement, Stalemate, etc.)
+- `[Variant "Standard"]` or `[Variant "Chess960"]` - Chess variant
+- `[SetUp "1"]` - Indicates a non-standard starting position (used with FEN)
+- `[FEN "..."]` - Starting position in FEN notation (for Chess960 or custom positions)
 - `[ECO "C42"]` - Opening code
 - `[Opening "Petrov Defense"]` - Opening name
-- `[TimeControl "90+30"]` - Time control
-- `[Termination "Normal"]` - Game termination type
 - `[Annotator "GM X"]` - Annotator
 
 #### 2. Move Notation
@@ -428,24 +539,71 @@ When two identical pieces can go to the same square, specify:
 2. **Rank of origin** (if necessary): `N1f3`
 3. **File and rank** (as last resort): `Ng1f3`
 
-### Complete PGN File Example
+### Complete PGN File Examples
+
+#### Example 1: Standard game with all tags
 
 ```pgn
-[Event "Local Game"]
+[Event "Casual Game"]
 [Site "chess-game"]
-[Date "2025.10.18"]
+[Date "2025.10.19"]
 [Round "1"]
-[White "Player 1 (White)"]
-[Black "Player 2 (Black)"]
+[White "Player 1"]
+[Black "Player 2"]
 [Result "1-0"]
+[WhiteElo "1600"]
+[BlackElo "1550"]
+[TimeControl "15+10"]
+[Variant "Standard"]
+[Termination "Normal"]
 
-1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7
-6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
-11. c4 c6 12. Nc3 Qc7 13. Bg5 h6 14. Bh4 Re8 15. Rc1 Bf8
-16. cxb5 axb5 17. Nxb5 Qb8 18. Nc3 Ba6 19. dxe5 dxe5
-20. Na4 Bb5 21. Nc3 Ba6 22. Nd5 cxd5 23. Bxf6 Nxf6
-24. exd5 e4 25. Nd4 Qf4 26. Re3 Bd6 27. g3 Qg5 28. Rc6 Rad8
-29. Rxa6 Bxg3 30. Rxg3 Qh4 31. Nf5 1-0
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 6. Re1 b5 7. Bb3 d6
+8. c3 O-O 9. h3 Nb8 10. d4 Nbd7 11. c4 c6 12. Nc3 Qc7 13. Bg5 h6
+14. Bh4 Re8 15. Rc1 Bf8 16. cxb5 axb5 17. Nxb5 Qb8 18. Nc3 Ba6
+19. dxe5 dxe5 20. Na4 Bb5 21. Nc3 Ba6 22. Nd5 cxd5 23. Bxf6 Nxf6
+24. exd5 e4 25. Nd4 Qf4 26. Re3 Bd6 27. g3 Qg5 28. Rc6 Rad8 29. Rxa6 Bxg3
+30. Rxg3 Qh4 31. Nf5 Qxf2+ 32. Kh1 Qxf5 33. Qxd7 1-0
+```
+
+#### Example 2: Game with resignation
+
+```pgn
+[Event "Blitz Tournament"]
+[Site "chess-game"]
+[Date "2025.10.19"]
+[Round "5"]
+[White "Player A"]
+[Black "Player B"]
+[Result "0-1"]
+[WhiteElo "1500"]
+[BlackElo "1450"]
+[TimeControl "3+2"]
+[Variant "Standard"]
+[Termination "White resigns"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 {White resigns.} 0-1
+```
+
+#### Example 3: Chess960 game
+
+```pgn
+[Event "Chess960 Tournament"]
+[Site "chess-game"]
+[Date "2025.10.19"]
+[Round "1"]
+[White "Player 1"]
+[Black "Player 2"]
+[Result "1/2-1/2"]
+[WhiteElo "1700"]
+[BlackElo "1680"]
+[TimeControl "10+5"]
+[Variant "Chess960"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+[Termination "Draw by agreement"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bc4 Nf6 4. d3 Be7 5. O-O O-O 6. c3 d6 7. Nbd2 Be6
+8. Bb3 Qd7 9. h3 Rad8 {Draw by agreement.} 1/2-1/2
 ```
 
 ### Using in the Application
@@ -456,14 +614,22 @@ When two identical pieces can go to the same square, specify:
 2. Click the **"Export PGN"** button
 3. **The PGN preview displays automatically** with default metadata
 4. **Customize metadata in real-time**:
-   - Event name
-   - Location
-   - Player names
-   - Round number
+   - **Event**: Tournament or game name
+   - **Players**: White and black player names
+   - **Elo**: Elo rating for each player (optional)
    - The preview updates automatically with each change
 5. **Two export options**:
    - 📋 **Copy**: Copies PGN to clipboard
    - 💾 **Download**: Saves a .pgn file
+
+**Note:** The following information is added automatically:
+
+- Current date in YYYY.MM.DD format
+- Game result (1-0, 0-1, 1/2-1/2, or \*)
+- **Time Control**: Automatically detected from game settings (e.g., "15+10", "3+2", "-" for unlimited)
+- `[Termination "..."]` tag based on game ending (checkmate, resignation, timeout, stalemate, etc.)
+- `[Variant "..."]` tag (Standard or Chess960)
+- `[SetUp "1"]` and `[FEN "..."]` tags for Chess960 games
 
 The file will be downloaded with an automatic name: `chess_YYYY-MM-DD_HH-MM-SS.pgn`
 

@@ -11,6 +11,8 @@ import {
   downloadBlob,
   generateExportFilename,
 } from "@/lib/export-utils";
+import { useTimeControlStore } from "@/store/useTimeControlStore";
+import { formatTimeControlForPGN } from "@/lib/time-controls";
 import {
   Dialog,
   DialogContent,
@@ -43,14 +45,17 @@ interface ExportPGNDialogProps {
 export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
   const t = useTranslations("export");
   const tDialog = useTranslations("dialog");
+  const { selectedTimeControl } = useTimeControlStore();
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<ExportFormat>("pgn");
   const [metadata, setMetadata] = useState({
-    event: "Partie locale",
+    event: "Casual Game",
     site: "Chess Game by lndev.me",
     round: "1",
-    white: "Joueur 1 (Blancs)",
-    black: "Joueur 2 (Noirs)",
+    white: "Player 1",
+    black: "Player 2",
+    whiteElo: "",
+    blackElo: "",
   });
   const [pgnPreview, setPgnPreview] = useState("");
   const [fenPreview, setFenPreview] = useState("");
@@ -66,11 +71,13 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
         today.getMonth() + 1
       ).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
 
-      // PGN Preview
+      // PGN Preview - inclut automatiquement le time control
+      const timeControl = formatTimeControlForPGN(selectedTimeControl);
       const pgn = generatePGN(gameState, {
         ...metadata,
         site: "Chess Game by lndev.me",
         date: dateStr,
+        timeControl,
       });
       setPgnPreview(pgn);
 
@@ -81,7 +88,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
       // Image Preview
       generateImagePreview();
     }
-  }, [open, metadata, gameState]);
+  }, [open, metadata, gameState, selectedTimeControl]);
 
   const generateImagePreview = async () => {
     const blob = await exportBoardAsImage("chess-board-export");
@@ -132,10 +139,12 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
             today.getMonth() + 1
           ).padStart(2, "0")}.${String(today.getDate()).padStart(2, "0")}`;
 
+          const timeControl = formatTimeControlForPGN(selectedTimeControl);
           const pgn = generatePGN(gameState, {
             ...metadata,
             site: "Chess Game by lndev.me",
             date: dateStr,
+            timeControl,
           });
 
           downloadPGN(pgn, generateExportFilename("pgn"));
@@ -217,6 +226,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                   onChange={(e) =>
                     setMetadata({ ...metadata, event: e.target.value })
                   }
+                  placeholder="Casual Game"
                 />
               </div>
 
@@ -230,6 +240,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                   onChange={(e) =>
                     setMetadata({ ...metadata, white: e.target.value })
                   }
+                  placeholder="Player 1"
                 />
               </div>
 
@@ -243,8 +254,47 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                   onChange={(e) =>
                     setMetadata({ ...metadata, black: e.target.value })
                   }
+                  placeholder="Player 2"
                 />
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="whiteElo" className="text-sm">
+                  {t("whiteEloLabel")}
+                </Label>
+                <Input
+                  id="whiteElo"
+                  value={metadata.whiteElo}
+                  onChange={(e) =>
+                    setMetadata({ ...metadata, whiteElo: e.target.value })
+                  }
+                  placeholder="1500"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="blackElo" className="text-sm">
+                  {t("blackEloLabel")}
+                </Label>
+                <Input
+                  id="blackElo"
+                  value={metadata.blackElo}
+                  onChange={(e) =>
+                    setMetadata({ ...metadata, blackElo: e.target.value })
+                  }
+                  placeholder="1500"
+                />
+              </div>
+            </div>
+
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-xs text-blue-800">
+                <strong>{t("timeControlLabel")}:</strong>{" "}
+                {formatTimeControlForPGN(selectedTimeControl)}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                {t("timeControlAutomatic")}
+              </p>
             </div>
 
             <div className="space-y-2">
