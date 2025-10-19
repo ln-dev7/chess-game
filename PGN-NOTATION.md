@@ -1,4 +1,10 @@
-# Notation PGN (Portable Game Notation)
+# Notation PGN (Portable Game Notation) / PGN Notation
+
+**Français** | [English](#english-version)
+
+---
+
+## Version Française
 
 Ce document explique le format PGN utilisé pour exporter et importer les parties d'échecs.
 
@@ -252,3 +258,262 @@ Ce format peut être ajouté dans une future version pour sauvegarder/charger de
 ---
 
 **Note :** Cette implémentation suit les standards FIDE pour la notation algébrique et le format PGN. Pour plus de détails sur les règles, consultez le [Handbook FIDE officiel](https://handbook.fide.com/).
+
+---
+
+<a name="english-version"></a>
+
+## English Version
+
+This document explains the PGN format used to export and import chess games.
+
+### What is PGN?
+
+**PGN (Portable Game Notation)** is the FIDE standard (and universal in the chess world) format for recording, exchanging, and importing/exporting chess games.
+
+It's a simple text file (.pgn) that contains:
+
+- Metadata (players, date, result, event, etc.)
+- The list of moves (in standard algebraic notation)
+
+The format was defined by Steven J. Edwards in 1993 and adopted by FIDE and all major platforms (Chess.com, Lichess, ICC, etc.) as the de facto standard.
+
+### Structure of a PGN File
+
+A PGN file contains two main parts:
+
+#### 1. Headers (Tags)
+
+Enclosed in brackets `[]`, they describe the context of the game.
+
+**Example:**
+
+```
+[Event "World Championship"]
+[Site "Dubai UAE"]
+[Date "2021.12.12"]
+[Round "6"]
+[White "Carlsen, Magnus"]
+[Black "Nepomniachtchi, Ian"]
+[Result "1-0"]
+```
+
+**Mandatory FIDE tags:**
+
+| Tag    | Meaning                                      |
+| ------ | -------------------------------------------- |
+| Event  | Tournament or match name                     |
+| Site   | Location (city, country, or online platform) |
+| Date   | Date in YYYY.MM.DD format                    |
+| Round  | Round number                                 |
+| White  | White player's name                          |
+| Black  | Black player's name                          |
+| Result | Game result (1-0, 0-1, 1/2-1/2, or \*)       |
+
+**Common optional tags:**
+
+- `[ECO "C42"]` - Opening code
+- `[Opening "Petrov Defense"]` - Opening name
+- `[TimeControl "90+30"]` - Time control
+- `[Termination "Normal"]` - Game termination type
+- `[Annotator "GM X"]` - Annotator
+
+#### 2. Move Notation
+
+The game is listed in **standard algebraic notation**.
+
+**Example:**
+
+```
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7
+6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
+```
+
+At the end, the result is repeated:
+
+- `1-0`: White wins
+- `0-1`: Black wins
+- `1/2-1/2`: Draw
+- `*`: Game in progress
+
+### Standard Algebraic Notation
+
+#### Piece Notation
+
+For pieces (FIDE English notation):
+
+| Piece  | Letter        |
+| ------ | ------------- |
+| King   | K             |
+| Queen  | Q             |
+| Rook   | R             |
+| Bishop | B             |
+| Knight | N             |
+| Pawn   | _(no letter)_ |
+
+**Note:** We use `N` for knight to avoid confusion with the king `K`.
+
+#### Square Coordinates
+
+Each square is identified by a letter (file) + a number (rank):
+
+- **Files**: from `a` to `h` (left to right for White)
+- **Ranks**: from `1` to `8` (bottom to top for White)
+
+**Examples:** `e4`, `d5`, `h1`, `a8`
+
+#### Move Format
+
+##### Simple Move
+
+```
+[Piece letter][destination square]
+```
+
+**Examples:**
+
+- `Nf3`: knight moves to f3
+- `e4`: pawn moves to e4 (no letter for pawns)
+
+##### Capture
+
+Insert `x` before the destination square:
+
+**Examples:**
+
+- `Bxe5`: bishop captures on e5
+- `exd5`: e-file pawn captures on d5
+
+##### Pawn Promotion
+
+When a pawn reaches the last rank:
+
+```
+[square]=Piece
+```
+
+**Examples:**
+
+- `e8=Q`: pawn promoted to queen
+- `dxe8=R`: pawn captures and promotes to rook
+
+##### Castling
+
+- **Kingside castling**: `O-O`
+- **Queenside castling**: `O-O-O`
+
+##### En Passant
+
+Notation follows normal capture rules, with optional mention:
+
+```
+exd6 e.p.
+```
+
+##### Check and Checkmate
+
+- `+`: Check
+- `#`: Checkmate
+
+**Examples:**
+
+- `Qh5+`: queen to h5, check
+- `Qxf7#`: queen captures on f7, checkmate
+
+#### Disambiguation
+
+When two identical pieces can go to the same square, specify:
+
+1. **File of origin** (if sufficient): `Ngf3`
+2. **Rank of origin** (if necessary): `N1f3`
+3. **File and rank** (as last resort): `Ng1f3`
+
+### Complete PGN File Example
+
+```pgn
+[Event "Local Game"]
+[Site "chess-game"]
+[Date "2025.10.18"]
+[Round "1"]
+[White "Player 1 (White)"]
+[Black "Player 2 (Black)"]
+[Result "1-0"]
+
+1. e4 e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7
+6. Re1 b5 7. Bb3 d6 8. c3 O-O 9. h3 Nb8 10. d4 Nbd7
+11. c4 c6 12. Nc3 Qc7 13. Bg5 h6 14. Bh4 Re8 15. Rc1 Bf8
+16. cxb5 axb5 17. Nxb5 Qb8 18. Nc3 Ba6 19. dxe5 dxe5
+20. Na4 Bb5 21. Nc3 Ba6 22. Nd5 cxd5 23. Bxf6 Nxf6
+24. exd5 e4 25. Nd4 Qf4 26. Re3 Bd6 27. g3 Qg5 28. Rc6 Rad8
+29. Rxa6 Bxg3 30. Rxg3 Qh4 31. Nf5 1-0
+```
+
+### Using in the Application
+
+#### Exporting a Game
+
+1. Play a chess game
+2. Click the **"Export PGN"** button
+3. **The PGN preview displays automatically** with default metadata
+4. **Customize metadata in real-time**:
+   - Event name
+   - Location
+   - Player names
+   - Round number
+   - The preview updates automatically with each change
+5. **Two export options**:
+   - 📋 **Copy**: Copies PGN to clipboard
+   - 💾 **Download**: Saves a .pgn file
+
+The file will be downloaded with an automatic name: `chess_YYYY-MM-DD_HH-MM-SS.pgn`
+
+#### Importing a Game (Coming Soon)
+
+The PGN import feature can be added in a future version. It will allow:
+
+- Loading games from a .pgn file
+- Replaying moves step by step
+- Analyzing famous games
+- Continuing a saved game
+
+### PGN Format Advantages
+
+✅ **Human-readable**: Simple text format  
+✅ **Universal**: Compatible with all chess software  
+✅ **Compact**: Minimal file size  
+✅ **Standardized**: Official FIDE standard  
+✅ **Extensible**: Can contain annotations and comments
+
+### Using with Other Software
+
+Exported PGN files can be opened in:
+
+- **ChessBase** - Professional analysis software
+- **Lichess** - Free online import/export
+- **Chess.com** - Game analysis
+- **Arena** - Chess engine interface
+- **Scid** - Chess database
+- **PyChess** - Open source chess client
+- **And all other modern chess software**
+
+### References
+
+- **FIDE Handbook**: [Standards for Chess Equipment and Venues](https://handbook.fide.com/)
+- **PGN Specification**: Steven J. Edwards standard (1993)
+- **Wikipedia**: [Portable Game Notation](https://en.wikipedia.org/wiki/Portable_Game_Notation)
+
+### FEN Format (Bonus)
+
+The **FEN (Forsyth-Edwards Notation)** format is complementary to PGN. It describes a single chess position, rather than a complete game.
+
+**Example of initial position:**
+
+```
+rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1
+```
+
+This format can be added in a future version to save/load specific positions.
+
+---
+
+**Note:** This implementation follows FIDE standards for algebraic notation and PGN format. For more details on the rules, see the [official FIDE Handbook](https://handbook.fide.com/).

@@ -1,6 +1,12 @@
-# 🎯 Améliorations de l'IA d'Échecs - Niveaux 400-2500 Elo
+# 🎯 IA d'Échecs - Niveaux 400-2500 Elo / Chess AI - Levels 400-2500 Elo
 
-## ✅ Implémentations Actuelles
+**Français** | [English](#english-version)
+
+---
+
+## Version Française
+
+### ✅ Implémentations Actuelles
 
 ### 📊 Architecture Multi-Niveaux
 
@@ -260,6 +266,193 @@ const aiMove = await getAIMove(gameState, 2500, "black");
 
 ---
 
-**Version** : 1.0.0
-**Dernière mise à jour** : 2025-10-18
+**Version** : 1.0.0  
+**Dernière mise à jour** : 2025-10-19  
 **Auteur** : IA Chess Engine Team
+
+---
+
+<a name="english-version"></a>
+
+## English Version
+
+This document is currently available in French only. The AI implementation follows these key principles:
+
+### ✅ Current Implementations
+
+#### 📊 Multi-Level Architecture
+
+**6 Difficulty Levels:**
+
+1. **400 Elo - LN Beginner** 🧠
+   - 35% blunder rate (constant mistakes)
+   - 1-2 half-move depth
+   - 70% randomness
+   - Often leaves pieces hanging
+   - Poor development
+
+2. **800 Elo - LN Amateur** ⚡
+   - 25% blunder rate
+   - 2-3 half-move depth
+   - 40% randomness
+   - Applies basic principles
+   - Sees simple tactics
+
+3. **1200 Elo - LN Intermediate** 📈
+   - 12% blunder rate
+   - 3-4 half-move depth
+   - 20% randomness
+   - Has a plan (but executes poorly)
+   - Evaluates pawn structure
+
+4. **1600 Elo - LN Advanced** 🏆
+   - 5% blunder rate
+   - 4-5 half-move depth
+   - 8% randomness
+   - Tactically solid
+   - Good strategic understanding
+
+5. **2000 Elo - LN Expert** 👑
+   - 2% blunder rate
+   - 5-6 half-move depth
+   - 3% randomness
+   - Advanced positional understanding
+   - Excellent advantage conversion
+
+6. **2500 Elo - LN Master** 🏅
+   - 0.5% blunder rate
+   - 6-8 half-move depth
+   - 1% randomness
+   - Near-perfect play
+   - Plays the best move 80% of the time
+
+### 🎨 Evaluation System
+
+#### 1. Material Evaluation
+- Piece values: Pawn (100), Knight/Bishop (320/330), Rook (500), Queen (900)
+- Position tables: Bonus based on square occupied
+- Phase-aware: Different tables for middlegame/endgame
+
+#### 2. Positional Evaluation
+
+**Opening Phase (< 10 moves):**
+- Development bonus
+- Castling bonus
+- Center control bonus
+- Penalty for early queen development
+
+**Middlegame:**
+- King safety
+- Center control
+- Piece mobility (1600+ levels)
+- Pawn structure (1200+ levels)
+
+**Endgame:**
+- King activity
+- Passed pawns
+- Opposition and zugzwang
+
+#### 3. Tactical Evaluation
+- Capture bonus
+- Check bonus (overvalued by beginners)
+- Hanging piece penalty (varies by level)
+- Pattern bonus (detected fork potential)
+
+### 🎭 Blunder System
+
+- **Beginner (400-800):** Flagrant blunders, leaves pieces hanging
+- **Intermediate (1200-1600):** Suboptimal moves, tactical oversights
+- **Advanced (2000+):** Minor positional inaccuracies
+
+### ⏱️ Thinking Time
+
+Base time varies by level:
+- 400 Elo: 250ms
+- 800 Elo: 400ms
+- 1200 Elo: 650ms
+- 1600 Elo: 900ms
+- 2000 Elo: 1200ms
+- 2500 Elo: 1800ms
+
+Dynamic adjustments:
+- Opening: ×0.7 (faster, known principles)
+- Middlegame: ×1.0 (standard)
+- Endgame: ×1.3 (slower, precise calculation needed)
+- Variation: ±40% (human-like realism)
+
+### 📚 Possible Future Improvements
+
+#### 🎯 Advanced Tactics
+- [ ] Mate in 1 detection (all levels)
+- [ ] Mate in 2 detection (1200+ Elo)
+- [ ] Mate in 3 detection (1600+ Elo)
+- [ ] Systematic forks, pins, skewers
+- [ ] Discovered attacks
+- [ ] Positional sacrifices (2000+ Elo)
+
+#### 📖 Opening Library
+- [ ] Italian / Spanish (White)
+- [ ] Sicilian Defense (Black vs e4)
+- [ ] Caro-Kann Defense (Black vs e4)
+- [ ] London System (White vs all)
+- [ ] Level-adapted repertoire (400: 3 moves, 2500: 12+ moves)
+
+#### 🔍 Minimax Search
+- [ ] Alpha-Beta Pruning
+- [ ] Quiescence Search
+- [ ] Transposition Table
+- [ ] Iterative Deepening
+- [ ] Move Ordering
+
+#### 🎓 Machine Learning (Optional)
+- [ ] NNUE-style neural network
+- [ ] Reinforcement learning
+- [ ] Opponent style adaptation
+
+### 🏗️ Current Architecture
+
+```
+chess-ai.ts (716 lines)
+├── AI_CONFIGS (level configurations)
+├── PIECE_VALUES (material values)
+├── PIECE_SQUARE_TABLES (positional bonuses)
+├── getGamePhase() (opening/middlegame/endgame)
+├── evaluateBoard() (complete evaluation)
+│   ├── Material + position
+│   ├── Center control
+│   ├── King safety
+│   ├── Development
+│   ├── Pawn structure
+│   ├── Mobility
+│   └── Endgame
+├── findBestMove() (move selection)
+│   ├── Blunder simulation
+│   ├── All moves evaluation
+│   ├── Sorting by score
+│   └── Level-based selection
+└── getAIMove() (public function)
+    ├── Thinking time calculation
+    └── findBestMove call
+```
+
+### 🎮 Usage
+
+```typescript
+import { getAIMove, AILevel } from "@/lib/chess-ai";
+
+const aiMove = await getAIMove(gameState, 2500, "black");
+// Returns { from: Position, to: Position, promotionPiece?: PieceType }
+```
+
+### 🎯 Final Result
+
+✅ **6 difficulty levels** (400 to 2500 Elo)  
+✅ **Realistic behaviors** per level  
+✅ **Typical errors** per tier  
+✅ **Sophisticated evaluation** (8 criteria)  
+✅ **Adaptive game phases**  
+✅ **Realistic and variable times**  
+✅ **Functional build** without external dependencies  
+✅ **Performance**: < 2s per move even at 2500 Elo
+
+For detailed implementation in French, see the French version above.
