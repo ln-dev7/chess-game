@@ -1,8 +1,179 @@
-# Chess Pieces Structure / Structure des Pièces d'Échecs
+# Structure des Pièces d'Échecs / Chess Pieces Structure
 
-**English** | [Français](#version-française)
+**Français** | [English](#english-version)
 
 ---
+
+## Version Française
+
+Ce dossier contient les pièces d'échecs organisées par style.
+
+### Organisation
+
+```
+pieces/
+├── classic/           # Style classique (par défaut)
+│   ├── black/         # Pièces noires
+│   │   ├── bishop.svg
+│   │   ├── king.svg
+│   │   ├── knight.svg
+│   │   ├── pawn.svg
+│   │   ├── queen.svg
+│   │   └── rook.svg
+│   └── white/         # Pièces blanches
+│       ├── bishop.svg
+│       ├── king.svg
+│       ├── knight.svg
+│       ├── pawn.svg
+│       ├── queen.svg
+│       └── rook.svg
+├── modern/            # Style moderne
+│   ├── black/         # Pièces noires
+│   │   ├── bishop.svg
+│   │   ├── king.svg
+│   │   ├── knight.svg
+│   │   ├── pawn.svg
+│   │   ├── queen.svg
+│   │   └── rook.svg
+│   └── white/         # Pièces blanches
+│       ├── bishop.svg
+│       ├── king.svg
+│       ├── knight.svg
+│       ├── pawn.svg
+│       ├── queen.svg
+│       └── rook.svg
+├── colorful/          # Style coloré
+│   ├── black/         # Pièces noires
+│   │   ├── bishop.svg
+│   │   ├── king.svg
+│   │   ├── knight.svg
+│   │   ├── pawn.svg
+│   │   ├── queen.svg
+│   │   └── rook.svg
+│   └── white/         # Pièces blanches
+│       ├── bishop.svg
+│       ├── king.svg
+│       ├── knight.svg
+│       ├── pawn.svg
+│       ├── queen.svg
+│       └── rook.svg
+└── README.md          # Ce fichier
+```
+
+### Styles Disponibles
+
+#### Classique
+
+Style de pièce d'échecs traditionnel avec des silhouettes solides. Parfait pour un look intemporel et classique rappelant les jeux d'échecs traditionnels.
+
+**Idéal pour :** Les joueurs qui préfèrent l'esthétique traditionnelle et une reconnaissance claire des pièces.
+
+#### Moderne
+
+Design géométrique contemporain et minimaliste avec des lignes épurées. Présente une apparence élégante et professionnelle avec des formes simplifiées.
+
+**Idéal pour :** Les joueurs qui apprécient le design moderne et un échiquier épuré.
+
+#### Coloré
+
+Style vibrant et ludique avec des couleurs vives et audacieuses. Chaque pièce a des couleurs distinctives qui les font ressortir sur l'échiquier.
+
+**Idéal pour :** Les apprenants visuels, les débutants et les joueurs qui préfèrent une apparence plus dynamique et engageante.
+
+### Ajouter un Nouveau Style
+
+Pour ajouter un nouveau style de pièces :
+
+1. **Créer la structure de dossiers :**
+   ```bash
+   mkdir -p pieces/nouveau-style/black
+   mkdir -p pieces/nouveau-style/white
+   ```
+
+2. **Ajouter les 12 fichiers SVG** (6 pièces × 2 couleurs) :
+   - `black/bishop.svg`, `black/king.svg`, `black/knight.svg`, `black/pawn.svg`, `black/queen.svg`, `black/rook.svg`
+   - `white/bishop.svg`, `white/king.svg`, `white/knight.svg`, `white/pawn.svg`, `white/queen.svg`, `white/rook.svg`
+
+3. **Enregistrer le style** dans `/lib/piece-styles.ts` :
+   ```typescript
+   export const PIECE_STYLES: PieceStyle[] = [
+     {
+       id: "classic",
+       name: "Classique",
+       description: "Style de pièce traditionnel",
+     },
+     {
+       id: "modern",
+       name: "Moderne",
+       description: "Design contemporain minimaliste",
+     },
+     {
+       id: "colorful",
+       name: "Coloré",
+       description: "Style vibrant avec couleurs vives",
+     },
+     {
+       id: "nouveau-style",
+       name: "Nouveau Style",
+       description: "Description de votre style",
+     },
+   ];
+   ```
+
+4. **Le nouveau style sera automatiquement disponible** dans le sélecteur de styles !
+
+### Directives pour les Fichiers SVG
+
+#### Format de Fichier
+
+- Les fichiers SVG peuvent être de n'importe quelle taille (ils seront redimensionnés automatiquement)
+- Optimisez vos SVG pour de meilleures performances (utilisez SVGO ou des outils similaires)
+- Utilisez l'attribut `viewBox` pour un redimensionnement correct
+
+#### Couleurs
+
+- **Pièces blanches** : Utilisez `fill="#FFFFFF"` ou `fill="#FFF"`
+- **Pièces noires** : Utilisez `fill="#000000"` ou `fill="#000"`
+- Pour les pièces colorées, utilisez n'importe quel code couleur hexadécimal
+
+#### Bonnes Pratiques
+
+- Gardez les tailles de fichiers petites (< 10KB par pièce)
+- Utilisez des chemins simples pour de meilleures performances
+- Évitez les dégradés et les effets complexes
+- Assurez-vous que les pièces sont reconnaissables en petite taille
+- Testez sur des fonds clairs et sombres
+
+### Tester Votre Style
+
+Après avoir ajouté un nouveau style :
+
+1. Démarrez le serveur de développement : `npm run dev`
+2. Cliquez sur le bouton **Style** dans l'interface du jeu
+3. Sélectionnez votre nouveau style dans la liste
+4. Testez toutes les pièces sur différents thèmes
+5. Vérifiez la visibilité des pièces sur les cases claires et foncées
+
+### Conseils de Conception
+
+1. **Cohérence** : Toutes les pièces doivent suivre le même langage de design
+2. **Distinction** : Chaque type de pièce doit être facilement reconnaissable
+3. **Évolutivité** : Les pièces doivent être belles à différentes tailles
+4. **Contraste** : Assurez un bon contraste entre les pièces et l'échiquier
+5. **Simplicité** : Les designs plus simples fonctionnent souvent mieux en petite taille
+
+### Contribuer
+
+Si vous créez un nouveau style de pièces et souhaitez le contribuer au projet :
+
+1. Assurez-vous que les 12 fichiers SVG sont optimisés
+2. Testez le style avec les 16 thèmes de couleurs
+3. Ajoutez votre style à `/lib/piece-styles.ts`
+4. Soumettez une pull request avec vos ajouts
+
+---
+
+<a name="english-version"></a>
 
 ## English Version
 
@@ -170,174 +341,3 @@ If you create a new piece style and would like to contribute it to the project:
 2. Test the style with all 16 color themes
 3. Add your style to `/lib/piece-styles.ts`
 4. Submit a pull request with your additions
-
----
-
-<a name="version-française"></a>
-
-## Version Française
-
-Ce dossier contient les pièces d'échecs organisées par style.
-
-### Organisation
-
-```
-pieces/
-├── classic/           # Style classique (par défaut)
-│   ├── black/         # Pièces noires
-│   │   ├── bishop.svg
-│   │   ├── king.svg
-│   │   ├── knight.svg
-│   │   ├── pawn.svg
-│   │   ├── queen.svg
-│   │   └── rook.svg
-│   └── white/         # Pièces blanches
-│       ├── bishop.svg
-│       ├── king.svg
-│       ├── knight.svg
-│       ├── pawn.svg
-│       ├── queen.svg
-│       └── rook.svg
-├── modern/            # Style moderne
-│   ├── black/         # Pièces noires
-│   │   ├── bishop.svg
-│   │   ├── king.svg
-│   │   ├── knight.svg
-│   │   ├── pawn.svg
-│   │   ├── queen.svg
-│   │   └── rook.svg
-│   └── white/         # Pièces blanches
-│       ├── bishop.svg
-│       ├── king.svg
-│       ├── knight.svg
-│       ├── pawn.svg
-│       ├── queen.svg
-│       └── rook.svg
-├── colorful/          # Style coloré
-│   ├── black/         # Pièces noires
-│   │   ├── bishop.svg
-│   │   ├── king.svg
-│   │   ├── knight.svg
-│   │   ├── pawn.svg
-│   │   ├── queen.svg
-│   │   └── rook.svg
-│   └── white/         # Pièces blanches
-│       ├── bishop.svg
-│       ├── king.svg
-│       ├── knight.svg
-│       ├── pawn.svg
-│       ├── queen.svg
-│       └── rook.svg
-└── README.md          # Ce fichier
-```
-
-### Styles Disponibles
-
-#### Classique (Classic)
-
-Style de pièce d'échecs traditionnel avec des silhouettes solides. Parfait pour un look intemporel et classique rappelant les jeux d'échecs traditionnels.
-
-**Idéal pour :** Les joueurs qui préfèrent l'esthétique traditionnelle et une reconnaissance claire des pièces.
-
-#### Moderne (Modern)
-
-Design géométrique contemporain et minimaliste avec des lignes épurées. Présente une apparence élégante et professionnelle avec des formes simplifiées.
-
-**Idéal pour :** Les joueurs qui apprécient le design moderne et un échiquier épuré.
-
-#### Coloré (Colorful)
-
-Style vibrant et ludique avec des couleurs vives et audacieuses. Chaque pièce a des couleurs distinctives qui les font ressortir sur l'échiquier.
-
-**Idéal pour :** Les apprenants visuels, les débutants et les joueurs qui préfèrent une apparence plus dynamique et engageante.
-
-### Ajouter un Nouveau Style
-
-Pour ajouter un nouveau style de pièces :
-
-1. **Créer la structure de dossiers :**
-   ```bash
-   mkdir -p pieces/nouveau-style/black
-   mkdir -p pieces/nouveau-style/white
-   ```
-
-2. **Ajouter les 12 fichiers SVG** (6 pièces × 2 couleurs) :
-   - `black/bishop.svg`, `black/king.svg`, `black/knight.svg`, `black/pawn.svg`, `black/queen.svg`, `black/rook.svg`
-   - `white/bishop.svg`, `white/king.svg`, `white/knight.svg`, `white/pawn.svg`, `white/queen.svg`, `white/rook.svg`
-
-3. **Enregistrer le style** dans `/lib/piece-styles.ts` :
-   ```typescript
-   export const PIECE_STYLES: PieceStyle[] = [
-     {
-       id: "classic",
-       name: "Classique",
-       description: "Style de pièce traditionnel",
-     },
-     {
-       id: "modern",
-       name: "Moderne",
-       description: "Design contemporain minimaliste",
-     },
-     {
-       id: "colorful",
-       name: "Coloré",
-       description: "Style vibrant avec couleurs vives",
-     },
-     {
-       id: "nouveau-style",
-       name: "Nouveau Style",
-       description: "Description de votre style",
-     },
-   ];
-   ```
-
-4. **Le nouveau style sera automatiquement disponible** dans le sélecteur de styles !
-
-### Directives pour les Fichiers SVG
-
-#### Format de Fichier
-
-- Les fichiers SVG peuvent être de n'importe quelle taille (ils seront redimensionnés automatiquement)
-- Optimisez vos SVG pour de meilleures performances (utilisez SVGO ou des outils similaires)
-- Utilisez l'attribut `viewBox` pour un redimensionnement correct
-
-#### Couleurs
-
-- **Pièces blanches** : Utilisez `fill="#FFFFFF"` ou `fill="#FFF"`
-- **Pièces noires** : Utilisez `fill="#000000"` ou `fill="#000"`
-- Pour les pièces colorées, utilisez n'importe quel code couleur hexadécimal
-
-#### Bonnes Pratiques
-
-- Gardez les tailles de fichiers petites (< 10KB par pièce)
-- Utilisez des chemins simples pour de meilleures performances
-- Évitez les dégradés et les effets complexes
-- Assurez-vous que les pièces sont reconnaissables en petite taille
-- Testez sur des fonds clairs et sombres
-
-### Tester Votre Style
-
-Après avoir ajouté un nouveau style :
-
-1. Démarrez le serveur de développement : `npm run dev`
-2. Cliquez sur le bouton **Style** dans l'interface du jeu
-3. Sélectionnez votre nouveau style dans la liste
-4. Testez toutes les pièces sur différents thèmes
-5. Vérifiez la visibilité des pièces sur les cases claires et foncées
-
-### Conseils de Conception
-
-1. **Cohérence** : Toutes les pièces doivent suivre le même langage de design
-2. **Distinction** : Chaque type de pièce doit être facilement reconnaissable
-3. **Évolutivité** : Les pièces doivent être belles à différentes tailles
-4. **Contraste** : Assurez un bon contraste entre les pièces et l'échiquier
-5. **Simplicité** : Les designs plus simples fonctionnent souvent mieux en petite taille
-
-### Contribuer
-
-Si vous créez un nouveau style de pièces et souhaitez le contribuer au projet :
-
-1. Assurez-vous que les 12 fichiers SVG sont optimisés
-2. Testez le style avec les 16 thèmes de couleurs
-3. Ajoutez votre style à `/lib/piece-styles.ts`
-4. Soumettez une pull request avec vos ajouts
