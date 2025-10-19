@@ -914,7 +914,7 @@ export default function ChessGame() {
       {/* Animation d'échec et mat */}
       {showCheckmateAnimation && checkmateAnimationEnabled && (
         <CheckmateAnimation
-          loserColor={gameState.currentPlayer === "white" ? "black" : "white"}
+          loserColor={gameState.currentPlayer}
           pieceStyle={pieceStyle.id}
           onComplete={() => setShowCheckmateAnimation(false)}
           endReason={gameState.gameEndReason || "checkmate"}
