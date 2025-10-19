@@ -285,6 +285,7 @@ This document is currently available in French only. The AI implementation follo
 **6 Difficulty Levels:**
 
 1. **400 Elo - LN Beginner** 🧠
+
    - 35% blunder rate (constant mistakes)
    - 1-2 half-move depth
    - 70% randomness
@@ -292,6 +293,7 @@ This document is currently available in French only. The AI implementation follo
    - Poor development
 
 2. **800 Elo - LN Amateur** ⚡
+
    - 25% blunder rate
    - 2-3 half-move depth
    - 40% randomness
@@ -299,6 +301,7 @@ This document is currently available in French only. The AI implementation follo
    - Sees simple tactics
 
 3. **1200 Elo - LN Intermediate** 📈
+
    - 12% blunder rate
    - 3-4 half-move depth
    - 20% randomness
@@ -306,6 +309,7 @@ This document is currently available in French only. The AI implementation follo
    - Evaluates pawn structure
 
 4. **1600 Elo - LN Advanced** 🏆
+
    - 5% blunder rate
    - 4-5 half-move depth
    - 8% randomness
@@ -313,6 +317,7 @@ This document is currently available in French only. The AI implementation follo
    - Good strategic understanding
 
 5. **2000 Elo - LN Expert** 👑
+
    - 2% blunder rate
    - 5-6 half-move depth
    - 3% randomness
@@ -329,6 +334,7 @@ This document is currently available in French only. The AI implementation follo
 ### 🎨 Evaluation System
 
 #### 1. Material Evaluation
+
 - Piece values: Pawn (100), Knight/Bishop (320/330), Rook (500), Queen (900)
 - Position tables: Bonus based on square occupied
 - Phase-aware: Different tables for middlegame/endgame
@@ -336,23 +342,27 @@ This document is currently available in French only. The AI implementation follo
 #### 2. Positional Evaluation
 
 **Opening Phase (< 10 moves):**
+
 - Development bonus
 - Castling bonus
 - Center control bonus
 - Penalty for early queen development
 
 **Middlegame:**
+
 - King safety
 - Center control
 - Piece mobility (1600+ levels)
 - Pawn structure (1200+ levels)
 
 **Endgame:**
+
 - King activity
 - Passed pawns
 - Opposition and zugzwang
 
 #### 3. Tactical Evaluation
+
 - Capture bonus
 - Check bonus (overvalued by beginners)
 - Hanging piece penalty (varies by level)
@@ -367,6 +377,7 @@ This document is currently available in French only. The AI implementation follo
 ### ⏱️ Thinking Time
 
 Base time varies by level:
+
 - 400 Elo: 250ms
 - 800 Elo: 400ms
 - 1200 Elo: 650ms
@@ -375,6 +386,7 @@ Base time varies by level:
 - 2500 Elo: 1800ms
 
 Dynamic adjustments:
+
 - Opening: ×0.7 (faster, known principles)
 - Middlegame: ×1.0 (standard)
 - Endgame: ×1.3 (slower, precise calculation needed)
@@ -383,6 +395,7 @@ Dynamic adjustments:
 ### 📚 Possible Future Improvements
 
 #### 🎯 Advanced Tactics
+
 - [ ] Mate in 1 detection (all levels)
 - [ ] Mate in 2 detection (1200+ Elo)
 - [ ] Mate in 3 detection (1600+ Elo)
@@ -391,6 +404,7 @@ Dynamic adjustments:
 - [ ] Positional sacrifices (2000+ Elo)
 
 #### 📖 Opening Library
+
 - [ ] Italian / Spanish (White)
 - [ ] Sicilian Defense (Black vs e4)
 - [ ] Caro-Kann Defense (Black vs e4)
@@ -398,6 +412,7 @@ Dynamic adjustments:
 - [ ] Level-adapted repertoire (400: 3 moves, 2500: 12+ moves)
 
 #### 🔍 Minimax Search
+
 - [ ] Alpha-Beta Pruning
 - [ ] Quiescence Search
 - [ ] Transposition Table
@@ -405,6 +420,7 @@ Dynamic adjustments:
 - [ ] Move Ordering
 
 #### 🎓 Machine Learning (Optional)
+
 - [ ] NNUE-style neural network
 - [ ] Reinforcement learning
 - [ ] Opponent style adaptation
