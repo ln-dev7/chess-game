@@ -33,6 +33,7 @@ interface GameControlsProps {
   isGameOver: boolean;
   gameState: GameState;
   boardRef?: RefObject<HTMLDivElement | null>;
+  onTempGameStateChange?: (state: GameState | null) => void;
 }
 
 export default function GameControls({
@@ -43,6 +44,7 @@ export default function GameControls({
   isGameOver,
   gameState,
   boardRef,
+  onTempGameStateChange,
 }: GameControlsProps) {
   const t = useTranslations("common");
   const tDialog = useTranslations("dialog");
@@ -137,7 +139,12 @@ export default function GameControls({
       </div>
 
       {/* Export PGN - toujours disponible si des coups ont été joués */}
-      {gameStarted && <ExportPGNDialog gameState={gameState} />}
+      {gameStarted && (
+        <ExportPGNDialog
+          gameState={gameState}
+          onTempGameStateChange={onTempGameStateChange}
+        />
+      )}
 
       {/* Theme and Piece Style Selectors */}
       <ThemeSelector

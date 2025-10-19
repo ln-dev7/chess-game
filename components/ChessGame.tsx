@@ -54,6 +54,8 @@ export default function ChessGame() {
   const [showCheckmateAnimation, setShowCheckmateAnimation] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
+  const [tempExportGameState, setTempExportGameState] =
+    useState<GameState | null>(null);
 
   // Zustand stores
   const {
@@ -657,6 +659,10 @@ export default function ChessGame() {
     setGameStarted(true);
   }, []);
 
+  const handleTempGameStateChange = useCallback((state: GameState | null) => {
+    setTempExportGameState(state);
+  }, []);
+
   const handleResign = useCallback(() => {
     setGameState({
       ...gameState,
@@ -724,7 +730,7 @@ export default function ChessGame() {
           <div className="flex-1 lg:flex-[2]">
             <BoardContainer
               ref={boardRef}
-              gameState={gameState}
+              gameState={tempExportGameState ?? gameState}
               onSquareClick={handleSquareClick}
               theme={theme}
               animatingMove={animatingMove}
@@ -765,6 +771,7 @@ export default function ChessGame() {
                   isGameOver={isGameOver}
                   gameState={gameState}
                   boardRef={boardRef}
+                  onTempGameStateChange={handleTempGameStateChange}
                 />
               </>
             ) : isGameOver ? (
@@ -778,6 +785,7 @@ export default function ChessGame() {
                   isGameOver={isGameOver}
                   gameState={gameState}
                   boardRef={boardRef}
+                  onTempGameStateChange={handleTempGameStateChange}
                 />
                 {selectedTimeControl.initialTime > 0 && (
                   <ChessClock
@@ -825,6 +833,7 @@ export default function ChessGame() {
                   isGameOver={isGameOver}
                   gameState={gameState}
                   boardRef={boardRef}
+                  onTempGameStateChange={handleTempGameStateChange}
                 />
                 {/* Configuration désactivée en bas */}
                 <div className="pt-4 border-t border-gray-200">
@@ -854,6 +863,7 @@ export default function ChessGame() {
                   isGameOver={isGameOver}
                   gameState={gameState}
                   boardRef={boardRef}
+                  onTempGameStateChange={handleTempGameStateChange}
                 />
                 {/* Configuration désactivée en bas */}
                 <div className="pt-4 border-t border-gray-200">

@@ -6,6 +6,7 @@ import { GameState } from "@/types/chess";
 import { generatePGN, downloadPGN } from "@/lib/pgn-utils";
 import {
   exportBoardAsImage,
+  exportGameAsGif,
   exportFEN,
   copyToClipboard,
   downloadBlob,
@@ -31,16 +32,21 @@ import {
   Check,
   FileText,
   Image as ImageIcon,
+  Film,
   Code,
 } from "lucide-react";
 
-type ExportFormat = "pgn" | "fen" | "image";
+type ExportFormat = "pgn" | "fen" | "image" | "gif";
 
 interface ExportPGNDialogProps {
   gameState: GameState;
+  onTempGameStateChange?: (state: GameState | null) => void;
 }
 
-export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
+export default function ExportPGNDialog({
+  gameState,
+  onTempGameStateChange,
+}: ExportPGNDialogProps) {
   const t = useTranslations("export");
   const tDialog = useTranslations("dialog");
   const [open, setOpen] = useState(false);
@@ -55,10 +61,16 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
   const [pgnPreview, setPgnPreview] = useState("");
   const [fenPreview, setFenPreview] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [gifPreview, setGifPreview] = useState<string | null>(null);
+  const [isGeneratingGifPreview, setIsGeneratingGifPreview] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
+  const [exportProgress, setExportProgress] = useState(0);
+  const [imageGenerationKey, setImageGenerationKey] = useState(0);
+  const [gifGenerationKey, setGifGenerationKey] = useState(0);
+  const [abortGifGeneration, setAbortGifGeneration] = useState(false);
 
-  // Générer les previews automatiquement
+  // Générer les previews PGN et FEN automatiquement
   useEffect(() => {
     if (open) {
       const today = new Date();
@@ -77,11 +89,29 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
       // FEN Preview
       const fen = exportFEN(gameState);
       setFenPreview(fen);
-
-      // Image Preview
-      generateImagePreview();
     }
   }, [open, metadata, gameState]);
+
+  // Générer l'image preview quand l'onglet IMAGE est activé
+  useEffect(() => {
+    if (open && activeTab === "image" && imageGenerationKey > 0) {
+      generateImagePreview();
+    }
+  }, [open, activeTab, imageGenerationKey]);
+
+  // Générer le GIF preview quand l'onglet GIF est activé
+  useEffect(() => {
+    if (
+      open &&
+      activeTab === "gif" &&
+      gifGenerationKey > 0 &&
+      !isGeneratingGifPreview &&
+      gameState.moveHistory.length > 0
+    ) {
+      generateGifPreview();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, activeTab, gifGenerationKey, isGeneratingGifPreview]);
 
   const generateImagePreview = async () => {
     const blob = await exportBoardAsImage("chess-board-export");
@@ -91,14 +121,145 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
     }
   };
 
+  const generateGifPreview = async () => {
+    if (gameState.moveHistory.length === 0) return;
+
+    setAbortGifGeneration(false);
+    setIsGeneratingGifPreview(true);
+    setExportProgress(0);
+
+    try {
+      const blob = await exportGameAsGif(
+        gameState,
+        "chess-board-export",
+        setExportProgress,
+        onTempGameStateChange,
+        () => abortGifGeneration, // Vérifier si on doit annuler
+        false // Preview: jouer une seule fois (pas de boucle infinie)
+      );
+
+      // Ne rien faire si la génération a été annulée
+      if (abortGifGeneration) {
+        // Restaurer l'état immédiatement
+        if (onTempGameStateChange) {
+          onTempGameStateChange(null);
+        }
+        return;
+      }
+
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        setGifPreview(url);
+      }
+
+      // Restaurer l'état original après génération réussie
+      if (onTempGameStateChange) {
+        onTempGameStateChange(null);
+      }
+    } catch (error) {
+      console.error("Error generating GIF preview:", error);
+      // Restaurer l'état en cas d'erreur
+      if (onTempGameStateChange) {
+        onTempGameStateChange(null);
+      }
+    } finally {
+      setIsGeneratingGifPreview(false);
+      setExportProgress(0);
+    }
+  };
+
   useEffect(() => {
     // Cleanup de l'URL de preview quand le composant se démonte
     return () => {
       if (imagePreview) {
         URL.revokeObjectURL(imagePreview);
       }
+      if (gifPreview) {
+        URL.revokeObjectURL(gifPreview);
+      }
+      // Restaurer l'état du jeu au démontage
+      if (onTempGameStateChange) {
+        onTempGameStateChange(null);
+      }
     };
-  }, [imagePreview]);
+  }, [imagePreview, gifPreview, onTempGameStateChange]);
+
+  // Réinitialiser les états quand le dialog se ferme/ouvre
+  useEffect(() => {
+    if (!open) {
+      // Annuler toute génération en cours
+      setAbortGifGeneration(true);
+
+      // Restaurer IMMÉDIATEMENT l'état du jeu
+      if (onTempGameStateChange) {
+        onTempGameStateChange(null);
+      }
+
+      // Nettoyer toutes les previews
+      setImagePreview(null);
+      setGifPreview(null);
+      setIsGeneratingGifPreview(false);
+      setExportProgress(0);
+      // Réinitialiser les clés de génération
+      setImageGenerationKey(0);
+      setGifGenerationKey(0);
+    } else {
+      // Toujours revenir à l'onglet PGN quand on ouvre le dialog
+      setActiveTab("pgn");
+      setAbortGifGeneration(false);
+    }
+  }, [open, onTempGameStateChange]);
+
+  // Réinitialiser les previews quand on change d'onglet et générer de nouvelles clés
+  useEffect(() => {
+    // TOUJOURS restaurer l'état d'abord (au cas où on vient de l'onglet GIF)
+    if (activeTab !== "gif" && onTempGameStateChange) {
+      onTempGameStateChange(null);
+    }
+
+    // Incrémenter la clé et nettoyer l'image preview si on arrive sur l'onglet image
+    if (activeTab === "image") {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+      setImagePreview(null);
+      setImageGenerationKey((prev) => prev + 1);
+    }
+
+    // Incrémenter la clé et nettoyer le GIF preview si on arrive sur l'onglet gif
+    if (activeTab === "gif") {
+      if (gifPreview) {
+        URL.revokeObjectURL(gifPreview);
+      }
+      setGifPreview(null);
+      setIsGeneratingGifPreview(false);
+      setExportProgress(0);
+      setGifGenerationKey((prev) => prev + 1);
+      setAbortGifGeneration(false); // Réinitialiser le flag d'annulation
+    }
+
+    // Nettoyer les previews si on quitte ces onglets
+    if (activeTab !== "image" && imagePreview) {
+      URL.revokeObjectURL(imagePreview);
+      setImagePreview(null);
+    }
+
+    if (activeTab !== "gif") {
+      // Annuler toute génération GIF en cours si on quitte l'onglet
+      if (isGeneratingGifPreview) {
+        setAbortGifGeneration(true);
+      }
+
+      if (gifPreview) {
+        URL.revokeObjectURL(gifPreview);
+        setGifPreview(null);
+      }
+
+      setIsGeneratingGifPreview(false);
+      setExportProgress(0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab]);
 
   const handleCopy = async () => {
     let textToCopy = "";
@@ -123,6 +284,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
 
   const handleExport = async () => {
     setIsExporting(true);
+    setExportProgress(0);
 
     try {
       switch (activeTab) {
@@ -150,6 +312,25 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
           break;
         }
 
+        case "gif": {
+          const blob = await exportGameAsGif(
+            gameState,
+            "chess-board-export",
+            setExportProgress,
+            onTempGameStateChange,
+            undefined, // Pas d'annulation pour le download
+            true // Download: boucle infinie
+          );
+          if (blob) {
+            downloadBlob(blob, generateExportFilename("gif"));
+          }
+          // Restaurer l'état original
+          if (onTempGameStateChange) {
+            onTempGameStateChange(null);
+          }
+          break;
+        }
+
         case "fen": {
           const fen = exportFEN(gameState);
           const blob = new Blob([fen], { type: "text/plain;charset=utf-8" });
@@ -161,8 +342,13 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
       setOpen(false);
     } catch (error) {
       console.error("Export error:", error);
+      // Restaurer l'état en cas d'erreur
+      if (onTempGameStateChange) {
+        onTempGameStateChange(null);
+      }
     } finally {
       setIsExporting(false);
+      setExportProgress(0);
     }
   };
 
@@ -185,7 +371,7 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
           onValueChange={(value) => setActiveTab(value as ExportFormat)}
           className="w-full"
         >
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="pgn" className="flex items-center gap-1.5">
               <FileText className="w-4 h-4 hidden sm:block" />
               <span>{t("formats.pgn")}</span>
@@ -197,6 +383,10 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
             <TabsTrigger value="image" className="flex items-center gap-1.5">
               <ImageIcon className="w-4 h-4 hidden sm:block" />
               <span>{t("formats.image")}</span>
+            </TabsTrigger>
+            <TabsTrigger value="gif" className="flex items-center gap-1.5">
+              <Film className="w-4 h-4 hidden sm:block" />
+              <span>{t("formats.gif")}</span>
             </TabsTrigger>
           </TabsList>
 
@@ -346,6 +536,57 @@ export default function ExportPGNDialog({ gameState }: ExportPGNDialogProps) {
                 <p className="text-sm font-medium">{t("formats.imageReady")}</p>
               </div>
             )}
+          </TabsContent>
+
+          {/* GIF Tab */}
+          <TabsContent value="gif" className="space-y-4 mt-4">
+            <p className="text-sm text-muted-foreground">
+              {t("formats.gifDescription")}
+            </p>
+
+            {isGeneratingGifPreview && !gifPreview && (
+              <div className="space-y-2">
+                <div className="w-full bg-muted rounded-full h-2">
+                  <div
+                    className="bg-primary h-2 rounded-full transition-all"
+                    style={{ width: `${exportProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-center text-muted-foreground">
+                  {t("formats.gifProgress", {
+                    progress: Math.round(exportProgress),
+                  })}
+                </p>
+              </div>
+            )}
+
+            {gifPreview ? (
+              <div className="border rounded-lg overflow-hidden bg-muted/20">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={gifPreview}
+                  alt="Animated GIF preview"
+                  className="w-full h-auto"
+                />
+                <div className="p-4 bg-background border-t">
+                  <p className="text-sm text-muted-foreground">
+                    {t("formats.gifInfo", {
+                      moves: gameState.moveHistory.length,
+                    })}
+                  </p>
+                </div>
+              </div>
+            ) : !isGeneratingGifPreview ? (
+              <div className="p-8 bg-muted/50 rounded-lg text-center">
+                <Film className="w-12 h-12 mx-auto mb-2 text-muted-foreground" />
+                <p className="text-sm font-medium">{t("formats.gifReady")}</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t("formats.gifInfo", {
+                    moves: gameState.moveHistory.length,
+                  })}
+                </p>
+              </div>
+            ) : null}
           </TabsContent>
         </Tabs>
 
