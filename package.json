@@ -6,7 +6,8 @@
     "dev": "next dev --turbopack",
     "build": "next build --turbopack",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "postinstall": "node -e \"const fs=require('fs');const p=require('path');const src='node_modules/stockfish/bin';const dst='public/stockfish';if(!fs.existsSync(dst))fs.mkdirSync(dst,{recursive:true});for(const f of ['stockfish-18-lite-single.js','stockfish-18-lite-single.wasm'])fs.copyFileSync(p.join(src,f),p.join(dst,f));\""
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.15",
@@ -25,6 +26,7 @@
     "next-intl": "^4.3.12",
     "react": "19.1.0",
     "react-dom": "19.1.0",
+    "stockfish": "^18.0.7",
     "tailwind-merge": "^3.3.1",
     "zustand": "^5.0.8"
   },

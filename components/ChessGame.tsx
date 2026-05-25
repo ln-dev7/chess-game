@@ -19,6 +19,7 @@ import { useTimeControlStore } from "@/store/useTimeControlStore";
 import { useGameModeStore } from "@/store/useGameModeStore";
 import { useGameVariantStore } from "@/store/useGameVariantStore";
 import { getAIMove } from "@/lib/chess-ai";
+import { preloadStockfish } from "@/lib/stockfish-engine";
 import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
@@ -75,6 +76,14 @@ export default function ChessGame() {
   const [whiteTime, setWhiteTime] = useState(selectedTimeControl.initialTime);
   const [blackTime, setBlackTime] = useState(selectedTimeControl.initialTime);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Précharger Stockfish dès que l'utilisateur s'apprête à jouer contre l'IA
+  // à un niveau qui l'utilise (1200+). Sans effet aux niveaux 400/800.
+  useEffect(() => {
+    if (gameMode === "ai" && aiLevel >= 1200) {
+      preloadStockfish();
+    }
+  }, [gameMode, aiLevel]);
 
   // Initialiser le gestionnaire audio
   useEffect(() => {

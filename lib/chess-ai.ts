@@ -26,6 +26,8 @@
 import { GameState, Position, Piece, PieceColor } from "@/types/chess";
 import { getPossibleMoves, executeMove } from "./chess-engine";
 import { positionsEqual } from "./chess-utils";
+import { gameStateToStockfishFEN, parseUCIMove } from "./fen-utils";
+import { searchBestMove } from "./stockfish-engine";
 
 export type AILevel = 400 | 800 | 1200 | 1600 | 2000 | 2500;
 
@@ -764,10 +766,92 @@ function findBestMove(
 }
 
 /**
- * Fonction principale pour obtenir le coup de l'IA
- * Utilise un algorithme heuristique avancé adapté au niveau
+ * Paramètres Stockfish par niveau (utilisé pour 1200+).
+ * UCI_Elo de Stockfish accepte 1320..3190 ; pour 1200 on utilise Skill Level
+ * (Stockfish clampe sinon).
  */
-export async function getAIMove(
+interface StockfishLevelConfig {
+  uciElo?: number;
+  skillLevel?: number; // 0..20
+  movetimeMs: number;
+  depth?: number;
+}
+
+const STOCKFISH_LEVELS: Partial<Record<AILevel, StockfishLevelConfig>> = {
+  1200: { skillLevel: 5, depth: 8, movetimeMs: 400 },
+  1600: { uciElo: 1600, movetimeMs: 700 },
+  2000: { uciElo: 2000, movetimeMs: 1100 },
+  2500: { uciElo: 2500, movetimeMs: 1600 },
+};
+
+/**
+ * Convertit le bestmove de Stockfish (UCI) en AIMove.
+ * En Chess960, Stockfish utilise la notation Shredder (roi prend sa tour) :
+ * on traduit en notation "roi vers case finale" attendue par executeMove.
+ */
+function uciToAIMove(
+  uci: string,
+  gameState: GameState,
+  aiColor: PieceColor
+): AIMove | null {
+  const parsed = parseUCIMove(uci);
+  if (!parsed) return null;
+
+  let { to } = parsed;
+  const { from, promotionPiece } = parsed;
+  const fromPiece = gameState.board[from.row][from.col];
+  const toPiece = gameState.board[to.row][to.col];
+
+  if (
+    gameState.isChess960 &&
+    fromPiece &&
+    fromPiece.type === "king" &&
+    fromPiece.color === aiColor &&
+    toPiece &&
+    toPiece.type === "rook" &&
+    toPiece.color === aiColor
+  ) {
+    // Stockfish émet le roque comme "roi prend tour" — convertir vers
+    // la case finale du roi (g1/c1 ou g8/c8).
+    const kingsideRookCol =
+      aiColor === "white"
+        ? gameState.whiteKingRookInitialCol
+        : gameState.blackKingRookInitialCol;
+    const isKingside = to.col === kingsideRookCol;
+    to = { row: to.row, col: isKingside ? 6 : 2 };
+  }
+
+  return { from, to, promotionPiece };
+}
+
+async function getStockfishMove(
+  gameState: GameState,
+  aiLevel: AILevel,
+  aiColor: PieceColor
+): Promise<AIMove | null> {
+  const cfg = STOCKFISH_LEVELS[aiLevel];
+  if (!cfg) return null;
+
+  try {
+    const fen = gameStateToStockfishFEN(gameState);
+    const uci = await searchBestMove({
+      fen,
+      chess960: gameState.isChess960,
+      uciElo: cfg.uciElo,
+      skillLevel: cfg.skillLevel,
+      depth: cfg.depth,
+      movetimeMs: cfg.movetimeMs,
+    });
+    if (!uci) return null;
+    return uciToAIMove(uci, gameState, aiColor);
+  } catch (err) {
+    // En cas d'échec (worker indisponible, etc.), retomber sur l'heuristique
+    console.error("[chess-ai] Stockfish failed, falling back to heuristic:", err);
+    return findBestMove(gameState, aiColor, AI_CONFIGS[aiLevel]);
+  }
+}
+
+async function getHeuristicMove(
   gameState: GameState,
   aiLevel: AILevel,
   aiColor: PieceColor
@@ -775,34 +859,42 @@ export async function getAIMove(
   const config = AI_CONFIGS[aiLevel];
   const phase = getGamePhase(gameState);
 
-  // Temps de base par niveau (en ms)
   const baseTimeByLevel: Record<AILevel, number> = {
-    400: 250, // Joue vite
-    800: 400, // Réfléchit un peu
-    1200: 650, // Prend son temps
-    1600: 900, // Calcule davantage
-    2000: 1200, // Analyse profonde
-    2500: 1800, // Analyse très profonde
+    400: 250,
+    800: 400,
+    1200: 650,
+    1600: 900,
+    2000: 1200,
+    2500: 1800,
   };
 
   let baseTime = baseTimeByLevel[aiLevel];
+  if (phase === "opening") baseTime *= 0.7;
+  else if (phase === "endgame") baseTime *= 1.3;
 
-  // Ajustement selon la phase
-  if (phase === "opening") {
-    baseTime *= 0.7; // Plus rapide en ouverture
-  } else if (phase === "endgame") {
-    baseTime *= 1.3; // Plus lent en finale (calculs précis)
-  }
-
-  // Variation aléatoire réaliste (±40%)
   const variation = baseTime * 0.8;
   const thinkingTime = baseTime + (Math.random() - 0.5) * variation;
 
-  // Algorithme heuristique avancé
   await new Promise((resolve) =>
     setTimeout(resolve, Math.max(200, thinkingTime))
   );
   return findBestMove(gameState, aiColor, config);
+}
+
+/**
+ * Fonction principale pour obtenir le coup de l'IA.
+ * - Niveaux 400 / 800 : moteur heuristique maison (blunders réalistes des débutants).
+ * - Niveaux 1200+ : Stockfish 18 (WebAssembly).
+ */
+export async function getAIMove(
+  gameState: GameState,
+  aiLevel: AILevel,
+  aiColor: PieceColor
+): Promise<AIMove | null> {
+  if (aiLevel <= 800) {
+    return getHeuristicMove(gameState, aiLevel, aiColor);
+  }
+  return getStockfishMove(gameState, aiLevel, aiColor);
 }
 
 /**
