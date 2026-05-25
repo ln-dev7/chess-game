@@ -778,7 +778,8 @@ interface StockfishLevelConfig {
 }
 
 const STOCKFISH_LEVELS: Partial<Record<AILevel, StockfishLevelConfig>> = {
-  1200: { skillLevel: 5, depth: 8, movetimeMs: 400 },
+  // Skill Level 1 ≈ 1200 Elo (UCI_Elo plancher 1320, trop élevé pour ce palier)
+  1200: { skillLevel: 1, depth: 8, movetimeMs: 300 },
   1600: { uciElo: 1600, movetimeMs: 700 },
   2000: { uciElo: 2000, movetimeMs: 1100 },
   2500: { uciElo: 2500, movetimeMs: 1600 },
