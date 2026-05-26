@@ -1,11 +1,14 @@
 "use client";
 
-import { GameState, Position, Piece } from "@/types/chess";
+import { useEffect, useState } from "react";
+import { GameState, PieceColor, Position, Piece } from "@/types/chess";
 import { ChessTheme } from "@/lib/chess-themes";
 import { positionsEqual, findKingPosition } from "@/lib/chess-utils";
-import ChessSquare from "./ChessSquare";
+import ChessSquare, { EndGameRole } from "./ChessSquare";
 import AnimatedPiece from "./AnimatedPiece";
 import CheckmateAnimation from "./CheckmateAnimation";
+
+const END_GAME_REVEAL_DELAY_MS = 400;
 
 interface AnimatingMove {
   from: Position;
@@ -54,6 +57,49 @@ export default function ChessBoard({
   const kingInCheckPos = isCheck
     ? findKingPosition(board, currentPlayer)
     : null;
+
+  // Rôle de chaque roi en fin de partie (pour colorer la case)
+  const isGameOver =
+    gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
+
+  // Délai partagé entre la couleur de case et l'apparition des couronnes,
+  // pour qu'on voie d'abord le coup final se terminer.
+  const [endGameRevealed, setEndGameRevealed] = useState(false);
+  useEffect(() => {
+    if (!isGameOver) {
+      setEndGameRevealed(false);
+      return;
+    }
+    const t = setTimeout(
+      () => setEndGameRevealed(true),
+      END_GAME_REVEAL_DELAY_MS
+    );
+    return () => clearTimeout(t);
+  }, [isGameOver]);
+  const isDraw =
+    gameState.isStalemate ||
+    gameState.isDraw ||
+    gameState.gameEndReason === "draw";
+  const winnerColor: PieceColor | null =
+    !isGameOver || isDraw
+      ? null
+      : currentPlayer === "white"
+        ? "black"
+        : "white";
+  const whiteKingPos = isGameOver ? findKingPosition(board, "white") : null;
+  const blackKingPos = isGameOver ? findKingPosition(board, "black") : null;
+
+  function getEndGameRole(position: Position): EndGameRole | null {
+    if (!isGameOver) return null;
+    const isWhiteKingSq =
+      whiteKingPos !== null && positionsEqual(position, whiteKingPos);
+    const isBlackKingSq =
+      blackKingPos !== null && positionsEqual(position, blackKingPos);
+    if (!isWhiteKingSq && !isBlackKingSq) return null;
+    if (isDraw) return "draw";
+    const kingColor: PieceColor = isWhiteKingSq ? "white" : "black";
+    return kingColor === winnerColor ? "winner" : "loser";
+  }
 
   // Créer une copie du plateau et potentiellement le retourner
   const displayBoard = isRotated
@@ -118,6 +164,11 @@ export default function ChessBoard({
                 pieceStyle={pieceStyle}
                 showCoordinates={showCoordinates}
                 isRotated={isRotated}
+                endGameRole={
+                  showEndGameOverlay && endGameRevealed
+                    ? getEndGameRole(position)
+                    : null
+                }
               />
             );
           })
@@ -137,7 +188,7 @@ export default function ChessBoard({
         )}
 
         {/* Couronnes vainqueur / perdant / nulle à la fin de la partie */}
-        {showEndGameOverlay && (
+        {showEndGameOverlay && endGameRevealed && (
           <CheckmateAnimation gameState={gameState} isRotated={isRotated} />
         )}
       </div>

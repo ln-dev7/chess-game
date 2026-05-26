@@ -2,7 +2,6 @@
 
 import { motion } from "motion/react";
 import { Crown } from "lucide-react";
-import { useEffect, useState } from "react";
 import { GameState, Position, PieceColor } from "@/types/chess";
 import { findKingPosition } from "@/lib/chess-utils";
 
@@ -10,8 +9,6 @@ interface CheckmateAnimationProps {
   gameState: GameState;
   isRotated: boolean;
 }
-
-const REVEAL_DELAY_MS = 400;
 
 function getDisplayCoords(pos: Position, isRotated: boolean) {
   return isRotated
@@ -33,19 +30,7 @@ export default function CheckmateAnimation({
 }: CheckmateAnimationProps) {
   const isGameOver =
     gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
-
-  // Court délai avant d'afficher les couronnes pour laisser respirer le coup final.
-  const [reveal, setReveal] = useState(false);
-  useEffect(() => {
-    if (!isGameOver) {
-      setReveal(false);
-      return;
-    }
-    const t = setTimeout(() => setReveal(true), REVEAL_DELAY_MS);
-    return () => clearTimeout(t);
-  }, [isGameOver]);
-
-  if (!isGameOver || !reveal) return null;
+  if (!isGameOver) return null;
 
   const whiteKing = findKingPosition(gameState.board, "white");
   const blackKing = findKingPosition(gameState.board, "black");

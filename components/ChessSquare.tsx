@@ -7,6 +7,8 @@ interface AnimatingMove {
   to: Position;
 }
 
+export type EndGameRole = "winner" | "loser" | "draw";
+
 interface ChessSquareProps {
   position: Position;
   piece: Piece | null;
@@ -23,6 +25,7 @@ interface ChessSquareProps {
   pieceStyle?: string;
   showCoordinates?: boolean;
   isRotated?: boolean;
+  endGameRole?: EndGameRole | null;
 }
 
 export default function ChessSquare({
@@ -40,11 +43,19 @@ export default function ChessSquare({
   pieceStyle = "classic",
   showCoordinates = true,
   isRotated = false,
+  endGameRole = null,
 }: ChessSquareProps) {
   // Déterminer la couleur de fond selon l'état
+  // Priorité : fin de partie > échec > sélection > dernier coup > défaut
   let backgroundColor: string;
 
-  if (isCheck) {
+  if (endGameRole === "winner") {
+    backgroundColor = "#10b981"; // emerald-500
+  } else if (endGameRole === "loser") {
+    backgroundColor = "#ef4444"; // red-500
+  } else if (endGameRole === "draw") {
+    backgroundColor = "#6b7280"; // gray-500
+  } else if (isCheck) {
     backgroundColor = "#ef4444"; // Rouge pour l'échec
   } else if (isSelected) {
     backgroundColor = isLight ? theme.selectedLight : theme.selectedDark;
