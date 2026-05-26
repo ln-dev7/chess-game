@@ -238,7 +238,20 @@
     "gameRating": "Game rating",
     "blunders": "Blunders",
     "mistakes": "Mistakes",
-    "inaccuracies": "Inaccuracies"
+    "inaccuracies": "Inaccuracies",
+    "movesList": "Move-by-move",
+    "noMoves": "No moves to analyze",
+    "bestWas": "Best was",
+    "cpLoss": "Pawn loss",
+    "winLoss": "Win loss",
+    "classifications": {
+      "best": "Best",
+      "excellent": "Excellent",
+      "good": "Good",
+      "inaccuracy": "Inaccuracy",
+      "mistake": "Mistake",
+      "blunder": "Blunder"
+    }
   },
   "sound": {
     "title": "Sounds",

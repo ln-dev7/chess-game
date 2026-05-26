@@ -238,7 +238,20 @@
     "gameRating": "Classement de la partie",
     "blunders": "Gaffes",
     "mistakes": "Erreurs",
-    "inaccuracies": "Imprécisions"
+    "inaccuracies": "Imprécisions",
+    "movesList": "Coup par coup",
+    "noMoves": "Aucun coup à analyser",
+    "bestWas": "Le meilleur coup était",
+    "cpLoss": "Perte de centièmes",
+    "winLoss": "Perte de win%",
+    "classifications": {
+      "best": "Meilleur",
+      "excellent": "Excellent",
+      "good": "Bon",
+      "inaccuracy": "Imprécision",
+      "mistake": "Erreur",
+      "blunder": "Gaffe"
+    }
   },
   "sound": {
     "title": "Sons",

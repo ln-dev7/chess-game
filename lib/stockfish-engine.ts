@@ -101,6 +101,14 @@ export interface EvaluatePositionOptions {
   movetimeMs?: number;
   depth?: number;
   chess960?: boolean;
+  /** Si true, saute setoption / ucinewgame / isready. Utiliser après
+   *  prepareAnalysisSession() pour évaluer une série de positions sans
+   *  réinitialiser la table de transposition entre chaque coup. */
+  skipSetup?: boolean;
+}
+
+export interface PrepareAnalysisOptions {
+  chess960?: boolean;
 }
 
 /**
@@ -163,23 +171,21 @@ export async function searchBestMove(
 }
 
 /**
- * Évalue une position à pleine puissance (sans UCI_LimitStrength) et renvoie
- * la valeur centipawn / mate ainsi que le meilleur coup. Utilisé pour
- * l'analyse post-partie (précision, Elo de performance).
+ * Configure le moteur pour une session d'analyse (pleine puissance, hash
+ * propre) en une seule fois. Les évaluations suivantes peuvent passer
+ * `skipSetup: true` à evaluatePosition pour réutiliser la table de
+ * transposition entre positions successives — ce qui rend l'analyse d'une
+ * partie complète sensiblement plus rapide.
  */
-export async function evaluatePosition(
-  options: EvaluatePositionOptions
-): Promise<PositionEvaluation> {
+export async function prepareAnalysisSession(
+  options: PrepareAnalysisOptions = {}
+): Promise<void> {
   const engine = await getEngine();
-
-  // Force pleine puissance, indépendamment du dernier setoption émis par
-  // searchBestMove (cf. bridage par niveau d'IA).
   engine.send(
     `setoption name UCI_Chess960 value ${options.chess960 ? "true" : "false"}`
   );
   engine.send("setoption name UCI_LimitStrength value false");
   engine.send("setoption name Skill Level value 20");
-
   engine.send("ucinewgame");
   engine.send("isready");
   await new Promise<void>((resolve) => {
@@ -190,6 +196,35 @@ export async function evaluatePosition(
       }
     });
   });
+}
+
+/**
+ * Évalue une position à pleine puissance (sans UCI_LimitStrength) et renvoie
+ * la valeur centipawn / mate ainsi que le meilleur coup. Utilisé pour
+ * l'analyse post-partie (précision, Elo de performance).
+ */
+export async function evaluatePosition(
+  options: EvaluatePositionOptions
+): Promise<PositionEvaluation> {
+  const engine = await getEngine();
+
+  if (!options.skipSetup) {
+    engine.send(
+      `setoption name UCI_Chess960 value ${options.chess960 ? "true" : "false"}`
+    );
+    engine.send("setoption name UCI_LimitStrength value false");
+    engine.send("setoption name Skill Level value 20");
+    engine.send("ucinewgame");
+    engine.send("isready");
+    await new Promise<void>((resolve) => {
+      const dispose = engine.onLine((line) => {
+        if (line.startsWith("readyok")) {
+          dispose();
+          resolve();
+        }
+      });
+    });
+  }
 
   engine.send(`position fen ${options.fen}`);
 
