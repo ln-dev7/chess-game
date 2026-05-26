@@ -1,158 +1,111 @@
 "use client";
 
 import { motion } from "motion/react";
+import { Crown } from "lucide-react";
 import { useEffect, useState } from "react";
-import { useTranslations } from "next-intl";
-import Image from "next/image";
-import { PieceColor } from "@/types/chess";
+import { GameState, Position, PieceColor } from "@/types/chess";
+import { findKingPosition } from "@/lib/chess-utils";
 
 interface CheckmateAnimationProps {
-  loserColor: PieceColor;
-  pieceStyle: string;
-  onComplete: () => void;
-  endReason?: "checkmate" | "timeout" | "resignation" | "draw";
+  gameState: GameState;
+  isRotated: boolean;
 }
 
+const REVEAL_DELAY_MS = 400;
+
+function getDisplayCoords(pos: Position, isRotated: boolean) {
+  return isRotated
+    ? { x: (7 - pos.col) * 12.5, y: (7 - pos.row) * 12.5 }
+    : { x: pos.col * 12.5, y: pos.row * 12.5 };
+}
+
+/**
+ * Overlay de fin de partie : pose une couronne sur chaque roi.
+ * - Vert  : vainqueur
+ * - Rouge : perdant
+ * - Gris  : les deux rois en cas de nulle / pat
+ * Rendu à l'intérieur de la grille du board, donc suit la rotation
+ * et la taille de l'échiquier.
+ */
 export default function CheckmateAnimation({
-  loserColor,
-  pieceStyle,
-  onComplete,
-  endReason = "checkmate",
+  gameState,
+  isRotated,
 }: CheckmateAnimationProps) {
-  const t = useTranslations("checkmate");
-  const [showExplosion, setShowExplosion] = useState(false);
+  const isGameOver =
+    gameState.isCheckmate || gameState.isStalemate || gameState.isDraw;
 
+  // Court délai avant d'afficher les couronnes pour laisser respirer le coup final.
+  const [reveal, setReveal] = useState(false);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setShowExplosion(true);
-    }, 800);
-
-    const completeTimer = setTimeout(() => {
-      onComplete();
-    }, 2500);
-
-    return () => {
-      clearTimeout(timer);
-      clearTimeout(completeTimer);
-    };
-  }, [onComplete]);
-
-  const kingPath = `/pieces/${pieceStyle}/${loserColor}/king.svg`;
-
-  const getEndMessage = () => {
-    if (endReason === "draw") {
-      return t("draw").toUpperCase();
+    if (!isGameOver) {
+      setReveal(false);
+      return;
     }
-    const winner = loserColor === "white" ? t("blackWins") : t("whiteWins");
-    return winner.toUpperCase();
-  };
+    const t = setTimeout(() => setReveal(true), REVEAL_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [isGameOver]);
+
+  if (!isGameOver || !reveal) return null;
+
+  const whiteKing = findKingPosition(gameState.board, "white");
+  const blackKing = findKingPosition(gameState.board, "black");
+
+  const isDraw =
+    gameState.isStalemate ||
+    gameState.isDraw ||
+    gameState.gameEndReason === "draw";
+  const winnerColor: PieceColor | null = isDraw
+    ? null
+    : gameState.currentPlayer === "white"
+      ? "black"
+      : "white";
+
+  function renderBadge(color: PieceColor, position: Position | null) {
+    if (!position) return null;
+    const { x, y } = getDisplayCoords(position, isRotated);
+    const isWinner = winnerColor === color;
+    const bgClass = isDraw
+      ? "bg-gray-500"
+      : isWinner
+        ? "bg-emerald-500"
+        : "bg-red-500";
+
+    return (
+      <motion.div
+        key={color}
+        className="absolute z-40 pointer-events-none"
+        style={{
+          width: "12.5%",
+          height: "12.5%",
+          left: `${x}%`,
+          top: `${y}%`,
+        }}
+        initial={{ scale: 0, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{
+          type: "spring",
+          stiffness: 280,
+          damping: 18,
+          delay: isWinner ? 0.1 : 0.25,
+        }}
+      >
+        <div
+          className={`absolute -top-1 -right-1 ${bgClass} rounded-full shadow-lg ring-2 ring-white flex items-center justify-center w-5 h-5 md:w-6 md:h-6 lg:w-7 lg:h-7`}
+        >
+          <Crown
+            className="w-3 h-3 md:w-3.5 md:h-3.5 lg:w-4 lg:h-4 text-white"
+            strokeWidth={2.5}
+            fill="currentColor"
+          />
+        </div>
+      </motion.div>
+    );
+  }
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="relative">
-        {/* Le roi qui tombe et se détruit */}
-        <motion.div
-          className="relative"
-          initial={{ y: -100, rotate: 0, scale: 1, opacity: 1 }}
-          animate={{
-            y: [0, 50, 100],
-            rotate: [0, -45, -90],
-            scale: [1, 0.9, 0],
-            opacity: [1, 1, 0],
-          }}
-          transition={{
-            duration: 1.2,
-            times: [0, 0.6, 1],
-            ease: "easeIn",
-          }}
-        >
-          <Image
-            src={kingPath}
-            alt="King falling"
-            width={200}
-            height={200}
-            className="drop-shadow-2xl"
-            priority
-          />
-        </motion.div>
-
-        {/* Particules d'explosion */}
-        {showExplosion && (
-          <>
-            {Array.from({ length: 12 }).map((_, i) => {
-              const angle = (i * 360) / 12;
-              const distance = 150 + Math.random() * 50;
-              const x = Math.cos((angle * Math.PI) / 180) * distance;
-              const y = Math.sin((angle * Math.PI) / 180) * distance;
-
-              return (
-                <motion.div
-                  key={i}
-                  className="absolute top-1/2 left-1/2"
-                  initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
-                  animate={{
-                    x,
-                    y,
-                    scale: [1, 0.5, 0],
-                    opacity: [1, 0.8, 0],
-                  }}
-                  transition={{
-                    duration: 1,
-                    ease: "easeOut",
-                  }}
-                >
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{
-                      background:
-                        loserColor === "white"
-                          ? "linear-gradient(135deg, #ffffff, #e0e0e0)"
-                          : "linear-gradient(135deg, #4a4a4a, #2a2a2a)",
-                    }}
-                  />
-                </motion.div>
-              );
-            })}
-
-            {/* Flash lumineux */}
-            <motion.div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              initial={{ scale: 0, opacity: 0.8 }}
-              animate={{ scale: 3, opacity: 0 }}
-              transition={{ duration: 0.6, ease: "easeOut" }}
-            >
-              <div className="w-32 h-32 rounded-full bg-red-500 blur-3xl" />
-            </motion.div>
-
-            {/* Onde de choc */}
-            <motion.div
-              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
-              initial={{ scale: 0, opacity: 0.6 }}
-              animate={{ scale: 4, opacity: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-            >
-              <div className="w-40 h-40 rounded-full border-4 border-red-400" />
-            </motion.div>
-          </>
-        )}
-
-        {/* Texte de fin de partie */}
-        <motion.div
-          className="absolute -bottom-32 left-1/2 -translate-x-1/2 whitespace-nowrap"
-          initial={{ opacity: 0, y: -20, scale: 0.8 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          transition={{
-            delay: 1,
-            duration: 0.5,
-            type: "spring",
-            stiffness: 200,
-          }}
-        >
-          <div className="text-5xl font-bold text-white drop-shadow-[0_0_20px_rgba(239,68,68,0.8)]">
-            {getEndMessage()}
-          </div>
-        </motion.div>
-      </div>
-    </div>
+    <>
+      {renderBadge("white", whiteKing)}
+      {renderBadge("black", blackKing)}
+    </>
   );
 }

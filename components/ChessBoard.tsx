@@ -5,6 +5,7 @@ import { ChessTheme } from "@/lib/chess-themes";
 import { positionsEqual, findKingPosition } from "@/lib/chess-utils";
 import ChessSquare from "./ChessSquare";
 import AnimatedPiece from "./AnimatedPiece";
+import CheckmateAnimation from "./CheckmateAnimation";
 
 interface AnimatingMove {
   from: Position;
@@ -23,6 +24,7 @@ interface ChessBoardProps {
   showCoordinates?: boolean;
   isRotated?: boolean;
   animationDuration?: number;
+  showEndGameOverlay?: boolean;
 }
 
 export default function ChessBoard({
@@ -36,6 +38,7 @@ export default function ChessBoard({
   showCoordinates = true,
   isRotated = false,
   animationDuration = 300,
+  showEndGameOverlay = false,
 }: ChessBoardProps) {
   const {
     board,
@@ -131,6 +134,11 @@ export default function ChessBoard({
             animationDuration={animationDuration}
             isRotated={isRotated}
           />
+        )}
+
+        {/* Couronnes vainqueur / perdant / nulle à la fin de la partie */}
+        {showEndGameOverlay && (
+          <CheckmateAnimation gameState={gameState} isRotated={isRotated} />
         )}
       </div>
     </div>

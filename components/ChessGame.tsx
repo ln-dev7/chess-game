@@ -25,7 +25,6 @@ import GameInfo from "./GameInfo";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
-import CheckmateAnimation from "./CheckmateAnimation";
 import ChessClock from "./ChessClock";
 import LanguageSelector from "./LanguageSelector";
 import GameModeSelector from "./GameModeSelector";
@@ -53,7 +52,6 @@ export default function ChessGame() {
     null
   );
   const [isAnimating, setIsAnimating] = useState(false);
-  const [showCheckmateAnimation, setShowCheckmateAnimation] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
 
@@ -148,9 +146,6 @@ export default function ChessGame() {
               gameEndReason: "timeout",
             }));
             playSound("checkmate");
-            setTimeout(() => {
-              setShowCheckmateAnimation(true);
-            }, 500);
             return 0;
           }
           return prev - 1;
@@ -166,9 +161,6 @@ export default function ChessGame() {
               gameEndReason: "timeout",
             }));
             playSound("checkmate");
-            setTimeout(() => {
-              setShowCheckmateAnimation(true);
-            }, 500);
             return 0;
           }
           return prev - 1;
@@ -216,7 +208,6 @@ export default function ChessGame() {
     setPendingPromotion(null);
     setAnimatingMove(null);
     setIsAnimating(false);
-    setShowCheckmateAnimation(false);
     setIsAIThinking(false);
     setGameStarted(false);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -289,9 +280,6 @@ export default function ChessGame() {
                 gameEndReason: "timeout",
               }));
               playSound("checkmate");
-              setTimeout(() => {
-                setShowCheckmateAnimation(true);
-              }, 500);
               setIsAIThinking(false);
               return;
             }
@@ -342,9 +330,6 @@ export default function ChessGame() {
                   // Jouer les sons appropriés
                   if (newState.isCheckmate) {
                     playSound("checkmate");
-                    setTimeout(() => {
-                      setShowCheckmateAnimation(true);
-                    }, 500);
                   } else if (newState.isStalemate || newState.isDraw) {
                     playSound("draw");
                   } else if (newState.isCheck) {
@@ -395,9 +380,6 @@ export default function ChessGame() {
                   // Jouer les sons appropriés
                   if (newState.isCheckmate) {
                     playSound("checkmate");
-                    setTimeout(() => {
-                      setShowCheckmateAnimation(true);
-                    }, 500);
                   } else if (newState.isStalemate || newState.isDraw) {
                     playSound("draw");
                   } else if (newState.isCheck) {
@@ -609,10 +591,6 @@ export default function ChessGame() {
         // Jouer les sons appropriés
         if (newState.isCheckmate) {
           playSound("checkmate");
-          // Déclencher l'animation d'échec et mat après un court délai
-          setTimeout(() => {
-            setShowCheckmateAnimation(true);
-          }, 500);
         } else if (newState.isStalemate || newState.isDraw) {
           playSound("draw");
         } else if (newState.isCheck) {
@@ -662,10 +640,6 @@ export default function ChessGame() {
     // Jouer les sons appropriés
     if (newState.isCheckmate) {
       playSound("checkmate");
-      // Déclencher l'animation d'échec et mat après un court délai
-      setTimeout(() => {
-        setShowCheckmateAnimation(true);
-      }, 500);
     } else if (newState.isStalemate || newState.isDraw) {
       playSound("draw");
     } else if (newState.isCheck) {
@@ -689,7 +663,6 @@ export default function ChessGame() {
     setPendingPromotion(null);
     setAnimatingMove(null);
     setIsAnimating(false);
-    setShowCheckmateAnimation(false);
     setIsAIThinking(false);
     setGameStarted(false);
     setWhiteTime(selectedTimeControl.initialTime);
@@ -713,9 +686,6 @@ export default function ChessGame() {
       validMoves: [],
     });
     playSound("checkmate");
-    setTimeout(() => {
-      setShowCheckmateAnimation(true);
-    }, 500);
   }, [gameState]);
 
   const handleOfferDraw = useCallback(() => {
@@ -781,12 +751,7 @@ export default function ChessGame() {
               showCoordinates={showCoordinates}
               isRotated={effectiveBoardRotation}
               animationDuration={animationDuration}
-              showCheckmateAnimation={
-                showCheckmateAnimation && checkmateAnimationEnabled
-              }
-              onCheckmateAnimationComplete={() =>
-                setShowCheckmateAnimation(false)
-              }
+              showEndGameOverlay={checkmateAnimationEnabled}
             />
           </div>
 
@@ -929,16 +894,6 @@ export default function ChessGame() {
         onSelect={handlePromotion}
         pieceStyle={pieceStyle.id}
       />
-
-      {/* Animation d'échec et mat */}
-      {showCheckmateAnimation && checkmateAnimationEnabled && (
-        <CheckmateAnimation
-          loserColor={gameState.currentPlayer}
-          pieceStyle={pieceStyle.id}
-          onComplete={() => setShowCheckmateAnimation(false)}
-          endReason={gameState.gameEndReason || "checkmate"}
-        />
-      )}
     </div>
   );
 }

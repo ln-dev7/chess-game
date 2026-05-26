@@ -3,7 +3,6 @@
 import { forwardRef, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import ChessBoard from "./ChessBoard";
-import CheckmateAnimation from "./CheckmateAnimation";
 import CapturedPieces from "./CapturedPieces";
 import { GameState, Position, Piece } from "@/types/chess";
 import { ChessTheme } from "@/lib/chess-themes";
@@ -25,8 +24,7 @@ interface BoardContainerProps {
   showCoordinates: boolean;
   isRotated: boolean;
   animationDuration: number;
-  showCheckmateAnimation: boolean;
-  onCheckmateAnimationComplete: () => void;
+  showEndGameOverlay: boolean;
 }
 
 const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
@@ -42,8 +40,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
       showCoordinates,
       isRotated,
       animationDuration,
-      showCheckmateAnimation,
-      onCheckmateAnimationComplete,
+      showEndGameOverlay,
     },
     ref
   ) => {
@@ -118,6 +115,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
               showCoordinates={showCoordinates}
               isRotated={isRotated}
               animationDuration={animationDuration}
+              showEndGameOverlay={showEndGameOverlay}
             />
           </div>
         </div>
@@ -131,16 +129,6 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
           >
             <X className="w-6 h-6 text-gray-700" />
           </button>
-        )}
-
-        {/* Animation d'échec et mat en plein écran */}
-        {isFullscreen && showCheckmateAnimation && (
-          <CheckmateAnimation
-            loserColor={gameState.currentPlayer === "white" ? "black" : "white"}
-            pieceStyle={pieceStyle}
-            onComplete={onCheckmateAnimationComplete}
-            endReason={gameState.gameEndReason || "checkmate"}
-          />
         )}
       </div>
     );
