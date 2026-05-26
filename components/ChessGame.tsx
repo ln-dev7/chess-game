@@ -750,6 +750,8 @@ export default function ChessGame() {
       clearInterval(timerRef.current);
       timerRef.current = null;
     }
+    // Sur mobile, la config réapparait en haut : on y ramène l'utilisateur.
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, [selectedTimeControl.initialTime, gameVariant, chess960Position]);
 
   const handleStartGame = useCallback(() => {
@@ -862,7 +864,13 @@ export default function ChessGame() {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 pb-8 lg:items-start">
-          <div className="flex-1 lg:flex-[2] lg:sticky lg:top-4 lg:self-start">
+          <div
+            className={`flex-1 lg:flex-[2] lg:sticky lg:top-4 lg:self-start ${
+              analysisResult
+                ? "max-lg:sticky max-lg:top-0 max-lg:z-20 max-lg:bg-white max-lg:pb-2"
+                : ""
+            }`}
+          >
             <BoardContainer
               ref={boardRef}
               gameState={displayedState}
