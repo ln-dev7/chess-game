@@ -2,6 +2,7 @@
 
 import { motion } from "motion/react";
 import { Piece, Position } from "@/types/chess";
+import Image from "next/image";
 
 interface AnimatedPieceProps {
   piece: Piece;
@@ -74,15 +75,12 @@ export default function AnimatedPiece({
       }}
       onAnimationComplete={onComplete}
     >
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={piecePath}
         alt={`${piece.color} ${piece.type}`}
         width={64}
         height={64}
-        decoding="sync"
-        loading="eager"
-        draggable={false}
+        priority
         className="w-[90%] h-[90%] object-contain drop-shadow-md"
         style={{
           filter:
