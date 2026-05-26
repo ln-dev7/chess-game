@@ -76,6 +76,8 @@ export interface GameAnalysisResult {
   white: PlayerAnalysis;
   black: PlayerAnalysis;
   moves: MoveAnalysis[];
+  /** Eval (cp côté blanc) à chaque position de la partie, longueur = N+1. */
+  positionEvalsCp: number[];
 }
 
 export interface AnalyzeGameOptions {
@@ -88,9 +90,30 @@ export interface AnalyzeGameOptions {
 
 function evalToWhiteCp(ev: PositionEvaluation): number {
   if (ev.mate !== null) {
+    if (ev.mate === 0) return 0; // ne devrait pas arriver : positions terminales gérées en amont
     return ev.mate > 0 ? MATE_CP_VALUE : -MATE_CP_VALUE;
   }
   return ev.cp ?? 0;
+}
+
+/** Évaluation des positions terminales. Pour un mat ou un pat, Stockfish
+ *  renverrait `score mate 0` ou rien — ce qui se transforme en cp=0 et fait
+ *  passer le coup mateur pour une gaffe. On court-circuite donc l'appel
+ *  moteur et on attribue ±MATE selon qui a maté. */
+function terminalEval(state: GameState): PositionEvaluation | null {
+  if (state.isCheckmate) {
+    // `currentPlayer` est le camp maté — l'autre vient de délivrer mat.
+    const whiteDeliveredMate = state.currentPlayer === "black";
+    return {
+      cp: null,
+      mate: whiteDeliveredMate ? 1 : -1,
+      bestMove: null,
+    };
+  }
+  if (state.isStalemate || state.isDraw) {
+    return { cp: 0, mate: null, bestMove: null };
+  }
+  return null;
 }
 
 function cpToWinPercent(cp: number): number {
@@ -130,14 +153,21 @@ function classifyMove(winPctLoss: number): MoveClassification {
   return "best";
 }
 
-/** Convertit le bestmove UCI de Stockfish en SAN, en appliquant le coup sur
- *  `beforeState` pour récupérer un Move complet (avec piece, capturedPiece,
- *  isCastling, etc.) que `moveToAlgebraic` saura formater. Gère le roque
- *  Chess960 en notation Shredder ("roi prend tour"). */
-function uciBestMoveToSan(
+/** Ajoute "+" (échec) ou "#" (échec et mat) à la notation SAN selon l'état
+ *  résultant du coup. moveToAlgebraic ne s'en occupe pas. */
+function withCheckSuffix(san: string, afterState: GameState): string {
+  if (afterState.isCheckmate) return `${san}#`;
+  if (afterState.isCheck) return `${san}+`;
+  return san;
+}
+
+/** Applique un coup UCI à un état donné. Gère la notation Shredder de
+ *  Stockfish pour le roque Chess960 ("roi prend sa tour" → case finale du
+ *  roi). Renvoie le nouvel état, ou null si le coup ne peut s'appliquer. */
+export function applyUciToState(
   uci: string,
   beforeState: GameState
-): { uci: string; san: string } | null {
+): GameState | null {
   const parsed = parseUCIMove(uci);
   if (!parsed) return null;
 
@@ -165,15 +195,26 @@ function uciBestMoveToSan(
   }
 
   try {
-    const newState = executeMove(beforeState, from, to, promotionPiece);
-    const move: Move | undefined =
-      newState.moveHistory[newState.moveHistory.length - 1];
-    if (!move) return null;
-    const san = moveToAlgebraic(move, beforeState);
-    return { uci, san };
+    return executeMove(beforeState, from, to, promotionPiece);
   } catch {
     return null;
   }
+}
+
+/** Convertit le bestmove UCI de Stockfish en SAN à partir de la position
+ *  AVANT le coup (pour la désambiguïsation), et ajoute le suffixe d'échec
+ *  ou de mat à partir de la position APRÈS le coup. */
+function uciBestMoveToSan(
+  uci: string,
+  beforeState: GameState
+): { uci: string; san: string } | null {
+  const newState = applyUciToState(uci, beforeState);
+  if (!newState) return null;
+  const move: Move | undefined =
+    newState.moveHistory[newState.moveHistory.length - 1];
+  if (!move) return null;
+  const san = withCheckSuffix(moveToAlgebraic(move, beforeState), newState);
+  return { uci, san };
 }
 
 function moveToUci(move: Move): string {
@@ -211,6 +252,12 @@ export async function analyzeGame(
 
   const evals: PositionEvaluation[] = [];
   for (let i = 0; i < total; i++) {
+    const terminal = terminalEval(positions[i]);
+    if (terminal) {
+      evals.push(terminal);
+      onProgress?.(i + 1, total);
+      continue;
+    }
     const fen = gameStateToStockfishFEN(positions[i]);
     const ev = await evaluatePosition({
       fen,
@@ -274,7 +321,10 @@ export async function analyzeGame(
     slot[classification] += 1;
 
     const playedMove = finalState.moveHistory[i];
-    const playedSan = moveToAlgebraic(playedMove, positions[i]);
+    const playedSan = withCheckSuffix(
+      moveToAlgebraic(playedMove, positions[i]),
+      positions[i + 1]
+    );
     const playedUci = moveToUci(playedMove);
 
     let bestMoveUci: string | null = null;
@@ -326,9 +376,12 @@ export async function analyzeGame(
     };
   }
 
+  const positionEvalsCp = evals.map(evalToWhiteCp);
+
   return {
     white: summarize("white"),
     black: summarize("black"),
     moves: moveDetails,
+    positionEvalsCp,
   };
 }

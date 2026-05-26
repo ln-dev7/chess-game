@@ -21,10 +21,21 @@ import {
 import { Card } from "./ui/card";
 import { Button } from "./ui/button";
 
+export type AnalysisSelectionVariant = "played" | "best";
+
+export interface AnalysisSelection {
+  ply: number;
+  variant: AnalysisSelectionVariant;
+}
+
 interface GameAnalysisProps {
   finalState: GameState;
   gameVariant: GameVariant;
   chess960Position: number | null;
+  result: GameAnalysisResult | null;
+  selection: AnalysisSelection | null;
+  onResult: (result: GameAnalysisResult) => void;
+  onSelectionChange: (selection: AnalysisSelection | null) => void;
 }
 
 interface ClassificationStyle {
@@ -88,19 +99,21 @@ export default function GameAnalysis({
   finalState,
   gameVariant,
   chess960Position,
+  result,
+  selection,
+  onResult,
+  onSelectionChange,
 }: GameAnalysisProps) {
   const t = useTranslations("analysis");
   const [analyzing, setAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [result, setResult] = useState<GameAnalysisResult | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [selectedPly, setSelectedPly] = useState<number | null>(null);
 
   async function handleAnalyze() {
     setAnalyzing(true);
     setError(null);
     setProgress(0);
-    setSelectedPly(null);
+    onSelectionChange(null);
     try {
       const res = await analyzeGame({
         gameVariant,
@@ -110,7 +123,7 @@ export default function GameAnalysis({
           setProgress(total > 0 ? Math.round((current / total) * 100) : 0);
         },
       });
-      setResult(res);
+      onResult(res);
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -118,12 +131,24 @@ export default function GameAnalysis({
     }
   }
 
+  function toggleSelection(next: AnalysisSelection) {
+    if (
+      selection &&
+      selection.ply === next.ply &&
+      selection.variant === next.variant
+    ) {
+      onSelectionChange(null);
+    } else {
+      onSelectionChange(next);
+    }
+  }
+
   if (result) {
     return (
       <ResultCard
         result={result}
-        selectedPly={selectedPly}
-        onSelectPly={setSelectedPly}
+        selection={selection}
+        onToggleSelection={toggleSelection}
       />
     );
   }
@@ -169,17 +194,16 @@ export default function GameAnalysis({
 
 function ResultCard({
   result,
-  selectedPly,
-  onSelectPly,
+  selection,
+  onToggleSelection,
 }: {
   result: GameAnalysisResult;
-  selectedPly: number | null;
-  onSelectPly: (ply: number | null) => void;
+  selection: AnalysisSelection | null;
+  onToggleSelection: (s: AnalysisSelection) => void;
 }) {
   const t = useTranslations("analysis");
   const styles = useMemo(() => getClassificationStyles(t), [t]);
 
-  // Regroupe les coups par paire (blanc, noir) pour un affichage à 3 colonnes.
   const pairs = useMemo(() => {
     const out: { number: number; white?: MoveAnalysis; black?: MoveAnalysis }[] = [];
     for (const m of result.moves) {
@@ -192,7 +216,7 @@ function ResultCard({
   }, [result.moves]);
 
   const selectedMove =
-    selectedPly !== null ? result.moves[selectedPly] ?? null : null;
+    selection !== null ? result.moves[selection.ply] ?? null : null;
 
   return (
     <Card className="p-5 bg-gradient-to-br from-white to-gray-50">
@@ -201,7 +225,6 @@ function ResultCard({
         <h3 className="text-lg font-bold text-gray-900">{t("title")}</h3>
       </div>
 
-      {/* Tableau récap */}
       <div className="grid grid-cols-3 gap-3 text-sm mb-5">
         <div></div>
         <div className="text-center">
@@ -266,14 +289,20 @@ function ResultCard({
         ))}
       </div>
 
-      {/* Détails du coup sélectionné */}
       {selectedMove && (
         <div className="mb-4 p-3 rounded-lg border border-gray-200 bg-white">
-          <SelectedMoveDetails move={selectedMove} styles={styles} t={t} />
+          <SelectedMoveDetails
+            move={selectedMove}
+            selection={selection!}
+            styles={styles}
+            onSelectVariant={(variant) =>
+              onToggleSelection({ ply: selectedMove.ply, variant })
+            }
+            t={t}
+          />
         </div>
       )}
 
-      {/* Liste coup-par-coup */}
       <div>
         <p className="text-sm font-semibold text-gray-700 mb-2">
           {t("movesList")}
@@ -293,21 +322,31 @@ function ResultCard({
                   </div>
                   <MoveCell
                     move={pair.white}
-                    isSelected={selectedPly === pair.white?.ply}
+                    isSelected={
+                      pair.white?.ply === selection?.ply &&
+                      selection?.variant === "played"
+                    }
                     onClick={() =>
-                      pair.white && onSelectPly(
-                        selectedPly === pair.white.ply ? null : pair.white.ply
-                      )
+                      pair.white &&
+                      onToggleSelection({
+                        ply: pair.white.ply,
+                        variant: "played",
+                      })
                     }
                     styles={styles}
                   />
                   <MoveCell
                     move={pair.black}
-                    isSelected={selectedPly === pair.black?.ply}
+                    isSelected={
+                      pair.black?.ply === selection?.ply &&
+                      selection?.variant === "played"
+                    }
                     onClick={() =>
-                      pair.black && onSelectPly(
-                        selectedPly === pair.black.ply ? null : pair.black.ply
-                      )
+                      pair.black &&
+                      onToggleSelection({
+                        ply: pair.black.ply,
+                        variant: "played",
+                      })
                     }
                     styles={styles}
                   />
@@ -377,36 +416,63 @@ function MoveCell({
 
 function SelectedMoveDetails({
   move,
+  selection,
   styles,
+  onSelectVariant,
   t,
 }: {
   move: MoveAnalysis;
+  selection: AnalysisSelection;
   styles: Record<MoveClassification, ClassificationStyle>;
+  onSelectVariant: (variant: AnalysisSelectionVariant) => void;
   t: (k: string) => string;
 }) {
   const style = styles[move.classification];
   const { Icon } = style;
+  const showBestVariant =
+    move.bestMoveSan && move.classification !== "best";
+
   return (
     <div className="space-y-2 text-sm">
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-wrap">
         <span
           className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md ${style.bgClass}`}
         >
           <Icon className={`w-4 h-4 ${style.iconClass}`} />
           <span className="font-semibold text-gray-800">{style.label}</span>
         </span>
-        <span className="font-mono font-bold text-gray-900">{move.san}</span>
+        <button
+          type="button"
+          onClick={() => onSelectVariant("played")}
+          className={`font-mono font-bold transition-colors ${
+            selection.variant === "played"
+              ? "text-blue-600 underline"
+              : "text-gray-900 hover:text-blue-600"
+          }`}
+          title={t("showOnBoard")}
+        >
+          {move.san}
+        </button>
         <span className="text-xs text-gray-500">
           ({move.color === "white" ? t("white") : t("black")})
         </span>
       </div>
-      {move.bestMoveSan && move.classification !== "best" && (
-        <div className="flex items-center gap-2 text-gray-700">
+      {showBestVariant && (
+        <div className="flex items-center gap-2 text-gray-700 flex-wrap">
           <Trophy className="w-4 h-4 text-cyan-500" />
           <span>{t("bestWas")}</span>
-          <span className="font-mono font-bold text-cyan-700">
+          <button
+            type="button"
+            onClick={() => onSelectVariant("best")}
+            className={`font-mono font-bold transition-colors ${
+              selection.variant === "best"
+                ? "text-cyan-700 underline"
+                : "text-cyan-600 hover:text-cyan-800"
+            }`}
+            title={t("showOnBoard")}
+          >
             {move.bestMoveSan}
-          </span>
+          </button>
         </div>
       )}
       {move.cpLoss > 0 && (

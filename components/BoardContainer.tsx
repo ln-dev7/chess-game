@@ -4,6 +4,7 @@ import { forwardRef, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import ChessBoard from "./ChessBoard";
 import CapturedPieces from "./CapturedPieces";
+import EvalBar from "./EvalBar";
 import { GameState, Position, Piece } from "@/types/chess";
 import { ChessTheme } from "@/lib/chess-themes";
 
@@ -25,6 +26,8 @@ interface BoardContainerProps {
   isRotated: boolean;
   animationDuration: number;
   showEndGameOverlay: boolean;
+  /** Si défini, affiche la barre d'analyse à gauche de l'échiquier. */
+  evalBarCp?: number | null;
 }
 
 const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
@@ -41,6 +44,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
       isRotated,
       animationDuration,
       showEndGameOverlay,
+      evalBarCp,
     },
     ref
   ) => {
@@ -95,28 +99,32 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
 
           <div
             id="chess-board"
-            className={`w-full flex justify-center ${
+            className={`w-full flex justify-center items-stretch gap-2 ${
               isFullscreen ? "items-center" : ""
             }`}
             style={{
               maxWidth: isFullscreen ? "min(100vh, 100vw)" : "100%",
-              aspectRatio: "1",
               padding: isFullscreen ? "1rem" : "0",
             }}
           >
-            <ChessBoard
-              gameState={gameState}
-              onSquareClick={onSquareClick}
-              theme={theme}
-              animatingMove={animatingMove}
-              isAnimating={isAnimating}
-              onAnimationComplete={onAnimationComplete}
-              pieceStyle={pieceStyle}
-              showCoordinates={showCoordinates}
-              isRotated={isRotated}
-              animationDuration={animationDuration}
-              showEndGameOverlay={showEndGameOverlay}
-            />
+            {typeof evalBarCp === "number" && (
+              <EvalBar cpWhite={evalBarCp} isRotated={isRotated} />
+            )}
+            <div className="flex-1" style={{ aspectRatio: "1" }}>
+              <ChessBoard
+                gameState={gameState}
+                onSquareClick={onSquareClick}
+                theme={theme}
+                animatingMove={animatingMove}
+                isAnimating={isAnimating}
+                onAnimationComplete={onAnimationComplete}
+                pieceStyle={pieceStyle}
+                showCoordinates={showCoordinates}
+                isRotated={isRotated}
+                animationDuration={animationDuration}
+                showEndGameOverlay={showEndGameOverlay}
+              />
+            </div>
           </div>
         </div>
 

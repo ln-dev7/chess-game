@@ -244,6 +244,7 @@
     "bestWas": "Le meilleur coup était",
     "cpLoss": "Perte de centièmes",
     "winLoss": "Perte de win%",
+    "showOnBoard": "Voir sur l'échiquier",
     "classifications": {
       "best": "Meilleur",
       "excellent": "Excellent",

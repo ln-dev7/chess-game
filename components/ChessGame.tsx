@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useMemo, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { GameState, Position, PieceType, Piece } from "@/types/chess";
 import {
@@ -20,6 +20,11 @@ import { useGameModeStore } from "@/store/useGameModeStore";
 import { useGameVariantStore } from "@/store/useGameVariantStore";
 import { getAIMove } from "@/lib/chess-ai";
 import { preloadStockfish } from "@/lib/stockfish-engine";
+import {
+  GameAnalysisResult,
+  applyUciToState,
+} from "@/lib/game-analysis";
+import type { AnalysisSelection } from "./GameAnalysis";
 import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
 import GameAnalysis from "./GameAnalysis";
@@ -58,6 +63,10 @@ export default function ChessGame() {
   const [winnerCode, setWinnerCode] = useState<string | null>(null);
   const [showWinnerModal, setShowWinnerModal] = useState(false);
   const winnerCheckedRef = useRef(false);
+  const [analysisResult, setAnalysisResult] =
+    useState<GameAnalysisResult | null>(null);
+  const [analysisSelection, setAnalysisSelection] =
+    useState<AnalysisSelection | null>(null);
   const [gameStarted, setGameStarted] = useState(false);
 
   // Zustand stores
@@ -273,6 +282,8 @@ export default function ChessGame() {
     setShowWinnerModal(false);
     setWinnerCode(null);
     winnerCheckedRef.current = false;
+    setAnalysisResult(null);
+    setAnalysisSelection(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameVariant, chess960Position]); // Se déclenche quand la variante change
 
@@ -731,6 +742,8 @@ export default function ChessGame() {
     setShowWinnerModal(false);
     setWinnerCode(null);
     winnerCheckedRef.current = false;
+    setAnalysisResult(null);
+    setAnalysisSelection(null);
     setWhiteTime(selectedTimeControl.initialTime);
     setBlackTime(selectedTimeControl.initialTime);
     if (timerRef.current) {
@@ -776,6 +789,51 @@ export default function ChessGame() {
   const effectiveBoardRotation =
     gameMode === "ai" ? aiColor === "white" : boardRotation;
 
+  // Quand l'analyse est lancée et qu'un coup est sélectionné, on remplace
+  // l'état affiché par la position correspondante (ou par la position
+  // résultant du meilleur coup pour la variante "best"). L'eval bar à
+  // gauche reflète aussi cette position.
+  const { displayedState, evalBarCp, isInPreview } = useMemo(() => {
+    if (!analysisResult) {
+      return {
+        displayedState: gameState,
+        evalBarCp: null as number | null,
+        isInPreview: false,
+      };
+    }
+    const evals = analysisResult.positionEvalsCp;
+    if (!analysisSelection) {
+      const cp = evals.length > 0 ? evals[evals.length - 1] : 0;
+      return { displayedState: gameState, evalBarCp: cp, isInPreview: false };
+    }
+    // Rejouer la partie jusqu'au ply sélectionné.
+    let state = createInitialGameState(
+      gameVariant,
+      chess960Position || undefined
+    );
+    for (let i = 0; i < analysisSelection.ply; i++) {
+      const m = gameState.moveHistory[i];
+      if (!m) break;
+      state = executeMove(state, m.from, m.to, m.promotionPiece);
+    }
+    if (analysisSelection.variant === "played") {
+      const m = gameState.moveHistory[analysisSelection.ply];
+      if (m) state = executeMove(state, m.from, m.to, m.promotionPiece);
+      const cp = evals[analysisSelection.ply + 1] ?? evals[analysisSelection.ply] ?? 0;
+      return { displayedState: state, evalBarCp: cp, isInPreview: true };
+    }
+    // variant "best" : on applique le meilleur coup Stockfish au lieu de
+    // celui joué. L'eval visuelle reste celle de la position d'origine
+    // (Stockfish optimise depuis cette position).
+    const bestUci = analysisResult.moves[analysisSelection.ply]?.bestMoveUci;
+    if (bestUci) {
+      const next = applyUciToState(bestUci, state);
+      if (next) state = next;
+    }
+    const cp = evals[analysisSelection.ply] ?? 0;
+    return { displayedState: state, evalBarCp: cp, isInPreview: true };
+  }, [analysisResult, analysisSelection, gameState, gameVariant, chess960Position]);
+
   return (
     <div className="min-h-screen bg-white">
       <div className="max-w-7xl w-full mx-auto px-4 md:px-8 pt-4 md:pt-8">
@@ -807,12 +865,13 @@ export default function ChessGame() {
           <div className="flex-1 lg:flex-[2]">
             <BoardContainer
               ref={boardRef}
-              gameState={gameState}
-              onSquareClick={handleSquareClick}
+              gameState={displayedState}
+              onSquareClick={isInPreview ? () => {} : handleSquareClick}
               theme={theme}
-              animatingMove={animatingMove}
-              isAnimating={isAnimating}
+              animatingMove={isInPreview ? null : animatingMove}
+              isAnimating={isInPreview ? false : isAnimating}
               onAnimationComplete={handleAnimationComplete}
+              evalBarCp={evalBarCp}
               pieceStyle={pieceStyle.id}
               showCoordinates={showCoordinates}
               isRotated={effectiveBoardRotation}
@@ -854,6 +913,10 @@ export default function ChessGame() {
                     finalState={gameState}
                     gameVariant={gameVariant}
                     chess960Position={chess960Position}
+                    result={analysisResult}
+                    selection={analysisSelection}
+                    onResult={setAnalysisResult}
+                    onSelectionChange={setAnalysisSelection}
                   />
                 )}
                 <GameControls

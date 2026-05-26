@@ -244,6 +244,7 @@
     "bestWas": "Best was",
     "cpLoss": "Pawn loss",
     "winLoss": "Win loss",
+    "showOnBoard": "Show on board",
     "classifications": {
       "best": "Best",
       "excellent": "Excellent",
