@@ -33,7 +33,7 @@ export default function EvalBar({ cpWhite, isRotated = false }: EvalBarProps) {
   const labelOnTop = cpWhite < 0;
 
   return (
-    <div className="h-full w-5 md:w-6 flex flex-col rounded overflow-hidden shadow-inner border border-gray-300 bg-gray-200">
+    <div className="h-full w-5 md:w-6 flex flex-col rounded overflow-hidden shadow-inner border-2 border-gray-400 bg-gray-200">
       {showWhiteAtBottom ? (
         <>
           <div

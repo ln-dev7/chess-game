@@ -110,7 +110,10 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
             {typeof evalBarCp === "number" && (
               <EvalBar cpWhite={evalBarCp} isRotated={isRotated} />
             )}
-            <div className="flex-1" style={{ aspectRatio: "1" }}>
+            <div
+              className="flex-1 flex justify-center"
+              style={{ aspectRatio: "1" }}
+            >
               <ChessBoard
                 gameState={gameState}
                 onSquareClick={onSquareClick}

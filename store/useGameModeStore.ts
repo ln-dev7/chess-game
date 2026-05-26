@@ -17,8 +17,8 @@ interface GameModeState {
 export const useGameModeStore = create<GameModeState>()(
   persist(
     (set) => ({
-      gameMode: "pvp",
-      aiLevel: 1200, // Niveau intermédiaire par défaut
+      gameMode: "ai",
+      aiLevel: 2500, // LN GM par défaut (Stockfish pleine puissance)
       aiColor: "black",
       setGameMode: (mode) => set({ gameMode: mode }),
       setAILevel: (level) => set({ aiLevel: level }),
