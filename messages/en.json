@@ -217,6 +217,16 @@
       "2500": "LN GM"
     }
   },
+  "winnerReward": {
+    "title": "You beat LN GM!",
+    "description": "You defeated Stockfish at full strength in standard chess. Here's your reward.",
+    "discountLabel": "Discount on",
+    "planName": "Blockus Solo",
+    "codeLabel": "Your promo code",
+    "copyAriaLabel": "Copy promo code",
+    "copied": "Copied to clipboard",
+    "redeemCta": "Redeem on Blockus"
+  },
   "analysis": {
     "title": "Game Review",
     "analyzeButton": "Analyze game",

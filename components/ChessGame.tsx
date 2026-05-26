@@ -31,6 +31,7 @@ import LanguageSelector from "./LanguageSelector";
 import GameModeSelector from "./GameModeSelector";
 import AIDifficultySelector from "./AIDifficultySelector";
 import GameVariantSelector from "./GameVariantSelector";
+import WinnerRewardModal from "./WinnerRewardModal";
 
 interface AnimatingMove {
   from: Position;
@@ -54,6 +55,9 @@ export default function ChessGame() {
   );
   const [isAnimating, setIsAnimating] = useState(false);
   const [isAIThinking, setIsAIThinking] = useState(false);
+  const [winnerCode, setWinnerCode] = useState<string | null>(null);
+  const [showWinnerModal, setShowWinnerModal] = useState(false);
+  const winnerCheckedRef = useRef(false);
   const [gameStarted, setGameStarted] = useState(false);
 
   // Zustand stores
@@ -83,6 +87,61 @@ export default function ChessGame() {
       preloadStockfish();
     }
   }, [gameMode, aiLevel]);
+
+  // Easter egg : si le joueur bat l'IA LN GM (niveau 2500, full-strength
+  // Stockfish) en mode standard, le serveur lui renvoie un code promo
+  // Blockus. Chess960 et autres niveaux d'IA n'ouvrent pas le modal.
+  useEffect(() => {
+    if (winnerCheckedRef.current) return;
+    if (
+      gameMode !== "ai" ||
+      aiLevel !== 2500 ||
+      gameVariant !== "standard" ||
+      !gameState.isCheckmate ||
+      gameState.gameEndReason === "resignation" ||
+      gameState.gameEndReason === "draw"
+    ) {
+      return;
+    }
+    // Le joueur perdant est `currentPlayer` à l'arrêt de la partie. On veut
+    // que ce soit l'IA, autrement dit le joueur humain est le vainqueur.
+    if (gameState.currentPlayer !== aiColor) return;
+
+    winnerCheckedRef.current = true;
+    void (async () => {
+      try {
+        const res = await fetch("/api/winner-code", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameMode,
+            aiLevel,
+            gameVariant,
+            isCheckmate: gameState.isCheckmate,
+            gameEndReason: gameState.gameEndReason,
+            winnerColor: aiColor === "white" ? "black" : "white",
+            aiColor,
+          }),
+        });
+        if (!res.ok) return;
+        const data = (await res.json()) as { eligible: boolean; code?: string };
+        if (data.eligible && data.code) {
+          setWinnerCode(data.code);
+          setShowWinnerModal(true);
+        }
+      } catch {
+        // silently ignore — c'est un easter-egg, pas un blocker
+      }
+    })();
+  }, [
+    gameMode,
+    aiLevel,
+    gameVariant,
+    aiColor,
+    gameState.isCheckmate,
+    gameState.gameEndReason,
+    gameState.currentPlayer,
+  ]);
 
   // Démonte l'AnimatedPiece une frame APRÈS la fin de l'animation, pour que la
   // pièce statique à l'arrivée ait le temps de se monter et de peindre avant
@@ -211,6 +270,9 @@ export default function ChessGame() {
     setIsAnimating(false);
     setIsAIThinking(false);
     setGameStarted(false);
+    setShowWinnerModal(false);
+    setWinnerCode(null);
+    winnerCheckedRef.current = false;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [gameVariant, chess960Position]); // Se déclenche quand la variante change
 
@@ -666,6 +728,9 @@ export default function ChessGame() {
     setIsAnimating(false);
     setIsAIThinking(false);
     setGameStarted(false);
+    setShowWinnerModal(false);
+    setWinnerCode(null);
+    winnerCheckedRef.current = false;
     setWhiteTime(selectedTimeControl.initialTime);
     setBlackTime(selectedTimeControl.initialTime);
     if (timerRef.current) {
@@ -895,6 +960,12 @@ export default function ChessGame() {
         color={gameState.currentPlayer}
         onSelect={handlePromotion}
         pieceStyle={pieceStyle.id}
+      />
+
+      <WinnerRewardModal
+        isOpen={showWinnerModal}
+        code={winnerCode}
+        onClose={() => setShowWinnerModal(false)}
       />
     </div>
   );

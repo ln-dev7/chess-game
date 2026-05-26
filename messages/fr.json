@@ -217,6 +217,16 @@
       "2500": "LN GM"
     }
   },
+  "winnerReward": {
+    "title": "Tu as battu LN GM !",
+    "description": "Tu as vaincu Stockfish à pleine puissance en échecs standard. Voici ta récompense.",
+    "discountLabel": "Réduction sur",
+    "planName": "Blockus Solo",
+    "codeLabel": "Ton code promo",
+    "copyAriaLabel": "Copier le code promo",
+    "copied": "Copié dans le presse-papiers",
+    "redeemCta": "Profiter sur Blockus"
+  },
   "analysis": {
     "title": "Analyse de la partie",
     "analyzeButton": "Analyser la partie",
