@@ -85,6 +85,18 @@ export default function ChessGame() {
     }
   }, [gameMode, aiLevel]);
 
+  // Démonte l'AnimatedPiece une frame APRÈS la fin de l'animation, pour que la
+  // pièce statique à l'arrivée ait le temps de se monter et de peindre avant
+  // que la pièce flottante ne disparaisse. Évite le flash visible sur mobile.
+  useEffect(() => {
+    if (!isAnimating && animatingMove) {
+      const id = requestAnimationFrame(() => {
+        setAnimatingMove(null);
+      });
+      return () => cancelAnimationFrame(id);
+    }
+  }, [isAnimating, animatingMove]);
+
   // Initialiser le gestionnaire audio
   useEffect(() => {
     soundManager.setVolume(soundVolume);
@@ -344,7 +356,6 @@ export default function ChessGame() {
                   }
 
                   setGameState(newState);
-                  setAnimatingMove(null);
                   setIsAnimating(false);
                   setIsAIThinking(false);
                 }, animationDuration);
@@ -398,7 +409,6 @@ export default function ChessGame() {
                   }
 
                   setGameState(newState);
-                  setAnimatingMove(null);
                   setIsAnimating(false);
                   setIsAIThinking(false);
                 }, animationDuration);
@@ -615,7 +625,6 @@ export default function ChessGame() {
 
         setGameState(newState);
         setPendingPromotion(null);
-        setAnimatingMove(null);
         setIsAnimating(false);
       }, animationDuration);
     },
@@ -667,9 +676,9 @@ export default function ChessGame() {
       playSound("move");
     }
 
-    // Mettre à jour l'état et retirer l'animation de façon synchronisée
+    // setIsAnimating(false) déclenche le démontage différé de l'AnimatedPiece
+    // (cf. useEffect plus haut) afin d'éviter le flash visible sur mobile.
     setGameState(newState);
-    setAnimatingMove(null);
     setIsAnimating(false);
   }, [animatingMove, gameState, selectedTimeControl.increment]);
 
@@ -766,6 +775,7 @@ export default function ChessGame() {
               onSquareClick={handleSquareClick}
               theme={theme}
               animatingMove={animatingMove}
+              isAnimating={isAnimating}
               onAnimationComplete={handleAnimationComplete}
               pieceStyle={pieceStyle.id}
               showCoordinates={showCoordinates}

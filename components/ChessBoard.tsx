@@ -17,6 +17,7 @@ interface ChessBoardProps {
   onSquareClick: (position: Position) => void;
   theme: ChessTheme;
   animatingMove?: AnimatingMove | null;
+  isAnimating?: boolean;
   onAnimationComplete?: () => void;
   pieceStyle?: string;
   showCoordinates?: boolean;
@@ -29,6 +30,7 @@ export default function ChessBoard({
   onSquareClick,
   theme,
   animatingMove,
+  isAnimating = !!animatingMove,
   onAnimationComplete,
   pieceStyle = "classic",
   showCoordinates = true,
@@ -84,12 +86,16 @@ export default function ChessBoard({
               : false;
 
             // Vérifier si cette case est la source ou la destination de l'animation
-            const isAnimatingFrom = animatingMove
-              ? positionsEqual(position, animatingMove.from)
-              : false;
-            const isAnimatingTo = animatingMove
-              ? positionsEqual(position, animatingMove.to)
-              : false;
+            // Le masquage cesse dès que isAnimating passe à false, pour que la
+            // pièce d'arrivée se monte AVANT que l'AnimatedPiece ne se démonte.
+            const isAnimatingFrom =
+              animatingMove && isAnimating
+                ? positionsEqual(position, animatingMove.from)
+                : false;
+            const isAnimatingTo =
+              animatingMove && isAnimating
+                ? positionsEqual(position, animatingMove.to)
+                : false;
 
             return (
               <ChessSquare

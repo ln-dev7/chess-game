@@ -19,6 +19,7 @@ interface BoardContainerProps {
   onSquareClick: (position: Position) => void;
   theme: ChessTheme;
   animatingMove: AnimatingMove | null;
+  isAnimating: boolean;
   onAnimationComplete: () => void;
   pieceStyle: string;
   showCoordinates: boolean;
@@ -35,6 +36,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
       onSquareClick,
       theme,
       animatingMove,
+      isAnimating,
       onAnimationComplete,
       pieceStyle,
       showCoordinates,
@@ -110,6 +112,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
               onSquareClick={onSquareClick}
               theme={theme}
               animatingMove={animatingMove}
+              isAnimating={isAnimating}
               onAnimationComplete={onAnimationComplete}
               pieceStyle={pieceStyle}
               showCoordinates={showCoordinates}
