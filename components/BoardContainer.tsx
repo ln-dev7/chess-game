@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useState, useEffect, useRef } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import { X } from "lucide-react";
 import ChessBoard from "./ChessBoard";
 import CapturedPieces from "./CapturedPieces";
@@ -50,15 +50,14 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
   ) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
 
-    // L'eval bar a besoin d'une hauteur explicite : `h-full` ne fonctionne
-    // pas car le board voisin tient sa hauteur d'un aspect-ratio sur un
-    // flex-item, ce qui ne propage pas une hauteur définie au conteneur flex.
-    // On mesure donc la hauteur rendue du board et on l'applique à la barre.
-    const boardWrapRef = useRef<HTMLDivElement>(null);
+    // L'eval bar doit avoir EXACTEMENT la hauteur de la grille
+    // #chess-board-export (qui est plafonnée à max-w-2xl, donc plus petite
+    // que son wrapper en aspect-ratio). On mesure la grille réelle via un
+    // ResizeObserver et on applique cette hauteur à la barre.
     const [boardSize, setBoardSize] = useState(0);
 
     useEffect(() => {
-      const el = boardWrapRef.current;
+      const el = document.getElementById("chess-board-export");
       if (!el) return;
       const update = () => setBoardSize(el.clientHeight);
       update();
@@ -130,7 +129,6 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
               </div>
             )}
             <div
-              ref={boardWrapRef}
               className="flex-1 flex justify-center"
               style={{ aspectRatio: "1" }}
             >
