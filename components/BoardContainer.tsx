@@ -115,7 +115,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
 
           <div
             id="chess-board"
-            className={`w-full flex justify-center items-stretch gap-2 ${
+            className={`w-full flex justify-center items-start gap-2 ${
               isFullscreen ? "items-center" : ""
             }`}
             style={{
@@ -128,10 +128,7 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
                 <EvalBar cpWhite={evalBarCp} isRotated={isRotated} />
               </div>
             )}
-            <div
-              className="flex-1 flex justify-center"
-              style={{ aspectRatio: "1" }}
-            >
+            <div className="flex-1 flex justify-center min-w-0">
               <ChessBoard
                 gameState={gameState}
                 onSquareClick={onSquareClick}

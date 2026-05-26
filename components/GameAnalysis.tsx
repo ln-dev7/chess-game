@@ -19,7 +19,6 @@ import {
   MoveClassification,
 } from "@/lib/game-analysis";
 import { Card } from "./ui/card";
-import { Button } from "./ui/button";
 
 export type AnalysisSelectionVariant = "played" | "best";
 
@@ -153,42 +152,44 @@ export default function GameAnalysis({
     );
   }
 
-  return (
-    <Card className="p-5">
-      {!analyzing ? (
-        <Button
-          onClick={handleAnalyze}
-          variant="outline"
-          className="w-full justify-center gap-2"
-        >
-          <Sparkles className="w-4 h-4 text-amber-500" />
-          {t("analyzeButton")}
-        </Button>
-      ) : (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
-            <span className="text-sm font-medium text-gray-700">
-              {t("analyzing")}
-            </span>
-            <span className="ml-auto text-sm font-bold text-gray-900">
-              {progress}%
-            </span>
-          </div>
-          <div className="h-2 rounded-full bg-gray-100 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-amber-400 to-amber-500 transition-[width] duration-300"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
+  if (analyzing) {
+    return (
+      <div className="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-4 space-y-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-amber-500 animate-pulse" />
+          <span className="text-sm font-semibold text-amber-800">
+            {t("analyzing")}
+          </span>
+          <span className="ml-auto text-sm font-bold text-amber-700">
+            {progress}%
+          </span>
         </div>
-      )}
+        <div className="h-2 rounded-full bg-amber-100 overflow-hidden">
+          <div
+            className="h-full bg-gradient-to-r from-amber-400 to-orange-500 transition-[width] duration-300"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <button
+        type="button"
+        onClick={handleAnalyze}
+        className="group w-full flex items-center justify-center gap-2.5 px-4 py-3.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-semibold shadow-md shadow-amber-500/20 hover:from-amber-600 hover:to-orange-600 hover:shadow-lg hover:shadow-amber-500/30 active:scale-[0.99] transition-all duration-200"
+      >
+        <Sparkles className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110" />
+        {t("analyzeButton")}
+      </button>
       {error && (
         <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
           {t("error")}: {error}
         </p>
       )}
-    </Card>
+    </div>
   );
 }
 

@@ -861,8 +861,8 @@ export default function ChessGame() {
           </a>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 pb-8">
-          <div className="flex-1 lg:flex-[2]">
+        <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 pb-8 lg:items-start">
+          <div className="flex-1 lg:flex-[2] lg:sticky lg:top-4 lg:self-start">
             <BoardContainer
               ref={boardRef}
               gameState={displayedState}
