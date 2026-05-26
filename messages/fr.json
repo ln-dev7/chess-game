@@ -217,6 +217,19 @@
       "2500": "LN GM"
     }
   },
+  "analysis": {
+    "title": "Analyse de la partie",
+    "analyzeButton": "Analyser la partie",
+    "analyzing": "Analyse avec Stockfish",
+    "error": "Échec de l'analyse",
+    "white": "Blancs",
+    "black": "Noirs",
+    "accuracy": "Précision",
+    "gameRating": "Classement de la partie",
+    "blunders": "Gaffes",
+    "mistakes": "Erreurs",
+    "inaccuracies": "Imprécisions"
+  },
   "sound": {
     "title": "Sons",
     "enable": "Activer le son",

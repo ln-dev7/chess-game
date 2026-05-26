@@ -217,6 +217,19 @@
       "2500": "LN GM"
     }
   },
+  "analysis": {
+    "title": "Game Review",
+    "analyzeButton": "Analyze game",
+    "analyzing": "Analyzing with Stockfish",
+    "error": "Analysis failed",
+    "white": "White",
+    "black": "Black",
+    "accuracy": "Accuracy",
+    "gameRating": "Game rating",
+    "blunders": "Blunders",
+    "mistakes": "Mistakes",
+    "inaccuracies": "Inaccuracies"
+  },
   "sound": {
     "title": "Sounds",
     "enable": "Enable sound",

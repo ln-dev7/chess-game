@@ -22,6 +22,7 @@ import { getAIMove } from "@/lib/chess-ai";
 import { preloadStockfish } from "@/lib/stockfish-engine";
 import BoardContainer from "./BoardContainer";
 import GameInfo from "./GameInfo";
+import GameAnalysis from "./GameAnalysis";
 import GameControls from "./GameControls";
 import PromotionDialog from "./PromotionDialog";
 import MoveHistory from "./MoveHistory";
@@ -802,6 +803,13 @@ export default function ChessGame() {
                   />
                 )}
                 <GameInfo gameState={gameState} />
+                {gameState.moveHistory.length > 0 && (
+                  <GameAnalysis
+                    finalState={gameState}
+                    gameVariant={gameVariant}
+                    chess960Position={chess960Position}
+                  />
+                )}
                 <MoveHistory moves={gameState.moveHistory} />
                 {/* Configuration désactivée en bas */}
                 <div className="pt-4 border-t border-gray-200">
