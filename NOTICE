@@ -1,0 +1,28 @@
+Chess Game — Jeu d'Échecs
+Copyright (C) 2025 ln-dev7
+
+This program is free software: you can redistribute it and/or modify it
+under the terms of the GNU General Public License as published by the
+Free Software Foundation, version 3 of the License (see the LICENSE
+file for the full text).
+
+This program is distributed in the hope that it will be useful, but
+WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+General Public License for more details.
+
+--------------------------------------------------------------------------
+
+Third-party components
+
+This application bundles and uses Stockfish (https://stockfishchess.org/),
+a UCI chess engine, distributed under the GNU General Public License v3.0.
+Stockfish is © the Stockfish developers (see AUTHORS in the upstream
+repository: https://github.com/official-stockfish/stockfish).
+
+The bundled WebAssembly build is shipped from the `stockfish` npm package
+into `public/stockfish/` at install time. Stockfish's own LICENSE
+(Copying.txt) is preserved inside that package.
+
+Because this application links against Stockfish (GPL-3.0), the whole
+combined work is itself distributed under the GPL-3.0. See LICENSE.

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
-import { Clock, AlertTriangle } from "lucide-react";
+import { Clock, AlertTriangle, ChevronRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -10,7 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   TIME_CONTROLS,
@@ -68,15 +67,27 @@ export default function TimeControlSelector({
       }}
     >
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="w-full"
+        <button
+          type="button"
           disabled={gameStarted}
           title={gameStarted ? t("cannotChange") : ""}
+          className="w-full p-3 rounded-lg border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <Clock className="w-4 h-4 mr-2" />
-          {t("title")}
-        </Button>
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-gray-600" />
+            <div className="text-left">
+              <div className="text-sm font-medium text-gray-900">
+                {t("title")}
+              </div>
+              <div className="text-xs text-gray-500">
+                {selectedTimeControl.id
+                  ? t(`controls.${selectedTimeControl.id}.name`)
+                  : selectedTimeControl.name}
+              </div>
+            </div>
+          </div>
+          <ChevronRight className="w-5 h-5 text-gray-400" />
+        </button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[90vh]">
         <DialogHeader>

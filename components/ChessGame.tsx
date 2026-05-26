@@ -30,7 +30,7 @@ import ChessClock from "./ChessClock";
 import LanguageSelector from "./LanguageSelector";
 import GameModeSelector from "./GameModeSelector";
 import AIDifficultySelector from "./AIDifficultySelector";
-import TimeControlSelector from "./TimeControlSelector";
+import GameVariantSelector from "./GameVariantSelector";
 
 interface AnimatingMove {
   from: Position;
@@ -769,7 +769,6 @@ export default function ChessGame() {
                   }
                 />
                 <AIDifficultySelector disabled={!canChangeSettings} />
-                <TimeControlSelector gameStarted={!canChangeSettings} />
                 {/* GameInfo et MoveHistory masqués avant le début */}
                 <GameControls
                   onNewGame={handleNewGame}
@@ -780,10 +779,18 @@ export default function ChessGame() {
                   gameState={gameState}
                   boardRef={boardRef}
                 />
+                <GameVariantSelector disabled={!canChangeSettings} />
               </>
             ) : isGameOver ? (
-              /* PARTIE TERMINÉE - Bouton New Game en haut */
+              /* PARTIE TERMINÉE - Analyse + New Game en haut, puis historique */
               <>
+                {gameState.moveHistory.length > 0 && (
+                  <GameAnalysis
+                    finalState={gameState}
+                    gameVariant={gameVariant}
+                    chess960Position={chess960Position}
+                  />
+                )}
                 <GameControls
                   onNewGame={handleNewGame}
                   onResign={handleResign}
@@ -793,6 +800,8 @@ export default function ChessGame() {
                   gameState={gameState}
                   boardRef={boardRef}
                 />
+                <GameVariantSelector disabled={!canChangeSettings} />
+                <MoveHistory moves={gameState.moveHistory} />
                 {selectedTimeControl.initialTime > 0 && (
                   <ChessClock
                     whiteTime={whiteTime}
@@ -803,14 +812,6 @@ export default function ChessGame() {
                   />
                 )}
                 <GameInfo gameState={gameState} />
-                {gameState.moveHistory.length > 0 && (
-                  <GameAnalysis
-                    finalState={gameState}
-                    gameVariant={gameVariant}
-                    chess960Position={chess960Position}
-                  />
-                )}
-                <MoveHistory moves={gameState.moveHistory} />
                 {/* Configuration désactivée en bas */}
                 <div className="pt-4 border-t border-gray-200">
                   <GameModeSelector
@@ -820,9 +821,6 @@ export default function ChessGame() {
                   />
                   <div className="mt-4">
                     <AIDifficultySelector disabled={!canChangeSettings} />
-                  </div>
-                  <div className="mt-4">
-                    <TimeControlSelector gameStarted={!canChangeSettings} />
                   </div>
                 </div>
               </>
@@ -847,6 +845,7 @@ export default function ChessGame() {
                   gameState={gameState}
                   boardRef={boardRef}
                 />
+                <GameVariantSelector disabled={!canChangeSettings} />
                 {/* Configuration désactivée en bas */}
                 <div className="pt-4 border-t border-gray-200">
                   <GameModeSelector
@@ -856,9 +855,6 @@ export default function ChessGame() {
                   />
                   <div className="mt-4">
                     <AIDifficultySelector disabled={!canChangeSettings} />
-                  </div>
-                  <div className="mt-4">
-                    <TimeControlSelector gameStarted={!canChangeSettings} />
                   </div>
                 </div>
               </>
@@ -876,6 +872,7 @@ export default function ChessGame() {
                   gameState={gameState}
                   boardRef={boardRef}
                 />
+                <GameVariantSelector disabled={!canChangeSettings} />
                 {/* Configuration désactivée en bas */}
                 <div className="pt-4 border-t border-gray-200">
                   <GameModeSelector
@@ -885,9 +882,6 @@ export default function ChessGame() {
                   />
                   <div className="mt-4">
                     <AIDifficultySelector disabled={!canChangeSettings} />
-                  </div>
-                  <div className="mt-4">
-                    <TimeControlSelector gameStarted={!canChangeSettings} />
                   </div>
                 </div>
               </>

@@ -1,12 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useGameModeStore, GameMode } from "@/store/useGameModeStore";
-import { useGameVariantStore } from "@/store/useGameVariantStore";
-import { Users, Cpu, Shuffle } from "lucide-react";
+import { Users, Cpu } from "lucide-react";
 import { Card } from "./ui/card";
-import GameVariantDialog from "./GameVariantDialog";
+import TimeControlSelector from "./TimeControlSelector";
 
 interface GameModeSelectorProps {
   disabled?: boolean;
@@ -20,11 +18,8 @@ export default function GameModeSelector({
   showStartButton = false,
 }: GameModeSelectorProps) {
   const t = useTranslations("gameMode");
-  const tVariant = useTranslations("gameVariant");
   const tCommon = useTranslations("common");
   const { gameMode, setGameMode, aiColor, setAIColor } = useGameModeStore();
-  const { gameVariant } = useGameVariantStore();
-  const [isVariantDialogOpen, setIsVariantDialogOpen] = useState(false);
 
   const modes: Array<{
     id: GameMode;
@@ -93,38 +88,9 @@ export default function GameModeSelector({
           ))}
         </div>
 
-        {/* Bouton Variante de jeu */}
+        {/* Bouton Cadence (Game Type) */}
         <div className="pt-3 border-t border-gray-200">
-          <button
-            onClick={() => setIsVariantDialogOpen(true)}
-            disabled={disabled}
-            className="w-full p-3 rounded-lg border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <div className="flex items-center gap-2">
-              <Shuffle className="w-5 h-5 text-gray-600" />
-              <div className="text-left">
-                <div className="text-sm font-medium text-gray-900">
-                  {tVariant("title")}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {gameVariant === "chess960" ? tVariant("chess960") : tVariant("standard")}
-                </div>
-              </div>
-            </div>
-            <svg
-              className="w-5 h-5 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+          <TimeControlSelector gameStarted={disabled} />
         </div>
 
         {gameMode === "ai" && (
@@ -210,12 +176,6 @@ export default function GameModeSelector({
           </p>
         )}
       </div>
-
-      <GameVariantDialog
-        isOpen={isVariantDialogOpen}
-        onClose={() => setIsVariantDialogOpen(false)}
-        disabled={disabled}
-      />
     </Card>
   );
 }
