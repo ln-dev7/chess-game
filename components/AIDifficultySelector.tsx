@@ -114,7 +114,7 @@ export default function AIDifficultySelector({
                     }
                   `}
                 >
-                  {info.elo}
+                  {info.displayLabel ?? info.elo}
                 </div>
 
                 <div className="flex flex-col items-center gap-2.5">

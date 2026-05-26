@@ -9,13 +9,13 @@
  * - Bonus pour l'adaptation selon le niveau de l'IA
  * - Priorité accrue pour la sécurité du roi en Chess960
  *
- * Niveaux d'IA calibrés selon le système Elo:
- * - 400:  Débutant (2-3 demi-coups, 30% erreurs)
- * - 800:  Amateur (3 demi-coups, 20% erreurs)
- * - 1200: Intermédiaire (4-5 demi-coups, 15% erreurs)
- * - 1600: Avancé (5-6 demi-coups, 10% erreurs)
- * - 2000: Expert (6-8 demi-coups, 5% erreurs)
- * - 2500: Maître (9-10+ demi-coups, <2% erreurs)
+ * Niveaux d'IA :
+ * - 400:  Débutant (heuristique maison, 30% blunders)
+ * - 800:  Amateur  (heuristique maison, 20% blunders)
+ * - 1200: Intermédiaire (Stockfish, Skill Level 1)
+ * - 1600: Avancé        (Stockfish, UCI_Elo 1600)
+ * - 2000: Expert        (Stockfish, UCI_Elo 2000)
+ * - 2500: GM            (Stockfish pleine puissance, aucune limite)
  *
  * En Chess960:
  * - Pas d'ouvertures mémorisées
@@ -43,6 +43,8 @@ export interface AIMove {
 interface AILevelConfig {
   name: string;
   elo: number;
+  /** Override pour le badge affiché (ex. "GM"). Sinon `elo` est utilisé. */
+  displayLabel?: string;
   description: string;
   blunderProbability: number; // Probabilité de faire une erreur flagrante
   tacticalDepth: number; // Profondeur de recherche tactique (1-4 coups)
@@ -121,17 +123,18 @@ const AI_CONFIGS: Record<AILevel, AILevelConfig> = {
     chess960Adaptability: 0.95, // Excellente adaptation au Chess960
   },
   2500: {
-    name: "LN Maître",
-    elo: 2500,
-    description: "Niveau maître - Jeu quasi-parfait, exploite Chess960",
-    blunderProbability: 0.02, // < 2% - Presque jamais d'erreurs
-    tacticalDepth: 6, // 9-10+ demi-coups
-    strategicWeight: 1.0, // Compréhension parfaite
-    randomness: 0.01, // Variance minimale, jeu optimal
-    developpementWeight: 1.0, // Développement parfait et créatif
-    centerControlWeight: 1.0, // Contrôle absolu selon position
-    kingSafetyWeight: 1.0, // Sécurité optimale en toutes phases
-    chess960Adaptability: 1.0, // Maîtrise totale du Chess960
+    name: "LN GM",
+    elo: 2500, // Identifiant interne — la vraie force est celle de Stockfish sans limite
+    displayLabel: "GM",
+    description: "Stockfish pleine puissance, aucun bridage UCI_Elo",
+    blunderProbability: 0, // Stockfish ne blunder pas
+    tacticalDepth: 6,
+    strategicWeight: 1.0,
+    randomness: 0,
+    developpementWeight: 1.0,
+    centerControlWeight: 1.0,
+    kingSafetyWeight: 1.0,
+    chess960Adaptability: 1.0,
   },
 };
 
@@ -782,7 +785,8 @@ const STOCKFISH_LEVELS: Partial<Record<AILevel, StockfishLevelConfig>> = {
   1200: { skillLevel: 1, depth: 8, movetimeMs: 300 },
   1600: { uciElo: 1600, movetimeMs: 700 },
   2000: { uciElo: 2000, movetimeMs: 1100 },
-  2500: { uciElo: 2500, movetimeMs: 1600 },
+  // GM : pas de bridage UCI_Elo, Stockfish joue à sa pleine puissance.
+  2500: { movetimeMs: 3000 },
 };
 
 /**
@@ -831,25 +835,23 @@ async function getStockfishMove(
   aiColor: PieceColor
 ): Promise<AIMove | null> {
   const cfg = STOCKFISH_LEVELS[aiLevel];
-  if (!cfg) return null;
-
-  try {
-    const fen = gameStateToStockfishFEN(gameState);
-    const uci = await searchBestMove({
-      fen,
-      chess960: gameState.isChess960,
-      uciElo: cfg.uciElo,
-      skillLevel: cfg.skillLevel,
-      depth: cfg.depth,
-      movetimeMs: cfg.movetimeMs,
-    });
-    if (!uci) return null;
-    return uciToAIMove(uci, gameState, aiColor);
-  } catch (err) {
-    // En cas d'échec (worker indisponible, etc.), retomber sur l'heuristique
-    console.error("[chess-ai] Stockfish failed, falling back to heuristic:", err);
-    return findBestMove(gameState, aiColor, AI_CONFIGS[aiLevel]);
+  if (!cfg) {
+    throw new Error(`[chess-ai] No Stockfish config for level ${aiLevel}`);
   }
+
+  // Pas de fallback heuristique : si Stockfish échoue, l'erreur remonte au
+  // consommateur (ChessGame.tsx) qui réinitialise l'état IA.
+  const fen = gameStateToStockfishFEN(gameState);
+  const uci = await searchBestMove({
+    fen,
+    chess960: gameState.isChess960,
+    uciElo: cfg.uciElo,
+    skillLevel: cfg.skillLevel,
+    depth: cfg.depth,
+    movetimeMs: cfg.movetimeMs,
+  });
+  if (!uci) return null;
+  return uciToAIMove(uci, gameState, aiColor);
 }
 
 async function getHeuristicMove(
