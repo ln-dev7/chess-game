@@ -13,7 +13,6 @@ import {
 } from "lucide-react";
 import { useGameModeStore } from "@/store/useGameModeStore";
 import { AILevel, getAILevelInfo } from "@/lib/chess-ai";
-import { Card } from "./ui/card";
 import {
   Dialog,
   DialogContent,
@@ -102,12 +101,12 @@ export default function AIDifficultySelector({
   }
 
   return (
-    <Card className="p-4 bg-white">
+    <>
       <button
         type="button"
         onClick={() => !disabled && setIsOpen(true)}
         disabled={disabled}
-        className="w-full p-3 rounded-lg border-2 border-gray-200 hover:border-gray-300 transition-all duration-200 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
+        className="w-full p-4 rounded-xl border bg-white hover:border-gray-300 hover:shadow-sm transition-all duration-200 flex items-center justify-between disabled:opacity-50 disabled:cursor-not-allowed"
       >
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg ${currentStyle.textColor} bg-gray-50`}>
@@ -219,6 +218,6 @@ export default function AIDifficultySelector({
           )}
         </DialogContent>
       </Dialog>
-    </Card>
+    </>
   );
 }

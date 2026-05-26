@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useState, useEffect } from "react";
+import { forwardRef, useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import ChessBoard from "./ChessBoard";
 import CapturedPieces from "./CapturedPieces";
@@ -49,6 +49,23 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
     ref
   ) => {
     const [isFullscreen, setIsFullscreen] = useState(false);
+
+    // L'eval bar a besoin d'une hauteur explicite : `h-full` ne fonctionne
+    // pas car le board voisin tient sa hauteur d'un aspect-ratio sur un
+    // flex-item, ce qui ne propage pas une hauteur définie au conteneur flex.
+    // On mesure donc la hauteur rendue du board et on l'applique à la barre.
+    const boardWrapRef = useRef<HTMLDivElement>(null);
+    const [boardSize, setBoardSize] = useState(0);
+
+    useEffect(() => {
+      const el = boardWrapRef.current;
+      if (!el) return;
+      const update = () => setBoardSize(el.clientHeight);
+      update();
+      const ro = new ResizeObserver(update);
+      ro.observe(el);
+      return () => ro.disconnect();
+    }, []);
 
     useEffect(() => {
       const handleFullscreenChange = () => {
@@ -107,10 +124,13 @@ const BoardContainer = forwardRef<HTMLDivElement, BoardContainerProps>(
               padding: isFullscreen ? "1rem" : "0",
             }}
           >
-            {typeof evalBarCp === "number" && (
-              <EvalBar cpWhite={evalBarCp} isRotated={isRotated} />
+            {typeof evalBarCp === "number" && boardSize > 0 && (
+              <div style={{ height: boardSize }}>
+                <EvalBar cpWhite={evalBarCp} isRotated={isRotated} />
+              </div>
             )}
             <div
+              ref={boardWrapRef}
               className="flex-1 flex justify-center"
               style={{ aspectRatio: "1" }}
             >
