@@ -107,6 +107,7 @@ export default function GameAnalysis({
   const [analyzing, setAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [precise, setPrecise] = useState(false);
 
   async function handleAnalyze() {
     setAnalyzing(true);
@@ -118,6 +119,7 @@ export default function GameAnalysis({
         gameVariant,
         chess960Position: chess960Position ?? undefined,
         finalState,
+        precise,
         onProgress: (current, total) => {
           setProgress(total > 0 ? Math.round((current / total) * 100) : 0);
         },
@@ -175,7 +177,7 @@ export default function GameAnalysis({
   }
 
   return (
-    <div>
+    <div className="space-y-2.5">
       <button
         type="button"
         onClick={handleAnalyze}
@@ -184,8 +186,34 @@ export default function GameAnalysis({
         <Sparkles className="w-5 h-5 transition-transform duration-200 group-hover:rotate-12 group-hover:scale-110" />
         {t("analyzeButton")}
       </button>
+
+      {/* Toggle « analyse précise » : recherche plus profonde, plus lente. */}
+      <button
+        type="button"
+        onClick={() => setPrecise((p) => !p)}
+        className="w-full flex items-center justify-between gap-2 px-3 py-2 rounded-lg border border-gray-200 hover:border-gray-300 transition-colors"
+      >
+        <span className="flex flex-col text-left">
+          <span className="text-sm font-medium text-gray-800">
+            {t("preciseLabel")}
+          </span>
+          <span className="text-xs text-gray-500">{t("preciseHint")}</span>
+        </span>
+        <span
+          className={`relative inline-flex h-5 w-9 flex-shrink-0 items-center rounded-full transition-colors ${
+            precise ? "bg-amber-500" : "bg-gray-300"
+          }`}
+        >
+          <span
+            className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
+              precise ? "translate-x-4" : "translate-x-0.5"
+            }`}
+          />
+        </span>
+      </button>
+
       {error && (
-        <p className="mt-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
+        <p className="mt-1 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md p-2">
           {t("error")}: {error}
         </p>
       )}

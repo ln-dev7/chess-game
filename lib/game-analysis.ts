@@ -25,10 +25,14 @@ import {
 } from "./stockfish-engine";
 import { moveToAlgebraic } from "./pgn-utils";
 
-/** Temps de réflexion par position (en ms) pour l'analyse. */
+/** Temps de réflexion par position (en ms) pour l'analyse standard. */
 const ANALYSIS_MOVETIME_MS = 800;
-/** Profondeur plafond : Stockfish s'arrête au premier des deux atteints. */
+/** Profondeur plafond standard : Stockfish s'arrête au premier des deux. */
 const ANALYSIS_DEPTH = 18;
+/** Mode « analyse précise » : recherche plus longue et plus profonde
+ *  (même moteur lite-single, mais évaluation nettement plus fiable). */
+const PRECISE_MOVETIME_MS = 2000;
+const PRECISE_DEPTH = 24;
 /** Plafond du centipawn loss par coup, pour ne pas qu'une position très
  *  gagnante (+800 cp → +300 cp) fasse exploser l'ACPL artificiellement. */
 const CPL_CAP = 300;
@@ -85,6 +89,8 @@ export interface AnalyzeGameOptions {
   chess960Position?: number;
   finalState: GameState;
   movetimeMs?: number;
+  /** Active la recherche profonde (depth 24 / 2s par coup). */
+  precise?: boolean;
   onProgress?: (current: number, total: number) => void;
 }
 
@@ -233,7 +239,10 @@ export async function analyzeGame(
   options: AnalyzeGameOptions
 ): Promise<GameAnalysisResult> {
   const { gameVariant, chess960Position, finalState, onProgress } = options;
-  const movetimeMs = options.movetimeMs ?? ANALYSIS_MOVETIME_MS;
+  const movetimeMs =
+    options.movetimeMs ??
+    (options.precise ? PRECISE_MOVETIME_MS : ANALYSIS_MOVETIME_MS);
+  const depth = options.precise ? PRECISE_DEPTH : ANALYSIS_DEPTH;
 
   // Reconstruit toutes les positions successives.
   let state = createInitialGameState(gameVariant, chess960Position);
@@ -262,7 +271,7 @@ export async function analyzeGame(
     const ev = await evaluatePosition({
       fen,
       movetimeMs,
-      depth: ANALYSIS_DEPTH,
+      depth,
       chess960: positions[i].isChess960,
       skipSetup: true,
     });

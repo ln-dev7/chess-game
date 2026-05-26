@@ -230,6 +230,8 @@
   "analysis": {
     "title": "Analyse de la partie",
     "analyzeButton": "Analyser la partie",
+    "preciseLabel": "Analyse précise",
+    "preciseHint": "Recherche plus profonde — plus lente mais plus fiable",
     "analyzing": "Analyse avec Stockfish",
     "error": "Échec de l'analyse",
     "white": "Blancs",

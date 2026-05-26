@@ -756,6 +756,8 @@ export default function ChessGame() {
 
   const handleStartGame = useCallback(() => {
     setGameStarted(true);
+    // Sur mobile, ramener en haut pour voir l'échiquier dès le lancement.
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }, []);
 
   const handleResign = useCallback(() => {

@@ -230,6 +230,8 @@
   "analysis": {
     "title": "Game Review",
     "analyzeButton": "Analyze game",
+    "preciseLabel": "Precise analysis",
+    "preciseHint": "Deeper search — slower but more accurate",
     "analyzing": "Analyzing with Stockfish",
     "error": "Analysis failed",
     "white": "White",
