@@ -305,57 +305,70 @@ export function isKingInCheck(
 }
 
 /**
- * Vérifie s'il y a un matériel insuffisant pour mater
+ * Vérifie s'il y a un matériel insuffisant pour mater.
+ *
+ * Définition « pratique » : la partie est nulle dès qu'AUCUN camp ne peut
+ * forcer le mat (et pas seulement quand le mat est littéralement impossible).
+ *
+ * Sont déclarés nuls :
+ *  - Roi contre Roi
+ *  - Roi + 1 pièce mineure (Fou ou Cavalier) contre Roi
+ *  - Roi + Fou contre Roi + Fou (n'importe quelle couleur de cases)
+ *  - Roi + Fou contre Roi + Cavalier
+ *  - Roi + Cavalier contre Roi + Cavalier
+ *  - Roi + 2 Cavaliers contre Roi (le mat ne peut pas être forcé)
+ *  - tous les Fous d'un camp sur des cases de la même couleur
+ *
+ * Restent jouables (matériel suffisant) :
+ *  - présence d'une Dame, d'une Tour ou d'un Pion
+ *  - Roi + Fou + Cavalier contre Roi
+ *  - paire de Fous (cases de couleurs différentes) contre Roi
  */
 export function hasInsufficientMaterial(board: (Piece | null)[][]): boolean {
-  const pieces: Piece[] = [];
+  // Pour chaque couleur : couleurs de cases occupées par les fous + nombre de cavaliers
+  const bishopSquareColors: Record<PieceColor, Set<number>> = {
+    white: new Set(),
+    black: new Set(),
+  };
+  const knightCount: Record<PieceColor, number> = { white: 0, black: 0 };
 
   for (let row = 0; row < 8; row++) {
     for (let col = 0; col < 8; col++) {
       const piece = board[row][col];
-      if (piece && piece.type !== "king") {
-        pieces.push(piece);
+      if (!piece) continue;
+
+      // Une Dame, une Tour ou un Pion suffit à mater → matériel suffisant
+      if (
+        piece.type === "queen" ||
+        piece.type === "rook" ||
+        piece.type === "pawn"
+      ) {
+        return false;
+      }
+
+      if (piece.type === "bishop") {
+        bishopSquareColors[piece.color].add((row + col) % 2);
+      } else if (piece.type === "knight") {
+        knightCount[piece.color] += 1;
       }
     }
   }
 
-  // Roi contre roi
-  if (pieces.length === 0) return true;
+  // Un camp peut-il forcer le mat contre le roi adverse ?
+  const canForceMate = (color: PieceColor): boolean => {
+    const bishopColors = bishopSquareColors[color].size;
+    const knights = knightCount[color];
 
-  // Roi + fou contre roi ou roi + cavalier contre roi
-  if (pieces.length === 1) {
-    const piece = pieces[0];
-    return piece.type === "bishop" || piece.type === "knight";
-  }
+    // Paire de fous sur des couleurs différentes
+    if (bishopColors >= 2) return true;
+    // Fou + Cavalier
+    if (bishopColors >= 1 && knights >= 1) return true;
+    // Trois cavaliers ou plus (deux ne suffisent pas à forcer le mat)
+    if (knights >= 3) return true;
 
-  // Roi + fou contre roi + fou (même couleur de cases)
-  if (pieces.length === 2) {
-    const [piece1, piece2] = pieces;
-    if (piece1.type === "bishop" && piece2.type === "bishop") {
-      // Trouver les positions des fous pour vérifier la couleur des cases
-      let bishop1Pos: Position | null = null;
-      let bishop2Pos: Position | null = null;
+    return false;
+  };
 
-      for (let row = 0; row < 8; row++) {
-        for (let col = 0; col < 8; col++) {
-          const piece = board[row][col];
-          if (piece && piece.type === "bishop") {
-            if (!bishop1Pos) {
-              bishop1Pos = { row, col };
-            } else {
-              bishop2Pos = { row, col };
-            }
-          }
-        }
-      }
-
-      if (bishop1Pos && bishop2Pos) {
-        const color1 = (bishop1Pos.row + bishop1Pos.col) % 2;
-        const color2 = (bishop2Pos.row + bishop2Pos.col) % 2;
-        return color1 === color2;
-      }
-    }
-  }
-
-  return false;
+  // Nulle si aucun des deux camps ne peut forcer le mat
+  return !canForceMate("white") && !canForceMate("black");
 }

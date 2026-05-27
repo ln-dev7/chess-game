@@ -1,5 +1,5 @@
 import { GameState, Move, PieceType } from "@/types/chess";
-import { positionToAlgebraic } from "./chess-utils";
+import { positionToAlgebraic, hasInsufficientMaterial } from "./chess-utils";
 import { getPossibleMoves } from "./chess-engine";
 
 /**
@@ -179,16 +179,37 @@ function getTerminationTag(gameState: GameState): string | null {
         ? "White wins by timeout"
         : "Black wins by timeout";
     case "draw":
-      if (gameState.isStalemate) {
-        return "Stalemate";
-      } else if (gameState.halfMoveClock >= 100) {
-        return "Draw by fifty-move rule";
-      } else {
-        return "Draw by agreement";
-      }
+      return getDrawReason(gameState);
     default:
       return null;
   }
+}
+
+/**
+ * Détermine la raison précise d'une nulle
+ */
+function getDrawReason(gameState: GameState): string {
+  if (gameState.isStalemate) {
+    return "Stalemate";
+  } else if (gameState.halfMoveClock >= 100) {
+    return "Draw by fifty-move rule";
+  } else if (hasThreefoldRepetition(gameState)) {
+    return "Draw by threefold repetition";
+  } else if (hasInsufficientMaterial(gameState.board)) {
+    return "Draw by insufficient material";
+  } else {
+    return "Draw by agreement";
+  }
+}
+
+/**
+ * Vérifie si une position s'est répétée au moins trois fois
+ */
+function hasThreefoldRepetition(gameState: GameState): boolean {
+  for (const count of gameState.positionHistory.values()) {
+    if (count >= 3) return true;
+  }
+  return false;
 }
 
 /**
@@ -207,13 +228,7 @@ function getEndComment(gameState: GameState): string | null {
         ? "Black wins by timeout."
         : "White wins by timeout.";
     case "draw":
-      if (gameState.isStalemate) {
-        return "Stalemate.";
-      } else if (gameState.halfMoveClock >= 100) {
-        return "Draw by fifty-move rule.";
-      } else {
-        return "Draw by agreement.";
-      }
+      return `${getDrawReason(gameState)}.`;
     default:
       return null;
   }
